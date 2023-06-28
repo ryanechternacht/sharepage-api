@@ -4,7 +4,8 @@
             [partnorize-api.data.questions :as questions]))
 
 (def ^:private base-orbit-query
-  (-> (h/select :orbit.id :orbit.name :orbit.organization_id)
+  (-> (h/select :orbit.id :orbit.name :orbit.organization_id
+                :orbit.status :orbit.logo)
       (h/from :orbit)))
 
 (defn get-orbits-by-id [db ids]
@@ -26,10 +27,10 @@
 (defn get-full-orbit [db id]
   (let [orbit (get-orbit-by-id db id)
         qs (questions/get-questions-by-orbit db id)
-        qs-grouped-sorted (update-vals (group-by :page qs) #(sort-by :ordering %))]
-    (assoc orbit :questions qs-grouped-sorted)))
+        qs-grouped-sorted (update-vals (group-by :page qs) #(hash-map :questions (sort-by :ordering %)))]
+    (assoc orbit :pages qs-grouped-sorted)))
 
-(comment 
+(comment
   (get-orbit-by-id db/local-db 1)
   (get-orbits-by-organization db/local-db 1)
   (get-full-orbit db/local-db 1)

@@ -6,7 +6,7 @@
   (-> (h/select :question.id :question.orbit_id 
                 :question.organization_id :question.page
                 :question.ordering :question.type
-                :question.answer)
+                :question.question :question.answer)
       (h/from :question)))
 
 (defn get-questions-by-orbit [db orbit-id]

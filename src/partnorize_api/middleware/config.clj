@@ -10,6 +10,7 @@
 ; This form has the advantage that changes to wrap-debug-impl are
 ; automatically reflected in the handler (due to the lookup in `wrap-config`)
 (defn- wrap-config-impl [handler request]
+  (println "config" (:session request) (:session/key request) (keys request))
   (handler (assoc request :config config)))
 
 (defn wrap-config [h] (partial #'wrap-config-impl h))

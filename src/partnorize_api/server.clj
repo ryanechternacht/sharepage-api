@@ -1,6 +1,5 @@
 (ns partnorize-api.server
-  (:require [jdbc-ring-session.core :refer [jdbc-store]]
-            [ring.adapter.jetty :refer [run-jetty]]
+  (:require [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.cors :refer [wrap-cors]]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.middleware.multipart-params :refer [wrap-multipart-params]]
@@ -8,20 +7,16 @@
             [ring.middleware.session :refer [wrap-session]]
             [partnorize-api.middleware.config :refer [wrap-config config]]
             [partnorize-api.middleware.db :refer [wrap-db]]
+            [partnorize-api.middleware.stytch-store :refer [stytch-store]]
+            [partnorize-api.middleware.users :refer [wrap-user]]
             [partnorize-api.routes :as r]))
 
-(def session-store (jdbc-store (:pg-db config)))
-
-;; (ns yardstick-api.server
-;;   (:require 
-;;             [yardstick-api.middlewares.language :refer [wrap-language]]
-;;             [yardstick-api.middlewares.user :refer [wrap-user]]
-;;             [yardstick-api.routes :as r]))
+(def session-store (stytch-store (:stytch config)))
 
 (def handler
   (-> r/routes
       (wrap-json-body {:keywords? true})
-      ;; wrap-user
+      wrap-user
       wrap-db
       wrap-config
       (wrap-session {:store session-store :cookie-attrs (:cookie-attrs config)})
