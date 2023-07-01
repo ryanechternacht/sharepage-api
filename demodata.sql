@@ -1,5 +1,5 @@
 insert into organization (name, domain, subdomain) 
-  values ('test org', 'google.com', 'google');
+  values ('Dunder Mifflin', 'https://www.dunder-mifflin.com', 'dunder-mifflin');
 
 insert into orbit (organization_id, name, status, logo) 
   values (1, 'test orbit', 'active', 'https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/colored_flagscape-v2.png');

@@ -1,23 +1,13 @@
 (ns partnorize-api.middleware.stytch-store
-  (:require [cheshire.core :as json]
-            [clj-http.client :as http]
-            [ring.middleware.session.store :as rs]))
+  (:require [ring.middleware.session.store :as rs]
+            [partnorize-api.external-api.stytch :as stytch]))
 
-(deftype StytchStore [authenticate-url project secret]
+(deftype StytchStore [stytch-config]
   rs/SessionStore
   (read-session
-    [_ key]
+    [_ session-token]
     ;; TODO pull this out?
-    (-> (http/post authenticate-url
-                   {:content-type :json
-                    :basic-auth [project secret]
-                    :body (json/generate-string
-                           {:session_token key
-                            :session_duration_minutes 1440})
-                    :accept :json
-                    :as :json})
-        :body
-        :member))
+    (stytch/authenticate-session stytch-config session-token))
   (write-session
     [_ _ value]
     value)
@@ -28,5 +18,5 @@
 
 (defn stytch-store 
   "creates a store backed by stytch.com identity service"
-  [{:keys [authenticate-url project secret]}]
-  (StytchStore. authenticate-url project secret))
+  [stytch-config]
+  (StytchStore. stytch-config))
