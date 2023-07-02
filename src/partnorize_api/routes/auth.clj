@@ -1,43 +1,40 @@
 (ns partnorize-api.routes.auth
-    (:require [compojure.core :refer [GET]]
+    (:require [compojure.core :refer [GET POST]]
+              [lambdaisland.uri :as uri]
               [ring.util.response :refer [response redirect bad-request]]
               [partnorize-api.data.organizations :as d-org]
               [partnorize-api.external-api.stytch :as stytch]))
 
 (defn set-session [session_token response]
-  ;; TODO is this secure? I think so?
-  (assoc response
-         :session session_token))
+  (assoc response :session session_token))
 
-;; (def GET-login
-;;   (GET "/login" []
-;;     (println "new-login-3")
-;;     (set-session (response "login"))))
+(defn- make-frontend-url [frontend-base-url slug path]
+  (-> (uri/uri frontend-base-url)
+      (update :host #(str slug "." %))
+      (assoc :path path)
+      str))
 
-;; (def GET-login2
-;;   (GET "/login2" []
-;;     {:status 200
-;;      :headers {"Content-Type" "text/html"}
-;;      :body (str "<h1>Hello World!</h1>")
-;;      :session "I am a session. Fear me."}))
-
-;; http://localhost:3000/login?
-;;   slug=dunder-mifflin&
-;;   stytch_token_type=multi_tenant_magic_links&
-;;   token=f6IvHgJT7nsAq7hY8H05Va2CvHKDtkavbycyV5fhvn-w
-
-(defn- magic-link-login [db {:keys [stytch]} slug token]
+(defn- magic-link-login [db stytch-config frontend-base-url slug token]
   (let [org (d-org/get-by-subdomain db slug)
-        session_token (stytch/authenticate-magic-link stytch token)]
+        session_token (stytch/authenticate-magic-link stytch-config token)]
     (if (and org session_token)
       ;; TODO this should redirect to the right subdomain
-      (set-session session_token (redirect "http://localhost:3000/"))
-      (redirect "http://localhost:3000/login"))))
+      (set-session session_token (redirect (make-frontend-url frontend-base-url slug "")))
+      (redirect (make-frontend-url frontend-base-url slug "/login")))))
 
 (def GET-login
-  (GET "/v0.1/login" [slug stytch_token_type token :as {db :db config :config}]
+  (GET "/v0.1/login" [slug stytch_token_type token :as {:keys [db config]}]
     (condp = stytch_token_type
-      "multi_tenant_magic_links" (magic-link-login db config slug token)
+      "multi_tenant_magic_links" (magic-link-login
+                                  db
+                                  (:stytch config)
+                                  (-> config :front-end :base-url)
+                                  slug
+                                  token)
       (bad-request "Unknown stytch_token_type"))))
 
-;; TODO add a link to generate the email
+(def POST-send-magic-link-login-email
+  (POST "/v0.1/send-magic-link-login-email" {:keys [organization config body]}
+    (if (stytch/send-magic-link-email (:stytch config) (:user_email body) (:stytch_organization_id organization))
+      (response "Email sent")
+      (bad-request "Email could not be sent"))))

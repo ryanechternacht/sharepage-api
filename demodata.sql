@@ -1,5 +1,5 @@
-insert into organization (name, domain, subdomain) 
-  values ('Dunder Mifflin', 'https://www.dunder-mifflin.com', 'dunder-mifflin');
+insert into organization (name, domain, subdomain, stytch_organization_id) 
+  values ('Dunder Mifflin', 'https://www.dunder-mifflin.com', 'dunder-mifflin', 'organization-test-07589695-ff20-4147-bdf2-6faacf896950');
 
 insert into orbit (organization_id, name, status, logo) 
   values (1, 'test orbit', 'active', 'https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/colored_flagscape-v2.png');

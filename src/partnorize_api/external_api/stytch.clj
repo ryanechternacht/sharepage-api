@@ -29,8 +29,8 @@
       nil)))
 
 (defn authenticate-magic-link
-  "Authenticates the magic link login attempt with stytch. 
-   Returns the a session identifier user or nil if the session isn't valid"
+  "Authenticates the magic link login attempt with stytch.
+   Returns the a session identifier user or nil if the session isn't valid."
   [{:keys [magic-link-authenticate-url project secret]}
    magic-link-token]
   (try 
@@ -41,5 +41,19 @@
                            :session_duration_minutes default-session-timeout_minutes})
         :body
         :session_token)
+    (catch Exception _
+      nil)))
+
+(defn send-magic-link-email
+  "Sends the user a magic-email-link. Returns a truthy value if the
+   email was sent and a falsey value if it wasn't"
+  [{:keys [send-magic-link-email-url project secret]}
+   user-email stytch-organization-id]
+  (try
+    (-> (make-stytch-call send-magic-link-email-url
+                          project
+                          secret
+                          {:email_address user-email
+                           :organization_id stytch-organization-id}))
     (catch Exception _
       nil)))

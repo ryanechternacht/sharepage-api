@@ -20,5 +20,6 @@
   #'GET-root-healthz
   #'orbits/GET-orbits
   #'auth/GET-login
+  #'auth/POST-send-magic-link-login-email
   get-404
   post-404)

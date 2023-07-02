@@ -4,7 +4,8 @@
 
 (def ^:private base-organizations-query
   (-> (h/select :organization.id :organization.name
-                :organization.subdomain :organization.domain)
+                :organization.subdomain :organization.domain
+                :organization.stytch_organization_id)
       (h/from :organization)))
 
 (defn get-by-subdomain [db subdomain]
