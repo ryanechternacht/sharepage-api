@@ -7,6 +7,7 @@
             [ring.middleware.session :refer [wrap-session]]
             [partnorize-api.middleware.config :refer [wrap-config config]]
             [partnorize-api.middleware.db :refer [wrap-db]]
+            [partnorize-api.middleware.organization :refer [wrap-organization]]
             [partnorize-api.middleware.stytch-store :refer [stytch-store]]
             [partnorize-api.middleware.users :refer [wrap-user]]
             [partnorize-api.routes :as r]))
@@ -17,6 +18,7 @@
   (-> r/routes
       (wrap-json-body {:keywords? true})
       wrap-user
+      wrap-organization
       wrap-db
       wrap-config
       (wrap-session {:store session-store :cookie-attrs (:cookie-attrs config)})
