@@ -1,8 +1,13 @@
-insert into organization (name, domain, subdomain, stytch_organization_id) 
-  values ('Dunder Mifflin', 'https://www.dunder-mifflin.com', 'dunder-mifflin', 'organization-test-07589695-ff20-4147-bdf2-6faacf896950');
+insert into organization (name, domain, subdomain, logo, stytch_organization_id) 
+  values ('House Atriedes', 
+    'https://www.house-atriedes.com', 
+    'atreides', 
+    '/house_atreides.webp', 
+    'organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e'
+);
 
 insert into orbit (organization_id, name, status, logo) 
-  values (1, 'test orbit', 'active', 'https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/logos/colored_flagscape-v2.png');
+  values (1, 'House Corrino', 'active', '/house_corrino.png');
 
 insert into question (organization_id, orbit_id, page, 
   ordering, type, question, answer) values
@@ -22,3 +27,5 @@ insert into question (organization_id, orbit_id, page,
   '💾 How we save time', 
   '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Massa placerat duis ultricies lacus sed turpis tincidunt id aliquet. Diam in arcu cursus euismod quis viverra nibh."}')
 ;
+
+insert into user_account (email, organization_id, role) values ('ryan@echternacht.org', 1, 'admin');

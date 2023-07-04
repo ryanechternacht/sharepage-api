@@ -10,6 +10,7 @@
             [partnorize-api.middleware.organization :refer [wrap-organization]]
             [partnorize-api.middleware.stytch-store :refer [stytch-store]]
             [partnorize-api.middleware.users :refer [wrap-user]]
+            ;; [ring.middleware.cookies :refer [wrap-cookies]]
             [partnorize-api.routes :as r]))
 
 (def session-store (stytch-store (:stytch config)))
@@ -25,6 +26,7 @@
       wrap-params
       wrap-multipart-params
       wrap-json-response
+      ;; wrap-cookies
       (wrap-cors :access-control-allow-origin #".*"
                  :access-control-allow-methods [:get :put :post :delete])))
 

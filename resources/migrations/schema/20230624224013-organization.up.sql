@@ -8,6 +8,8 @@ create table organization (
   name text,
   domain text,
   subdomain text,
+  logo text,
+  stytch_organization_id text,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 )
