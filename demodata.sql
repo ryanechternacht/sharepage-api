@@ -6,10 +6,10 @@ insert into organization (name, domain, subdomain, logo, stytch_organization_id)
     'organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e'
 );
 
-insert into orbit (organization_id, name, status, logo) 
+insert into buyersphere (organization_id, name, status, logo) 
   values (1, 'House Corrino', 'active', '/house_corrino.png');
 
-insert into question (organization_id, orbit_id, page, 
+insert into question (organization_id, buyersphere_id, page, 
   ordering, type, question, answer) values
   (1, 1, 'overview', 1, 'text', 
   '🧙‍♀️ Why we think we''re better together', 

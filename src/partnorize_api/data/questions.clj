@@ -3,18 +3,18 @@
             [partnorize-api.db :as db]))
 
 (def ^:private base-questions-query
-  (-> (h/select :question.id :question.orbit_id 
+  (-> (h/select :question.id :question.buyersphere_id 
                 :question.organization_id :question.page
                 :question.ordering :question.type
                 :question.question :question.answer)
       (h/from :question)))
 
-(defn get-by-orbit [db orbit-id]
+(defn get-by-buyersphere [db buyersphere-id]
   (-> base-questions-query
-      (h/where [:= :question.orbit_id orbit-id])
+      (h/where [:= :question.buyersphere_id buyersphere-id])
       (db/->execute db)))
 
 (comment
-  (get-by-orbit db/local-db 1)
+  (get-by-buyersphere db/local-db 1)
   ;
   )

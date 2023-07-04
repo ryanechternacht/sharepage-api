@@ -2,7 +2,7 @@
 create table question ( 
   id serial primary key,
   organization_id int references organization(id),
-  orbit_id int references orbit(id),
+  buyersphere_id int references buyersphere(id),
   page text not null,
   ordering int not null,
   type text,

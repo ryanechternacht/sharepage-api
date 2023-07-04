@@ -1,12 +1,12 @@
-(ns partnorize-api.routes.orbits
+(ns partnorize-api.routes.buyerspheres
   (:require [compojure.core :refer [GET]]
             [compojure.coercions :refer [as-int]]
             [ring.util.response :refer [response]]
-            [partnorize-api.data.orbits :as d-orbits]))
+            [partnorize-api.data.buyerspheres :as d-buyerspheres]))
 
-(def GET-orbits
-  (GET "/v0.1/orbits/:id" [id :<< as-int :as {:keys [db]}]
-    (response (d-orbits/get-full-orbit db id))))
+(def GET-buyerspheres
+  (GET "/v0.1/buyerspheres/:id" [id :<< as-int :as {:keys [db]}]
+    (response (d-buyerspheres/get-full-buyersphere db id))))
 
 ;; (def GET-obstacles
 ;;   (GET "/v0.1/student/:student-id/obstacles"
