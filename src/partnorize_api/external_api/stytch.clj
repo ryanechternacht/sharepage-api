@@ -53,8 +53,8 @@
 (defn send-magic-link-email
   "Sends the user a magic-email-link. Returns a truthy value if the
    email was sent and a falsey value if it wasn't"
-  [{:keys [base-url project secret]}
-   user-email stytch-organization-id redirect-url]
+  [{:keys [base-url project secret redirect-url]}
+   user-email stytch-organization-id]
   (try
     (-> (make-stytch-call (make-stytch-link base-url "magic_links/email/login_or_signup")
                           project

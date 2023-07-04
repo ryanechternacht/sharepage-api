@@ -6,6 +6,10 @@
               [partnorize-api.external-api.stytch :as stytch]))
 
 (defn set-session [session_token response]
+  ;; TODO only on local
+  ;; this is needed because we can only set use http for localhost in stytch, and I haven't setup
+  ;; https locally yet
+  (println "ring-session" session_token ".buyersphere-local.com")
   (assoc response :session session_token))
 
 (defn- make-url [base-url subdomain path]
@@ -40,7 +44,6 @@
     (if (stytch/send-magic-link-email 
          (:stytch config) 
          (:user_email body) 
-         (:stytch_organization_id organization)
-         (make-url (-> config :back-end :base-url) (:subdomain organization) "/v0.1/login"))
+         (:stytch_organization_id organization))
       (response "Email sent")
       (bad-request "Email could not be sent"))))

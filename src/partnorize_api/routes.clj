@@ -16,12 +16,6 @@
   (POST "*" []
     (not-found nil)))
 
-;; (def test-route
-;;   (GET "/test" []
-;;     (-> (response "test")
-;;         (update :cookies merge {"zimmer" {:value "ruff!"
-;;                                           :domain "buyersphere-local.com"}}))))
-
 (defroutes routes
   #'GET-root-healthz
   #'orbits/GET-orbits
