@@ -10,7 +10,7 @@ create table question (
   answer jsonb,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
-  constraint question_type check (type in ('text', 'list')),
-  constraint question_page check (page in ('overview', 'jvp'))
+  constraint question_type check (type in ('text', 'list', 'pricing', 'resource')),
+  constraint question_page check (page in ('overview', 'features', 'pricing', 'resources'))
 )
 -- add resources to type check
