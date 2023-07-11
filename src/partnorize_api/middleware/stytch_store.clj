@@ -6,7 +6,6 @@
   rs/SessionStore
   (read-session
     [_ session-token]
-    ;; TODO pull this out?
     (stytch/authenticate-session stytch-config session-token))
   (write-session
     [_ _ value]

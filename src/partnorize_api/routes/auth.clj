@@ -9,7 +9,8 @@
   ;; TODO only on local
   ;; this is needed because we can only set use http for localhost in stytch, and I haven't setup
   ;; https locally yet
-  (println "ring-session" session_token ".buyersphere-local.com")
+  (println "for browser:" "ring-session" session_token ".buyersphere-local.com")
+  (println "for postman" (format "ring-session=%s" session_token))
   (assoc response :session session_token))
 
 (defn- make-url [base-url subdomain path]

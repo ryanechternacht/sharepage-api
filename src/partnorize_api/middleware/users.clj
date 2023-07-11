@@ -1,16 +1,12 @@
-(ns partnorize-api.middleware.users)
-  ;; (:require [yardstick-api.data.users :as d-users]))
-
-;; (defn- wrap-user-impl [handler {:keys [session db] :as request}]
-;;   (if (:user-id session)
-;;     (let [user (d-users/get-user-by-id db (:user-id session))]
-;;       (handler (assoc request :user user)))
-;;     (handler request)))
+(ns partnorize-api.middleware.users
+  (:require [partnorize-api.data.users :as d-users]))
 
 ;; TODO do something more useful with the session info (like link it to whatever info we have saved)
-(defn- wrap-user-impl [handler {:keys [session] :as request}]
-  (if session
-    (handler (assoc request :user session))
+(defn- wrap-user-impl [handler {:keys [session db organization] :as request}]
+  (if (:email_address session)
+    (handler (assoc request :user (d-users/get-by-email db
+                                                        (:id organization)
+                                                        (:email_address session))))
     (handler request)))
 
 ; This form has the advantage that changes to wrap-debug-impl are

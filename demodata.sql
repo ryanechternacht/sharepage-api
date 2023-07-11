@@ -7,10 +7,10 @@ insert into organization (name, domain, subdomain, logo, stytch_organization_id)
 );
 
 insert into buyersphere (organization_id, buyer, buyer_logo, intro_message, 
-                         qualification_date) 
+                         qualification_date, evaluation_date, decision_date) 
   values (1, 'House Tully', '/house_tully.png', 
     'Thank you for considering my son, Ned, for a marriage with your daughter. Together we can build an alliance to keep the peace and promote prosperity throughout the North and Riverlands.', 
-    now() + interval '30 day');
+    now() + interval '30 day', now() + interval '60 day', now() + interval '90 day');
 
 insert into deal_resource (organization_id, title, link) values
 (1, 'Where to buy our banner', 'https://www.amazon.com/Calhoun-Sportswear-Thrones-Banner-Fringe/dp/B01LW86RL5/ref=asc_df_B01LW86RL5/?tag=hyprod-20&linkCode=df0&hvadid=198074483184&hvpos=&hvnetw=g&hvrand=13151580190832163203&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9015695&hvtargid=pla-324365812736&psc=1'),
