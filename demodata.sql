@@ -1,64 +1,36 @@
 insert into organization (name, domain, subdomain, logo, stytch_organization_id) 
-  values ('House Atriedes', 
-    'https://www.house-atriedes.com', 
-    'atreides', 
-    '/house_atreides.webp', 
-    'organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e'
+  values ('House Strak', 
+    'https://www.house-stark.com', 
+    'stark', 
+    '/house_stark.png', 
+    'organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781'
 );
 
-insert into buyersphere (organization_id, name, status, logo) 
-  values (1, 'House Corrino', 'active', '/house_corrino.png');
+insert into buyersphere (organization_id, buyer, buyer_logo, intro_message, 
+                         qualification_date) 
+  values (1, 'House Tully', '/house_tully.png', 
+    'Thank you for considering my son, Ned, for a marriage with your daughter. Together we can build an alliance to keep the peace and promote prosperity throughout the North and Riverlands.', 
+    now() + interval '30 day');
 
-insert into question (organization_id, buyersphere_id, page, ordering, type, question, answer) values
-  (1, 1, 'overview', 1, 'text', 
-  '👋 A Message from Duke Leto Atreides', 
-  '{"text": "Thank you for trusting House Atreides with Arakis. With your help we can keep the spice lines open and the money pouring in!"}'),
-  (1, 1, 'overview', 2, 'list', 
-  '🚀 Who our product serves:',
-  '{"items": ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]}'),
-  (1, 1, 'overview', 3, 'list', 
-  '✅ The problems we solve:',
-  '{"items": ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]}'),
-  (1, 1, 'overview', 4, 'text', 
-  '📓 Resources', 
-  '{"items": ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]}'),
-  (1, 1, 'features', 1, 'text', 
-  'Title and high level description of the problem it solves ', 
-  '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'features', 2, 'text', 
-  'Title and high level description of the problem it solves 2', 
-  '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'features', 3, 'text', 
-  'Title and high level description of the problem it solves 3', 
-  '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'features', 4, 'text', 
-  'Title and high level description of the problem it solves 4', 
-  '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'features', 5, 'text', 
-  'Title and high level description of the problem it solves 5', 
-  '{"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'pricing', 1, 'pricing', 
-  'Tier 1', 
-  '{"pricing": "$25/user/month", "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'pricing', 2, 'pricing', 
-  'Tier 2', 
-  '{"pricing": "$125/user/month", "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'pricing', 3, 'pricing', 
-  'Tier 3', 
-  '{"pricing": "$250/user/month", "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'pricing', 4, 'pricing', 
-  'Tier 4', 
-  '{"pricing": "Custom", "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}'),
-  (1, 1, 'resources', 1, 'resource', 
-  'How Seismic can save you 78% of your Outreach Time', 
-  '{"link": "https://www.google.com"}'),
-  (1, 1, 'resources', 2, 'resource', 
-  'Important qualification resource with impressive title', 
-  '{"link": "https://www.google.com"}'),
-  (1, 1, 'resources', 3, 'resource', 
-  'Would you believe marketing spent $800k on this document?', 
-  '{"link": "https://www.google.com"}')
-;
+insert into deal_resource (organization_id, title, link) values
+(1, 'Where to buy our banner', 'https://www.amazon.com/Calhoun-Sportswear-Thrones-Banner-Fringe/dp/B01LW86RL5/ref=asc_df_B01LW86RL5/?tag=hyprod-20&linkCode=df0&hvadid=198074483184&hvpos=&hvnetw=g&hvrand=13151580190832163203&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9015695&hvtargid=pla-324365812736&psc=1'),
+(1, 'House Stark items on Etsy', 'https://www.etsy.com/market/house_stark_sign');
 
+insert into buyersphere_resource (organization_id, buyersphere_id, title, link)
+select organization_id, 1, title, link from deal_resource;
+
+insert into persona (organization_id, ordering, title, description) values
+(1, 0, 'Honorable Men', 'House Stark is the most honorable house in westeros.'),
+(1, 1, 'Those skeptical of the seven', 'We keep the old gods in the north. Come worship trees with us!'),
+(1, 2, 'Those who love snow', 'We see a lot of snowfall. If you love sledding, ice luge, or ice sculpting, you''ll love it here!');
+
+insert into pain_point (organization_id, ordering, title, description) values
+(1, 0, 'Putting down ironmen raiding', 'We''ve done it before, and we''ll do it again!'),
+(1, 1, 'Tired of the politicking of Southron lords?', 'We''re a simple people. We keep our word, work our land, and kill wildlings. ''nuff said.');
+
+insert into feature (organization_id, ordering, title, description) values
+(1, 0, 'We have the largest land holdings in Westeros', 'There''s plenty of land to settle, farm, and develop. We''re excited to welcome new hardworking Westerosi''s to our land to join us. We have honor, low taxes, and no Lannisters!'),
+(1, 1, 'We have some of the most storied Architecture in Westeros', 'Come and enjoy the legacy of Bran the Builder. A 700 foot wall! A castle with warm water coursing through it''s walls to keep it warm! The only remaining godswood in Westeros!'),
+(1, 2, 'North of the Wall tours', 'You''ve never seen true beauty unil you''ve seen a wildling kissed by fire. Join us on our North of the Wall tour to see Wargs, Wolves, and more!' );
 
 insert into user_account (email, organization_id, role) values ('ryan@echternacht.org', 1, 'admin');
