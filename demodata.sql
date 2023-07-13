@@ -1,5 +1,5 @@
 insert into organization (name, domain, subdomain, logo, stytch_organization_id) 
-  values ('House Strak', 
+  values ('House Stark', 
     'https://www.house-stark.com', 
     'stark', 
     '/house_stark.png', 

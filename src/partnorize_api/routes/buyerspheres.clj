@@ -1,5 +1,5 @@
 (ns partnorize-api.routes.buyerspheres
-  (:require [compojure.core :refer [GET]]
+  (:require [compojure.core :refer [GET PATCH]]
             [compojure.coercions :refer [as-int]]
             [ring.util.http-response :as response]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]))
@@ -9,6 +9,12 @@
   (GET "/v0.1/buyerspheres/:id" [id :<< as-int :as {:keys [db user organization]}]
     (if user
       (response/ok (d-buyerspheres/get-full-buyersphere db (:id organization) id))
+      (response/unauthorized))))
+
+(def PATCH-buyerspheres-features
+  (PATCH "/v0.1/buyerspheres/:id/features" [id :<< as-int :as {:keys [db user organization body]}]
+    (if user
+      (response/ok (d-buyerspheres/save-buyersphere-feature-answer db (:id organization) id body))
       (response/unauthorized))))
 
 ;; (def GET-obstacles

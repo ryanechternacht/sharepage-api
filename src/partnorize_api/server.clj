@@ -27,7 +27,7 @@
       wrap-multipart-params
       wrap-json-response
       (wrap-cors :access-control-allow-origin #".*"
-                 :access-control-allow-methods [:get :put :post :delete]
+                 :access-control-allow-methods [:get :patch :put :post :delete]
                  :access-control-allow-credentials "true")
       ;; wrap-debug
       ;
