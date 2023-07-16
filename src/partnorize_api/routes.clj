@@ -3,6 +3,7 @@
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.features :as features]
+            [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
             [partnorize-api.routes.personas :as personas]
             [ring.util.response :refer [response not-found]]))
@@ -25,7 +26,9 @@
   #'auth/POST-send-magic-link-login-email
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/PATCH-buyerspheres-features
+  #'buyerspheres/GET-buyerspheres-conversations
   #'features/GET-features
+  #'organization/GET-organization
   #'pain-points/GET-pain-points
   #'personas/GET-personas
   get-404

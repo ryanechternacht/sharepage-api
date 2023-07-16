@@ -2,7 +2,8 @@
   (:require [compojure.core :refer [GET PATCH]]
             [compojure.coercions :refer [as-int]]
             [ring.util.http-response :as response]
-            [partnorize-api.data.buyerspheres :as d-buyerspheres]))
+            [partnorize-api.data.buyerspheres :as d-buyerspheres]
+            [partnorize-api.data.conversations :as d-conversations]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
@@ -15,6 +16,12 @@
   (PATCH "/v0.1/buyerspheres/:id/features" [id :<< as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-buyerspheres/save-buyersphere-feature-answer db (:id organization) id body))
+      (response/unauthorized))))
+
+(def GET-buyerspheres-conversations
+  (GET "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization]}]
+    (if user
+      (response/ok (d-conversations/get-by-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
 ;; (def GET-obstacles

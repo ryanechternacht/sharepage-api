@@ -45,7 +45,8 @@ create table buyersphere_user_account (
   organization_id int references organization(id),
   buyersphere_id int references buyersphere(id),
   user_account_id int references user_account(id),
-  ordering int,
+  team text not null,
+  ordering int not null,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 )

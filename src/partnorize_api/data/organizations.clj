@@ -3,7 +3,7 @@
             [partnorize-api.db :as db]))
 
 (def ^:private base-organizations-query
-  (-> (h/select :organization.id :organization.name
+  (-> (h/select :organization.id :organization.name :organization.logo
                 :organization.subdomain :organization.domain
                 :organization.stytch_organization_id)
       (h/from :organization)))

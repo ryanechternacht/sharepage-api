@@ -1,6 +1,7 @@
 (ns partnorize-api.data.buyerspheres
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]))
+            [partnorize-api.db :as db]
+            [partnorize-api.data.teams :as d-teams]))
 
 (def ^:private base-buyersphere-cols
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
@@ -47,15 +48,20 @@
 ;; TODO is this how I want this to work?
 (defn get-full-buyersphere [db organization-id id]
   (let [buyersphere (get-by-id db organization-id id)
-        resources (get-buyersphere-resources-by-buyersphere-id db organization-id id)]
-    (assoc buyersphere :resources resources)))
+        resources (get-buyersphere-resources-by-buyersphere-id db organization-id id)
+        {:keys [buyer-team seller-team]} (d-teams/get-by-buyersphere db organization-id id)]
+    (-> buyersphere
+        (assoc :resources resources)
+        (assoc :buyer_team buyer-team)
+        (assoc :seller_team seller-team))))
 
+;; TODO should this return full buyersphere?
 (defn save-buyersphere-feature-answer [db organization-id buyersphere-id featureAnswers]
   (-> (h/update :buyersphere)
       (h/set {:features_answer [:lift featureAnswers]})
       (h/where [:= :buyersphere.organization_id organization-id]
                [:= :buyersphere.id buyersphere-id])
-      (#(apply h/returning % base-buyersphere-cols))
+      (h/returning :features_answer)
       (db/->execute db)))
 
 (comment

@@ -33,4 +33,30 @@ insert into feature (organization_id, ordering, title, description) values
 (1, 1, 'We have some of the most storied Architecture in Westeros', 'Come and enjoy the legacy of Bran the Builder. A 700 foot wall! A castle with warm water coursing through it''s walls to keep it warm! The only remaining godswood in Westeros!'),
 (1, 2, 'North of the Wall tours', 'You''ve never seen true beauty unil you''ve seen a wildling kissed by fire. Join us on our North of the Wall tour to see Wargs, Wolves, and more!' );
 
-insert into user_account (email, organization_id, role) values ('ryan@echternacht.org', 1, 'admin');
+-- real users
+insert into user_account (organization_id, email, name, buyersphere_role, display_role) values 
+(1, 'ryan@echternacht.org', 'ryan echternacht', 'admin', 'Narrator');
+
+-- fake users
+insert into user_account (organization_id, email, name, buyersphere_role, display_role) values 
+(1, 'rickon@stark.com', 'Rickon Stark', 'admin', 'Lord of Winterfell'),
+(1, 'ned@stark.com', 'Ned Stark', 'admin', 'Heir of Winterfell'),
+(1, 'holster@tully.com', 'Holster Tully', 'buyer', 'Lord of Riverrun'),
+(1, 'brynden@tully.com', 'Brynden Stark', 'buyer', 'Blackfish'),
+(1, 'minisa@tully.com', 'Minisa Tully', 'buyer', 'Of House Whent'),
+(1, 'catelyn@tully.com', 'Catelyn Tully', 'buyer', 'Cherished Daughter');
+
+insert into buyersphere_user_account (organization_id, buyersphere_id, user_account_id, team, ordering) values
+(1, 1, 1, 'seller', 2),
+(1, 1, 2, 'seller', 0),
+(1, 1, 3, 'seller', 1),
+(1, 1, 4, 'buyer', 0),
+(1, 1, 5, 'buyer', 1),
+(1, 1, 6, 'buyer', 2),
+(1, 1, 7, 'buyer', 3);
+
+insert into buyersphere_conversation (organization_id, buyersphere_id, author, message, resolved) values
+(1, 1, 4, 'How do you tax your peasants? Fair and equitable tax rates is important to me and Minisa', true),
+(1, 1, 5, 'When was your last festival? How big are your jousting tourneys?', false),
+(1, 1, 6, 'Will my daughter have a sept to pray in?', false);
+

@@ -3,8 +3,8 @@
              [partnorize-api.db :as db]))
 
 (defn- base-user-query [organization-id] 
-  (-> (h/select :user_account.id :user_account.email :user_account.role
-                :user_account.organization_id)
+  (-> (h/select :user_account.id :user_account.email :user_account.buyersphere_role
+                :user_account.display_role :user_account.organization_id)
       (h/from :user_account)
       (h/where [:= :user_account.organization_id organization-id])))
 
