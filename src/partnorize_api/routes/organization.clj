@@ -1,7 +1,6 @@
 (ns partnorize-api.routes.organization
   (:require [compojure.core :refer [GET]]
-            [ring.util.http-response :as response]
-            [ring.util.response :refer [response redirect]]))
+            [ring.util.http-response :as response]))
 
 ;; TODO do we need to auth this? probably?
 (def GET-organization

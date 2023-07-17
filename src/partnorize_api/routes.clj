@@ -27,6 +27,7 @@
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/PATCH-buyerspheres-features
   #'buyerspheres/GET-buyerspheres-conversations
+  #'buyerspheres/POST-buyerspheres-conversations
   #'features/GET-features
   #'organization/GET-organization
   #'pain-points/GET-pain-points
