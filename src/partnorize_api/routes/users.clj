@@ -1,23 +1,12 @@
 (ns partnorize-api.routes.users
   (:require [compojure.core :refer [GET]]
-            [ring.util.response :refer [response redirect]]))
-            ;; [yardstick-api.apis.auth0 :as auth0]
-            ;; [yardstick-api.data.users :as d-users]))
+            [ring.util.http-response :as response]))
 
-(def fail-401
-  {:status 401
-   :headers {}})
-
-;; (defn set-session [response user-id]
-;;   (assoc response :session (vary-meta {:user-id user-id}
-;;                                       assoc :recreate true)))
-
-(def GET-me
-  (GET "/v0.1/users/me" [:as {db :db {user-id :user-id} :session}]
-    (let [user (d-users/get-user-by-id db user-id)]
-      (if user
-        (response user)
-        fail-401))))
+(def GET-users-me
+  (GET "/v0.1/users/me" {user :user}
+    (if user
+      (response/ok user)
+      (response/unauthorized))))
 
 ;; (def GET-auth0-callback
 ;;   (GET "/v0.1/auth0/callback/:service"

@@ -34,6 +34,11 @@
     (catch Exception _
       nil)))
 
+(make-stytch-call (make-stytch-link "https://test.stytch.com/v1/b2b/" "sessions/authenticate")
+                  "project-test-c060f396-9aeb-402a-9afa-44d7f5146262"
+                  "secret-test-hzGink_qnd4SiZEBFLGkI0YAnBVS8TjGHQM="
+                  {:session_token })
+
 (defn authenticate-magic-link
   "Authenticates the magic link login attempt with stytch.
    Returns the a session identifier user or nil if the session isn't valid."
@@ -44,6 +49,22 @@
                           project
                           secret
                           {:magic_links_token magic-link-token
+                           :session_duration_minutes default-session-timeout_minutes})
+        :body
+        :session_token)
+    (catch Exception _
+      nil)))
+
+(defn authenticate-oauth
+  "Authenticates the magic link login attempt with stytch.
+   Returns the a session identifier user or nil if the session isn't valid."
+  [{:keys [base-url project secret]}
+   auth-token]
+  (try
+    (-> (make-stytch-call (make-stytch-link base-url "oauth/authenticate")
+                          project
+                          secret
+                          {:oauth_token auth-token
                            :session_duration_minutes default-session-timeout_minutes})
         :body
         :session_token)

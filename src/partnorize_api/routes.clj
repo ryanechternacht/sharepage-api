@@ -1,24 +1,37 @@
 (ns partnorize-api.routes
-  (:require [compojure.core :refer [defroutes GET POST]]
+  (:require [compojure.core :refer [defroutes GET POST PATCH PUT DELETE]]
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.features :as features]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
             [partnorize-api.routes.personas :as personas]
-            [ring.util.response :refer [response not-found]]))
+            [partnorize-api.routes.users :as users]
+            [ring.util.http-response :as response]))
 
 (def GET-root-healthz
   (GET "/" []
-    (response "I'm here")))
+    (response/ok "I'm here")))
 
 (def get-404
   (GET "*" []
-    (not-found nil)))
+    (response/not-found)))
 
 (def post-404
   (POST "*" []
-    (not-found nil)))
+    (response/not-found)))
+
+(def patch-404
+  (PATCH "*" []
+    (response/not-found)))
+
+(def put-404
+  (PUT "*" []
+    (response/not-found)))
+
+(def delete-404
+  (DELETE "*" []
+    (response/not-found)))
 
 (defroutes routes
   #'GET-root-healthz
@@ -32,5 +45,9 @@
   #'organization/GET-organization
   #'pain-points/GET-pain-points
   #'personas/GET-personas
+  #'users/GET-users-me
   get-404
-  post-404)
+  post-404
+  patch-404
+  put-404
+  delete-404)

@@ -1,9 +1,10 @@
 (ns partnorize-api.routes.auth
     (:require [compojure.core :refer [GET POST]]
               [lambdaisland.uri :as uri]
-              [ring.util.response :refer [response redirect bad-request]]
+              [ring.util.http-response :as response]
               [partnorize-api.data.organizations :as d-org]
-              [partnorize-api.external-api.stytch :as stytch]))
+              [partnorize-api.external-api.stytch :as stytch]
+              [partnorize-api.db :as db]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
@@ -21,11 +22,17 @@
 
 (defn- magic-link-login [db stytch-config front-end-base-url slug token]
   (let [org (d-org/get-by-subdomain db slug)
-        session_token (stytch/authenticate-magic-link stytch-config token)]
-    (if (and org session_token)
-      ;; TODO this should redirect to the right subdomain
-      (set-session session_token (redirect (make-url front-end-base-url slug "")))
-      (redirect (make-url front-end-base-url slug "/login")))))
+        session-token (stytch/authenticate-magic-link stytch-config token)]
+    (if (and org session-token)
+      (set-session session-token (response/found (make-url front-end-base-url slug "")))
+      (response/found (make-url front-end-base-url slug "/login")))))
+
+(defn- oauth-login [db stytch-config front-end-base-url slug token]
+  (let [org (d-org/get-by-subdomain db slug)
+        session-token (stytch/authenticate-oauth stytch-config token)]
+    (if (and org session-token)
+      (set-session session-token (response/found (make-url front-end-base-url slug "")))
+      (response/found (make-url front-end-base-url slug "/login")))))
 
 (def GET-login
   (GET "/v0.1/login" [slug stytch_token_type token :as {:keys [db config]}]
@@ -36,7 +43,13 @@
                                   (-> config :front-end :base-url)
                                   slug
                                   token)
-      (bad-request "Unknown stytch_token_type"))))
+      "oauth" (oauth-login
+               db
+               (:stytch config)
+               (-> config :front-end :base-url)
+               slug
+               token)
+      (response/bad-request "Unknown stytch_token_type"))))
 
 ;; TODO add some handling if they come from app.api... to lookup
 ;; the right org for them (this is how you login from the main page)
@@ -46,5 +59,5 @@
          (:stytch config) 
          (:user_email body) 
          (:stytch_organization_id organization))
-      (response "Email sent")
-      (bad-request "Email could not be sent"))))
+      (response/ok "Email sent")
+      (response/bad-request "Email could not be sent"))))
