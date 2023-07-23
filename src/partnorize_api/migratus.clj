@@ -12,12 +12,12 @@
                       :migration-table-name "migratus"
                       :db db})
 
-(def dev {:dbtype "postgresql"
-          :dbname "buyersphere"
-          :host "buyersphere.c1cytk9f0cip.us-east-1.rds.amazonaws.com"
-          :user "postgres"
-          :password "Z4L25#FDM#pe"
-          :ssl true})
+;; (def dev {:dbtype "postgresql"
+;;           :dbname "buyersphere"
+;;           :host "buyersphere.c1cytk9f0cip.us-east-1.rds.amazonaws.com"
+;;           :user "postgres"
+;;           :password "Z4L25#FDM#pe"
+;;           :ssl false})
 
 (comment
   (migratus/create migratus-config "example")
@@ -25,3 +25,4 @@
   (migratus/rollback migratus-config)
   ;
   )
+
