@@ -34,11 +34,6 @@
     (catch Exception _
       nil)))
 
-(make-stytch-call (make-stytch-link "https://test.stytch.com/v1/b2b/" "sessions/authenticate")
-                  "project-test-c060f396-9aeb-402a-9afa-44d7f5146262"
-                  "secret-test-hzGink_qnd4SiZEBFLGkI0YAnBVS8TjGHQM="
-                  {:session_token })
-
 (defn authenticate-magic-link
   "Authenticates the magic link login attempt with stytch.
    Returns the a session identifier user or nil if the session isn't valid."
@@ -55,6 +50,8 @@
     (catch Exception _
       nil)))
 
+;; TODO pull values out of this that are reasonable (besides just session_token)
+;; these should have the username, profile pic, etc
 (defn authenticate-oauth
   "Authenticates the magic link login attempt with stytch.
    Returns the a session identifier user or nil if the session isn't valid."
