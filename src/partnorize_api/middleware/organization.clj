@@ -1,12 +1,16 @@
 (ns partnorize-api.middleware.organization
-  (:require [partnorize-api.data.organizations :as d-org]))
+  (:require [clojure.string :as str]
+            [partnorize-api.data.organizations :as d-org]))
 
-(defn- get-slug-from-headers [headers]
-  (get headers "buyersphere-organization"))
+(defn- get-subdomain-from-headers [headers]
+  (try
+    (-> headers (get "host") (str/split #"\.") first)
+    (catch Exception _
+      nil)))
 
 (defn- wrap-organization-impl [handler {db :db headers :headers :as request}]
-  (if-let [slug (get-slug-from-headers headers)]
-    (if-let [organization (d-org/get-by-subdomain db slug)]
+  (if-let [subdomain (get-subdomain-from-headers headers)]
+    (if-let [organization (d-org/get-by-subdomain db subdomain)]
       (handler (assoc request :organization organization))
       (handler request))
     (handler request)))

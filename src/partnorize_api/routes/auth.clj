@@ -1,5 +1,5 @@
 (ns partnorize-api.routes.auth
-    (:require [compojure.core :refer [GET POST]]
+    (:require [compojure.core :as cpj]
               [lambdaisland.uri :as uri]
               [ring.util.http-response :as response]
               [partnorize-api.data.organizations :as d-org]
@@ -34,7 +34,7 @@
       (response/found (make-url front-end-base-url slug "/login")))))
 
 (def GET-login
-  (GET "/v0.1/login" [slug stytch_token_type token :as {:keys [db config]}]
+  (cpj/GET "/v0.1/login" [slug stytch_token_type token :as {:keys [db config]}]
     (condp = stytch_token_type
       "multi_tenant_magic_links" (magic-link-login
                                   db
@@ -53,7 +53,7 @@
 ;; TODO add some handling if they come from app.api... to lookup
 ;; the right org for them (this is how you login from the main page)
 (def POST-send-magic-link-login-email
-  (POST "/v0.1/send-magic-link-login-email" {:keys [organization config body]}
+  (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [organization config body]}
     (if (stytch/send-magic-link-email 
          (:stytch config) 
          (:user_email body) 

@@ -1,5 +1,5 @@
 (ns partnorize-api.routes.buyerspheres
-  (:require [compojure.core :refer [GET PATCH POST]]
+  (:require [compojure.core :as cpj]
             [compojure.coercions :refer [as-int]]
             [ring.util.http-response :as response]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
@@ -7,25 +7,25 @@
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
-  (GET "/v0.1/buyerspheres/:id" [id :<< as-int :as {:keys [db user organization]}]
+  (cpj/GET "/v0.1/buyerspheres/:id" [id :<< as-int :as {:keys [db user organization]}]
     (if user
       (response/ok (d-buyerspheres/get-full-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
 (def PATCH-buyerspheres-features
-  (PATCH "/v0.1/buyerspheres/:id/features" [id :<< as-int :as {:keys [db user organization body]}]
+  (cpj/PATCH "/v0.1/buyerspheres/:id/features" [id :<< as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-buyerspheres/save-buyersphere-feature-answer db (:id organization) id body))
       (response/unauthorized))))
 
 (def GET-buyerspheres-conversations
-  (GET "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization]}]
+  (cpj/GET "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization]}]
     (if user
       (response/ok (d-conversations/get-by-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
 (def POST-buyerspheres-conversations
-  (POST "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization body]}]
+  (cpj/POST "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-conversations/create-conversation db
                                                         (:id organization)

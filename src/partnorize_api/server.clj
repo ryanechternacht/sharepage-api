@@ -1,41 +1,41 @@
 (ns partnorize-api.server
-  (:require [ring.adapter.jetty :refer [run-jetty]]
-            [ring.middleware.cors :refer [wrap-cors]]
-            [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
-            [ring.middleware.multipart-params :refer [wrap-multipart-params]]
-            [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.session :refer [wrap-session]]
-            [partnorize-api.middleware.config :refer [wrap-config config]]
-            [partnorize-api.middleware.db :refer [wrap-db]]
-            ;; [partnorize-api.middleware.debug :refer [wrap-debug]]
-            [partnorize-api.middleware.organization :refer [wrap-organization]]
-            [partnorize-api.middleware.stytch-store :refer [stytch-store]]
-            [partnorize-api.middleware.users :refer [wrap-user]]
+  (:require [ring.adapter.jetty :as jetty]
+            [ring.middleware.cors :as m-cors]
+            [ring.middleware.json :as m-json]
+            [ring.middleware.multipart-params :as m-multi-params]
+            [ring.middleware.params :as m-params]
+            [ring.middleware.session :as m-session]
+            [partnorize-api.middleware.config :as m-config]
+            [partnorize-api.middleware.db :as m-db]
+            ;; [partnorize-api.middleware.debug :as m-debug]
+            [partnorize-api.middleware.organization :as m-org]
+            [partnorize-api.middleware.stytch-store :as m-stytch]
+            [partnorize-api.middleware.users :as m-users]
             [partnorize-api.routes :as r]))
 
-(def session-store (stytch-store (:stytch config)))
+(def session-store (m-stytch/stytch-store (:stytch m-config/config)))
 
 (def handler
   (-> r/routes
-      (wrap-json-body {:keywords? true})
-      wrap-user
-      wrap-organization
-      wrap-db
-      wrap-config
-      (wrap-session {:store session-store :cookie-attrs (:cookie-attrs config)})
-      wrap-params
-      wrap-multipart-params
-      wrap-json-response
-      (wrap-cors :access-control-allow-origin #".*"
+      (m-json/wrap-json-body {:keywords? true})
+      m-users/wrap-user
+      m-org/wrap-organization
+      m-db/wrap-db
+      m-config/wrap-config
+      (m-session/wrap-session {:store session-store :cookie-attrs (:cookie-attrs m-config/config)})
+      m-params/wrap-params
+      m-multi-params/wrap-multipart-params
+      m-json/wrap-json-response
+      (m-cors/wrap-cors :access-control-allow-origin #".*"
                  :access-control-allow-methods [:get :patch :put :post :delete]
                  :access-control-allow-credentials "true")
-      ;; wrap-debug
+      ;; m-debug/wrap-debug
       ;
       ))
 
 (defn -main
   [& _]
-  (run-jetty #'handler {:port 3001
-                        :join? false}))
+  (jetty/run-jetty #'handler {:port 3001
+                              :join? false}))
 
 #_(-main)

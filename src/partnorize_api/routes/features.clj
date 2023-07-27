@@ -1,11 +1,11 @@
 (ns partnorize-api.routes.features
-  (:require [compojure.core :refer [GET]]
+  (:require [compojure.core :as cpj]
             [ring.util.http-response :as response]
             [partnorize-api.data.features :as d-features]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-features
-  (GET "/v0.1/features" {:keys [db user organization]}
+  (cpj/GET "/v0.1/features" {:keys [db user organization]}
     (if user
       (response/ok (d-features/get-features-by-organization-id db (:id organization)))
       (response/unauthorized))))

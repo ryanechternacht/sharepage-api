@@ -1,5 +1,5 @@
 (ns partnorize-api.routes
-  (:require [compojure.core :refer [defroutes GET POST PATCH PUT DELETE]]
+  (:require [compojure.core :as cpj]
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.features :as features]
@@ -10,30 +10,30 @@
             [ring.util.http-response :as response]))
 
 (def GET-root-healthz
-  (GET "/" []
+  (cpj/GET "/" []
     (response/ok "I'm here")))
 
 (def get-404
-  (GET "*" []
+  (cpj/GET "*" []
     (response/not-found)))
 
 (def post-404
-  (POST "*" []
+  (cpj/POST "*" []
     (response/not-found)))
 
 (def patch-404
-  (PATCH "*" []
+  (cpj/PATCH "*" []
     (response/not-found)))
 
 (def put-404
-  (PUT "*" []
+  (cpj/PUT "*" []
     (response/not-found)))
 
 (def delete-404
-  (DELETE "*" []
+  (cpj/DELETE "*" []
     (response/not-found)))
 
-(defroutes routes
+(cpj/defroutes routes
   #'GET-root-healthz
   #'auth/GET-login
   #'auth/POST-send-magic-link-login-email
