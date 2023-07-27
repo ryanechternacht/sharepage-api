@@ -14,7 +14,7 @@
 
 ;; (def dev {:dbtype "postgresql"
 ;;           :dbname "buyersphere"
-;;           :host "buyersphere.c1cytk9f0cip.us-east-1.rds.amazonaws.com"
+;;           :host "buyersphere.cc2idiull87l.us-east-2.rds.amazonaws.com"
 ;;           :user "postgres"
 ;;           :password "Z4L25#FDM#pe"
 ;;           :ssl false})

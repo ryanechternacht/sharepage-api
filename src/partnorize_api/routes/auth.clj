@@ -3,8 +3,7 @@
               [lambdaisland.uri :as uri]
               [ring.util.http-response :as response]
               [partnorize-api.data.organizations :as d-org]
-              [partnorize-api.external-api.stytch :as stytch]
-              [partnorize-api.db :as db]))
+              [partnorize-api.external-api.stytch :as stytch]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
