@@ -1,7 +1,6 @@
 (ns partnorize-api.data.conversations
   (:require [honey.sql.helpers :as h]
-           [partnorize-api.db :as db]
-           [partnorize-api.routes.organization :as organization]))
+            [partnorize-api.db :as db]))
 
 ;; TODO a limit?
 (defn- base-conversation-query [organization-id buyersphere-id]
