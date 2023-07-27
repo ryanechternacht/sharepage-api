@@ -7,7 +7,7 @@
             [ring.middleware.session :refer [wrap-session]]
             [partnorize-api.middleware.config :refer [wrap-config config]]
             [partnorize-api.middleware.db :refer [wrap-db]]
-            [partnorize-api.middleware.debug :refer [wrap-debug]]
+            ;; [partnorize-api.middleware.debug :refer [wrap-debug]]
             [partnorize-api.middleware.organization :refer [wrap-organization]]
             [partnorize-api.middleware.stytch-store :refer [stytch-store]]
             [partnorize-api.middleware.users :refer [wrap-user]]

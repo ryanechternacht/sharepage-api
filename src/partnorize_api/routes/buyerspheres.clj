@@ -27,7 +27,11 @@
 (def POST-buyerspheres-conversations
   (POST "/v0.1/buyerspheres/:id/conversations" [id :<< as-int :as {:keys [db user organization body]}]
     (if user
-      (response/ok (d-conversations/create-conversation db (:id organization) id (:id user) (:message body)))
+      (response/ok (d-conversations/create-conversation db
+                                                        (:id organization)
+                                                        id
+                                                        (:id user)
+                                                        (:message body)))
       (response/unauthorized))))
 
 ;; (def GET-obstacles

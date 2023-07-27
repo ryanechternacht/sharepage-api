@@ -45,6 +45,7 @@
   #'organization/GET-organization
   #'pain-points/GET-pain-points
   #'personas/GET-personas
+  #'persona/POST-persona
   #'users/GET-users-me
   get-404
   post-404
