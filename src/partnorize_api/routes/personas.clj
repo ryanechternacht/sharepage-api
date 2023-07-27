@@ -12,9 +12,8 @@
 
 (def POST-personas
   (cpj/POST "/v0.1/personas" {:keys [db user organization body]}
-    (println body)
     (if user
       (response/ok (d-personas/create-persona db
                                               (:id organization)
-                                              (:persona body)))
+                                              body))
       (response/unauthorized))))

@@ -44,8 +44,9 @@
   #'features/GET-features
   #'organization/GET-organization
   #'pain-points/GET-pain-points
+  #'pain-points/POST-pain-points
   #'personas/GET-personas
-  #'persona/POST-persona
+  #'personas/POST-personas
   #'users/GET-users-me
   get-404
   post-404
