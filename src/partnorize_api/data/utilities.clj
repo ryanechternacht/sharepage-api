@@ -1,5 +1,6 @@
 (ns partnorize-api.data.utilities
-  (:require [honey.sql.helpers :as h]
+  (:require [autoclave.core :as ac]
+            [honey.sql.helpers :as h]
             [partnorize-api.db :as db]))
 
 (defn get-next-ordering-query
@@ -11,7 +12,14 @@
       (h/from table)
       (h/where [:= :organization_id organization-id])))
 
+(def :^private sanitation-policy (ac/html-merge-policies :BLOCKS :FORMATTING :LINKS))
+
+(def sanitize-html (partial ac/html-sanitize sanitation-policy))
+
 (comment
   (db/->format (get-next-ordering-query :persona 1))
+  (sanitize-html "<b>hello</b>")
+  (sanitize-html "<script src=''></script><i>hello, world<i>")
+  (sanitize-html "<div>hello, world</div><style>background: blue;</style>")
   ;
   )

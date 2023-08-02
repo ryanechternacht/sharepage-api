@@ -42,6 +42,7 @@
   #'buyerspheres/GET-buyerspheres-conversations
   #'buyerspheres/POST-buyerspheres-conversations
   #'features/GET-features
+  #'features/POST-feature
   #'organization/GET-organization
   #'pain-points/GET-pain-points
   #'pain-points/POST-pain-points
