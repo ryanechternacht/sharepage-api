@@ -12,7 +12,7 @@
       (h/from table)
       (h/where [:= :organization_id organization-id])))
 
-(def :^private sanitation-policy (ac/html-merge-policies :BLOCKS :FORMATTING :LINKS))
+(def ^:private sanitation-policy (ac/html-merge-policies :BLOCKS :FORMATTING :LINKS))
 
 (def sanitize-html (partial ac/html-sanitize sanitation-policy))
 

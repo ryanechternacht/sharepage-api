@@ -50,8 +50,6 @@
                token)
       (response/bad-request "Unknown stytch_token_type"))))
 
-;; TODO add some handling if they come from app.api... to lookup
-;; the right org for them (this is how you login from the main page)
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [organization config body]}
     (if (stytch/send-magic-link-email 

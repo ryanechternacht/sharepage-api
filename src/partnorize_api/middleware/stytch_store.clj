@@ -2,6 +2,7 @@
   (:require [ring.middleware.session.store :as rs]
             [partnorize-api.external-api.stytch :as stytch]))
 
+;; TODO can we store this in our db to avoid having to hit stytch every call?
 (deftype StytchStore [stytch-config]
   rs/SessionStore
   (read-session

@@ -1,5 +1,6 @@
 (ns partnorize-api.routes.users
   (:require [compojure.core :as cpj]
+            [partnorize-api.data.users :as d-users]
             [ring.util.http-response :as response]))
 
 (def GET-users-me
@@ -8,13 +9,19 @@
       (response/ok user)
       (response/unauthorized))))
 
-;; (def GET-auth0-callback
-;;   (GET "/v0.1/auth0/callback/:service"
-;;     [code service :as {{auth0-config :auth0 front-end-config :front-end} :config db :db}]
-;;     (let [auth0-user (auth0/get-auth0-user auth0-config service code)
-;;           user (d-users/get-or-create-user db auth0-user)]
-;;       (set-session (redirect (:base-url front-end-config)) (:id user)))))
+(def GET-users
+  (cpj/GET "/v0.1/users" {:keys [db user organization]}
+    (if user
+      (response/ok (d-users/get-by-organization db
+                                                (:id organization)))
+      (response/unauthorized))))
 
-;; (def GET-login
-;;   (GET "/v0.1/login/:service" [service :as {{auth0-config :auth0} :config}]
-;;     (redirect (auth0/get-auth0-login-page auth0-config service))))
+(def POST-users
+  (cpj/POST "/v0.1/users" {:keys [db user organization body]}
+    (println "got user" body)
+    (if user
+      ;; TODO add the rest of the create user stytch code
+      (response/ok (d-users/create-user db
+                                        (:id organization)
+                                        body))
+      (response/unauthorized))))

@@ -48,7 +48,9 @@
   #'pain-points/POST-pain-points
   #'personas/GET-personas
   #'personas/POST-personas
+  #'users/GET-users
   #'users/GET-users-me
+  #'users/POST-users
   get-404
   post-404
   patch-404
