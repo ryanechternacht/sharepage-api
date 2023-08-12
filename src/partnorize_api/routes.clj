@@ -48,6 +48,8 @@
   #'pain-points/POST-pain-points
   #'personas/GET-personas
   #'personas/POST-personas
+  #'personas/PUT-personas
+  #'personas/DELETE-personas
   #'users/GET-users
   #'users/GET-users-me
   #'users/POST-users

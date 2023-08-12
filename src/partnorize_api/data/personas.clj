@@ -25,8 +25,25 @@
       (db/->execute db)
       first))
 
+(defn update-persona [db organization-id id {:keys [title description]}]
+  (-> (h/update :persona)
+      (h/set {:title title :description description})
+      (h/where [:= :organization_id organization-id]
+               [:= :id id])
+      (#(apply h/returning % persona-columns))
+      (db/->execute db)
+      first))
+
+(defn delete-persona [db organization-id id]
+  (-> (h/delete-from :persona)
+      (h/where [:= :organization_id organization-id]
+               [:= :id id])
+      (db/->execute db)))
+
 (comment
   (get-personas-by-organization-id db/local-db 1)
   (create-persona db/local-db 1 {:title "ryan" :description "echternacht"})
+  (update-persona db/local-db 1 24 {:title "ryan" :description "echternacht"})
+  (delete-persona db/local-db 1 19)
   ;
   )
