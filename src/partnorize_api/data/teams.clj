@@ -4,8 +4,9 @@
 
 (defn- base-team-query [organization-id buyersphere-id]
   (-> (h/select :user_account.email :user_account.buyersphere_role
-                :user_account.display_role :user_account.name
-                :buyersphere_user_account.team :buyersphere_user_account.ordering)
+                :user_account.display_role :user_account.first_name
+                :user_account.last_name :buyersphere_user_account.team 
+                :buyersphere_user_account.ordering)
       (h/from :buyersphere_user_account)
       (h/join :user_account [:=
                              :buyersphere_user_account.user_account_id

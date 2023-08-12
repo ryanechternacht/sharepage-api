@@ -8,17 +8,19 @@
                 :buyersphere_conversation.buyersphere_id
                 :buyersphere_conversation.message
                 :buyersphere_conversation.resolved
-                :user_account.name :user_account.display_role)
+                :user_account.first_name :user_account.last_name
+                :user_account.display_role)
       (h/from :buyersphere_conversation)
       (h/join :user_account [:= :buyersphere_conversation.author :user_account.id])
       (h/where [:= :buyersphere_conversation.organization_id organization-id]
                [:= :buyersphere_conversation.buyersphere_id buyersphere-id])
       (h/order-by :buyersphere_conversation.updated_at)))
 
-(defn- reformat-author [{:keys [name display_role] :as conversation}]
+(defn- reformat-author [{:keys [first_name last_name display_role] :as conversation}]
   (-> conversation
       (dissoc :name :display_role)
-      (assoc :author {:name name
+      (assoc :author {:first_name first_name
+                      :last_name last_name
                       :display_role display_role})))
 
 (defn get-by-buyersphere [db organization-id buyersphere-id]

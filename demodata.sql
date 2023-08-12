@@ -34,17 +34,17 @@ insert into feature (organization_id, ordering, title, description) values
 (1, 2, 'North of the Wall tours', 'You''ve never seen true beauty unil you''ve seen a wildling kissed by fire. Join us on our North of the Wall tour to see Wargs, Wolves, and more!' );
 
 -- real users
-insert into user_account (organization_id, email, name, buyersphere_role, display_role) values 
-(1, 'ryan@echternacht.org', 'ryan echternacht', 'admin', 'Narrator');
+insert into user_account (organization_id, email, first_name, last_name, buyersphere_role, display_role) values 
+(1, 'ryan@echternacht.org', 'ryan', 'echternacht', 'admin', 'Narrator');
 
 -- fake users
-insert into user_account (organization_id, email, name, buyersphere_role, display_role) values 
-(1, 'rickon@stark.com', 'Rickon Stark', 'admin', 'Lord of Winterfell'),
-(1, 'ned@stark.com', 'Ned Stark', 'admin', 'Heir of Winterfell'),
-(1, 'holster@tully.com', 'Holster Tully', 'buyer', 'Lord of Riverrun'),
-(1, 'brynden@tully.com', 'Brynden Stark', 'buyer', 'Blackfish'),
-(1, 'minisa@tully.com', 'Minisa Tully', 'buyer', 'Of House Whent'),
-(1, 'catelyn@tully.com', 'Catelyn Tully', 'buyer', 'Cherished Daughter');
+insert into user_account (organization_id, email, first_name, last_name, buyersphere_role, display_role) values 
+(1, 'rickon@stark.com', 'Rickon', 'Stark', 'admin', 'Lord of Winterfell'),
+(1, 'ned@stark.com', 'Ned', 'Stark', 'admin', 'Heir of Winterfell'),
+(1, 'holster@tully.com', 'Holster', 'Tully', 'buyer', 'Lord of Riverrun'),
+(1, 'brynden@tully.com', 'Brynden', 'Stark', 'buyer', 'Blackfish'),
+(1, 'minisa@tully.com', 'Minisa', 'Tully', 'buyer', 'Of House Whent'),
+(1, 'catelyn@tully.com', 'Catelyn', 'Tully', 'buyer', 'Cherished Daughter');
 
 insert into buyersphere_user_account (organization_id, buyersphere_id, user_account_id, team, ordering) values
 (1, 1, 1, 'seller', 2),
