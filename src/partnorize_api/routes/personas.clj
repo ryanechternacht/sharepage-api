@@ -1,8 +1,8 @@
 (ns partnorize-api.routes.personas
-  (:require [compojure.core :as cpj]
+  (:require [compojure.coercions :as coerce]
+            [compojure.core :as cpj]
             [ring.util.http-response :as response]
-            [partnorize-api.data.personas :as d-personas]
-            [compojure.coercions :as coerce]))
+            [partnorize-api.data.personas :as d-personas]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-personas

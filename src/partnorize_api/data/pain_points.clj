@@ -25,8 +25,25 @@
       (db/->execute db)
       first))
 
+(defn update-pain-point [db organization-id id {:keys [title description]}]
+  (-> (h/update :pain-point)
+      (h/set {:title title :description description})
+      (h/where [:= :organization_id organization-id]
+               [:= :id id])
+      (#(apply h/returning % pain-point-columns))
+      (db/->execute db)
+      first))
+
+(defn delete-pain-point [db organization-id id]
+  (-> (h/delete-from :pain-point)
+      (h/where [:= :organization_id organization-id]
+               [:= :id id])
+      (db/->execute db)))
+
 (comment
   (get-pain-points-by-organization-id db/local-db 1)
   (create-pain-point db/local-db 1 {:title "ryan" :description "echternacht"})
+  (update-pain-point db/local-db 1 24 {:title "ryan" :description "echternacht"})
+  (delete-pain-point db/local-db 1 19)
   ;
   )

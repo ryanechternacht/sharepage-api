@@ -42,10 +42,14 @@
   #'buyerspheres/GET-buyerspheres-conversations
   #'buyerspheres/POST-buyerspheres-conversations
   #'features/GET-features
-  #'features/POST-feature
+  #'features/POST-features
+  #'features/PUT-features
+  #'features/DELETE-features
   #'organization/GET-organization
   #'pain-points/GET-pain-points
   #'pain-points/POST-pain-points
+  #'pain-points/PUT-pain-points
+  #'pain-points/DELETE-pain-points
   #'personas/GET-personas
   #'personas/POST-personas
   #'personas/PUT-personas
