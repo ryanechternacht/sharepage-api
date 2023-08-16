@@ -60,3 +60,13 @@ insert into buyersphere_conversation (organization_id, buyersphere_id, author, m
 (1, 1, 5, 'When was your last festival? How big are your jousting tourneys?', false),
 (1, 1, 6, 'Will my daughter have a sept to pray in?', false);
 
+insert into pricing_tier (organization_id, ordering, title, description, 
+  best_for, amount_per_period, amount_other, period_type) values
+(1, 1, 'Northern Independence', 'Down with these Southron lords and their stupid squabbles -- we''re better off on our own. For the King in the North!', 
+  'True Northmen', null, 'Bend the Knee', 'other'),
+(1, 2, 'War Support', 'Want to crush your enemies? Hire a Northern Band for a year and you''ll never be challenged again!', 
+  'Pansy Southron Lords', 10000, null, 'annually'),
+(1, 3, 'Lordly Disputes', 'Want to frighten your enemies? Hire a Northern Band for a month and you''ll get some peace and quiet!', 
+  'Pansy Southron Lords', 1000, null, 'monthly'),
+(1, 4, 'Body Guard', 'Need to scare your peasants? Hire a Northern ''bodyguard'' and those pesky peasants will fall right in line!', 
+  'Pansy Southron Lords', 100, null, 'per seat');
