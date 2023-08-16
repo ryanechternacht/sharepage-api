@@ -1,1 +1,1 @@
-drop table pricing_tier
+drop table pricing_tier;

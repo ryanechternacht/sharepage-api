@@ -1,5 +1,6 @@
 (ns partnorize-api.server
-  (:require [ring.adapter.jetty :as jetty]
+  (:require [camel-snake-kebab.core :as csk]
+            [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as m-cors]
             [ring.middleware.json :as m-json]
             [ring.middleware.multipart-params :as m-multi-params]
@@ -17,7 +18,7 @@
 
 (def handler
   (-> r/routes
-      (m-json/wrap-json-body {:keywords? true})
+      (m-json/wrap-json-body {:key-fn csk/->kebab-case-keyword})
       m-users/wrap-user
       m-org/wrap-organization
       m-db/wrap-db
@@ -27,8 +28,8 @@
       m-multi-params/wrap-multipart-params
       m-json/wrap-json-response
       (m-cors/wrap-cors :access-control-allow-origin #".*"
-                 :access-control-allow-methods [:get :patch :put :post :delete]
-                 :access-control-allow-credentials "true")
+                        :access-control-allow-methods [:get :patch :put :post :delete]
+                        :access-control-allow-credentials "true")
       ;; m-debug/wrap-debug
       ;
       ))

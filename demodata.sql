@@ -70,3 +70,6 @@ insert into pricing_tier (organization_id, ordering, title, description,
   'Pansy Southron Lords', 1000, null, 'monthly'),
 (1, 4, 'Body Guard', 'Need to scare your peasants? Hire a Northern ''bodyguard'' and those pesky peasants will fall right in line!', 
   'Pansy Southron Lords', 100, null, 'per seat');
+
+insert into deal_timing (organization_id, qualified_days, evaluation_days, decision_days) values
+(1, 30, 45, 60);

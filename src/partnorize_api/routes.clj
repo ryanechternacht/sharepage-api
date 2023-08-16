@@ -2,6 +2,7 @@
   (:require [compojure.core :as cpj]
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
+            [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
@@ -42,6 +43,8 @@
   #'buyerspheres/PATCH-buyerspheres-features
   #'buyerspheres/GET-buyerspheres-conversations
   #'buyerspheres/POST-buyerspheres-conversations
+  #'deal-timing/GET-deal-timing
+  #'deal-timing/PUT-deal-timing
   #'features/GET-features
   #'features/POST-features
   #'features/PUT-features

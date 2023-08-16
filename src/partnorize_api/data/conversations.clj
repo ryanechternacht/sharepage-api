@@ -16,12 +16,12 @@
                [:= :buyersphere_conversation.buyersphere_id buyersphere-id])
       (h/order-by :buyersphere_conversation.updated_at)))
 
-(defn- reformat-author [{:keys [first_name last_name display_role] :as conversation}]
+(defn- reformat-author [{:keys [first-name last-name display-role] :as conversation}]
   (-> conversation
       (dissoc :name :display_role)
-      (assoc :author {:first_name first_name
-                      :last_name last_name
-                      :display_role display_role})))
+      (assoc :author {:first_name first-name
+                      :last_name last-name
+                      :display_role display-role})))
 
 (defn get-by-buyersphere [db organization-id buyersphere-id]
   (->> (base-conversation-query organization-id buyersphere-id)

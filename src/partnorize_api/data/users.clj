@@ -24,12 +24,12 @@
       (h/where [:= :user_account.buyersphere_role "admin"])
       (db/->execute db)))
 
-(defn create-user [db organization-id {:keys [first_name last_name display_role email]}]
+(defn create-user [db organization-id {:keys [first-name last-name display-role email]}]
   (-> (h/insert-into :user_account)
       (h/columns :organization_id :buyersphere_role :first_name
                  :last_name :display_role :email)
-      (h/values [[organization-id "admin" first_name
-                  last_name display_role email]])
+      (h/values [[organization-id "admin" first-name
+                  last-name display-role email]])
       (#(apply h/returning % user-columns))
       (db/->execute db)
       first))

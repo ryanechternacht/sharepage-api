@@ -1,5 +1,6 @@
 {:paths ["src" "resources"]
  :deps {alxlit/autoclave {:mvn/version "0.2.0"}
+        camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
         cheshire/cheshire {:mvn/version "5.10.0"}
         clj-http/clj-http {:mvn/version "3.12.2"}
         clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}
@@ -14,7 +15,7 @@
         org.clojure/data.csv {:mvn/version "1.0.0"}
         org.postgresql/postgresql {:mvn/version "42.2.19.jre7"}
         ring/ring-defaults {:mvn/version "0.3.2"}
-        ring/ring-json {:mvn/version "0.5.0"}
+        ring/ring-json {:mvn/version "0.5.1"}
         ring/ring-core {:mvn/version "1.9.3"}
         ring/ring-jetty-adapter {:mvn/version "1.6.3"}
         ring-cors/ring-cors {:mvn/version "0.1.13"}
