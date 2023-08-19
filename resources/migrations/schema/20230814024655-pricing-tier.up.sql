@@ -10,5 +10,5 @@ create table pricing_tier (
   period_type text,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
-  constraint pricing_tier_period_type check (period_type in ('monthly', 'annually', 'per seat', 'other'))
+  constraint pricing_tier_period_type check (period_type in ('monthly', 'annually', 'per-seat', 'other'))
 )

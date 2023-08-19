@@ -40,9 +40,10 @@
   #'auth/GET-login
   #'auth/POST-send-magic-link-login-email
   #'buyerspheres/GET-buyerspheres
-  #'buyerspheres/PATCH-buyerspheres-features
-  #'buyerspheres/GET-buyerspheres-conversations
-  #'buyerspheres/POST-buyerspheres-conversations
+  #'buyerspheres/GET-buyersphere
+  #'buyerspheres/PATCH-buyersphere-features
+  #'buyerspheres/GET-buyersphere-conversations
+  #'buyerspheres/POST-buyersphere-conversations
   #'deal-timing/GET-deal-timing
   #'deal-timing/PUT-deal-timing
   #'features/GET-features

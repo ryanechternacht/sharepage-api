@@ -69,7 +69,26 @@ insert into pricing_tier (organization_id, ordering, title, description,
 (1, 3, 'Lordly Disputes', 'Want to frighten your enemies? Hire a Northern Band for a month and you''ll get some peace and quiet!', 
   'Pansy Southron Lords', 1000, null, 'monthly'),
 (1, 4, 'Body Guard', 'Need to scare your peasants? Hire a Northern ''bodyguard'' and those pesky peasants will fall right in line!', 
-  'Pansy Southron Lords', 100, null, 'per seat');
+  'Pansy Southron Lords', 100, null, 'per-seat');
 
 insert into deal_timing (organization_id, qualified_days, evaluation_days, decision_days) values
 (1, 30, 45, 60);
+
+insert into buyersphere (organization_id, buyer, buyer_logo, intro_message, 
+                         qualification_date, evaluation_date, decision_date, current_stage) values 
+  (1, 'House Lannister', '/house_lannister.png', 
+    'I''ll deal with you if I have to.', 
+    now() + interval '90 day', now() + interval '120 day', now() + interval '180 day', 'evaluation'),
+  (1, 'House Greyjoy', '/house_lannister.png', 
+    'Good for nothing pirates!', 
+    now() + interval '75 day', now() + interval '105 day', now() + interval '160 day', 'decision'),
+  (1, 'House Tyrell', '/house_lannister.png', 
+    'We have much need for your wine and grain. Let''s talk trade.', 
+    now() + interval '45 day', now() + interval '60 day', now() + interval '75 day', 'closed');
+
+insert into buyersphere_user_account (organization_id, buyersphere_id, user_account_id, team, ordering) values
+(1, 2, 1, 'seller', 0),
+(1, 2, 2, 'seller', 1),
+(1, 3, 2, 'seller', 0),
+(1, 3, 3, 'seller', 1),
+(1, 4, 3, 'seller', 0);

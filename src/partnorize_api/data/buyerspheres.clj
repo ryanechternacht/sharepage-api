@@ -32,12 +32,30 @@
 (defn get-by-id [db organization-id id]
   (first (get-by-ids db organization-id [id])))
 
-(defn get-by-organization [db organization-id]
-  (-> (base-buyersphere-query organization-id)
+(defn get-by-organization
+  ([db organization-id]
+   (get-by-organization db organization-id {}))
+  ([db organization-id {:keys [user-id stage is-overdue]}]
+   (println user-id stage is-overdue)
+   (let [query (cond-> (base-buyersphere-query organization-id)
+                 user-id (h/where [:in :buyersphere.id
+                                   (-> (h/select :buyersphere_id)
+                                       (h/from :buyersphere_user_account)
+                                       (h/where [:= :user_account_id user-id]))])
+                 stage (h/where [:= :buyersphere.current_stage stage])
+                 is-overdue (h/where [:or
+                                      [:and
+                                       [:= :current_stage "qualification"]
+                                       [:< :qualification_date [[:now]]]]
+                                      [:and
+                                       [:= :current_stage "evaluation"]
+                                       [:< :evaluation_date [[:now]]]]
+                                      [:and
+                                       [:= :current_stage "decision"]
+                                       [:< :decision_date [[:now]]]]])
+                 true (h/order-by :buyersphere.buyer))]
       ;; TODO what to order on?
-      (h/order-by :buyersphere.buyer)
-      (db/->execute db)
-      first))
+     (db/->execute query db))))
 
 (defn- get-buyersphere-resources-by-buyersphere-id [db organization-id buyersphere-id]
   (-> (base-buyersphere-resource-query organization-id)
@@ -67,6 +85,9 @@
 (comment
   (get-by-id db/local-db 1 1)
   (get-by-organization db/local-db 1)
+  (get-by-organization db/local-db 1 {:user-id 1})
+  (get-by-organization db/local-db 1 {:stage "evaluation"})
+  (get-by-organization db/local-db 1 {:is_overdue true})
   (get-full-buyersphere db/local-db 1 1)
   (save-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "maybe"}})
   ;

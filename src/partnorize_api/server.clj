@@ -3,6 +3,7 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as m-cors]
             [ring.middleware.json :as m-json]
+            [ring.middleware.keyword-params :as m-keyword-param]
             [ring.middleware.multipart-params :as m-multi-params]
             [ring.middleware.params :as m-params]
             [ring.middleware.session :as m-session]
@@ -24,6 +25,7 @@
       m-db/wrap-db
       m-config/wrap-config
       (m-session/wrap-session {:store session-store :cookie-attrs (:cookie-attrs m-config/config)})
+      m-keyword-param/wrap-keyword-params
       m-params/wrap-params
       m-multi-params/wrap-multipart-params
       m-json/wrap-json-response

@@ -3,28 +3,40 @@
             [compojure.coercions :as coerce]
             [ring.util.http-response :as response]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
-            [partnorize-api.data.conversations :as d-conversations]))
+            [partnorize-api.data.conversations :as d-conversations]
+            [partnorize-api.data.utilities :as util]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
+  (cpj/GET "/v0.1/buyerspheres" [user-id is-overdue stage :as {:keys [db user organization] :as req}]
+    (println is-overdue)
+    (if user
+      (response/ok (d-buyerspheres/get-by-organization db
+                                                       (:id organization)
+                                                       {:user-id (coerce/as-int user-id)
+                                                        :is-overdue (util/coerce-to-bool is-overdue)
+                                                        :stage stage}))
+      (response/unauthorized))))
+
+(def GET-buyersphere
   (cpj/GET "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if user
       (response/ok (d-buyerspheres/get-full-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
-(def PATCH-buyerspheres-features
+(def PATCH-buyersphere-features
   (cpj/PATCH "/v0.1/buyerspheres/:id/features" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-buyerspheres/save-buyersphere-feature-answer db (:id organization) id body))
       (response/unauthorized))))
 
-(def GET-buyerspheres-conversations
+(def GET-buyersphere-conversations
   (cpj/GET "/v0.1/buyerspheres/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if user
       (response/ok (d-conversations/get-by-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
-(def POST-buyerspheres-conversations
+(def POST-buyersphere-conversations
   (cpj/POST "/v0.1/buyerspheres/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-conversations/create-conversation db
