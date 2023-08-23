@@ -79,10 +79,10 @@ insert into buyersphere (organization_id, buyer, buyer_logo, intro_message,
   (1, 'House Lannister', '/house_lannister.png', 
     'I''ll deal with you if I have to.', 
     now() + interval '90 day', now() + interval '120 day', now() + interval '180 day', 'evaluation'),
-  (1, 'House Greyjoy', '/house_lannister.png', 
+  (1, 'House Greyjoy', '/house_greyjoy.jpeg', 
     'Good for nothing pirates!', 
     now() + interval '75 day', now() + interval '105 day', now() + interval '160 day', 'decision'),
-  (1, 'House Tyrell', '/house_lannister.png', 
+  (1, 'House Tyrell', '/house_tyrell.webp', 
     'We have much need for your wine and grain. Let''s talk trade.', 
     now() + interval '45 day', now() + interval '60 day', now() + interval '75 day', 'closed');
 

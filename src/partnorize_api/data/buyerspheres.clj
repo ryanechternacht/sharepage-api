@@ -1,7 +1,8 @@
 (ns partnorize-api.data.buyerspheres
   (:require [honey.sql.helpers :as h]
             [partnorize-api.db :as db]
-            [partnorize-api.data.teams :as d-teams]))
+            [partnorize-api.data.teams :as d-teams]
+            [partnorize-api.data.utilities :as util]))
 
 (def ^:private base-buyersphere-cols
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
@@ -32,27 +33,28 @@
 (defn get-by-id [db organization-id id]
   (first (get-by-ids db organization-id [id])))
 
+;; TODO add status to buyersphers
 (defn get-by-organization
   ([db organization-id]
    (get-by-organization db organization-id {}))
   ([db organization-id {:keys [user-id stage is-overdue]}]
    (println user-id stage is-overdue)
    (let [query (cond-> (base-buyersphere-query organization-id)
-                 user-id (h/where [:in :buyersphere.id
+                 (util/is-provided? user-id) (h/where [:in :buyersphere.id
                                    (-> (h/select :buyersphere_id)
                                        (h/from :buyersphere_user_account)
                                        (h/where [:= :user_account_id user-id]))])
-                 stage (h/where [:= :buyersphere.current_stage stage])
-                 is-overdue (h/where [:or
-                                      [:and
-                                       [:= :current_stage "qualification"]
-                                       [:< :qualification_date [[:now]]]]
-                                      [:and
-                                       [:= :current_stage "evaluation"]
-                                       [:< :evaluation_date [[:now]]]]
-                                      [:and
-                                       [:= :current_stage "decision"]
-                                       [:< :decision_date [[:now]]]]])
+                 (util/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
+                ;;  is-overdue (h/where [:or
+                ;;                       [:and
+                ;;                        [:= :current_stage "qualification"]
+                ;;                        [:< :qualification_date [[:now]]]]
+                ;;                       [:and
+                ;;                        [:= :current_stage "evaluation"]
+                ;;                        [:< :evaluation_date [[:now]]]]
+                ;;                       [:and
+                ;;                        [:= :current_stage "decision"]
+                ;;                        [:< :decision_date [[:now]]]]])
                  true (h/order-by :buyersphere.buyer))]
       ;; TODO what to order on?
      (db/->execute query db))))

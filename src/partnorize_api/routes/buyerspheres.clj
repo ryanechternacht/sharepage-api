@@ -3,18 +3,15 @@
             [compojure.coercions :as coerce]
             [ring.util.http-response :as response]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
-            [partnorize-api.data.conversations :as d-conversations]
-            [partnorize-api.data.utilities :as util]))
+            [partnorize-api.data.conversations :as d-conversations]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
-  (cpj/GET "/v0.1/buyerspheres" [user-id is-overdue stage :as {:keys [db user organization] :as req}]
-    (println is-overdue)
+  (cpj/GET "/v0.1/buyerspheres" [user-id stage :as {:keys [db user organization] :as req}]
     (if user
       (response/ok (d-buyerspheres/get-by-organization db
                                                        (:id organization)
                                                        {:user-id (coerce/as-int user-id)
-                                                        :is-overdue (util/coerce-to-bool is-overdue)
                                                         :stage stage}))
       (response/unauthorized))))
 
