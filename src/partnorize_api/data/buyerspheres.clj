@@ -8,11 +8,11 @@
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
    :buyersphere.buyer_logo :buyersphere.intro_message
    :buyersphere.features_answer :buyersphere.pricing_answer
-   :buyersphere.current_stage :buyersphere.qualification_date
-   :buyersphere.evaluation_date :buyersphere.decision_date
-   :buyersphere.adoption_date :buyersphere.qualified_on 
-   :buyersphere.evaluated_on :buyersphere.decided_on
-   :buyersphere.adopted_on])
+   :buyersphere.current_stage :buyersphere.status
+   :buyersphere.qualification_date :buyersphere.evaluation_date
+   :buyersphere.decision_date :buyersphere.adoption_date
+   :buyersphere.qualified_on :buyersphere.evaluated_on
+   :buyersphere.decided_on :buyersphere.adopted_on])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -81,7 +81,8 @@
       (h/where [:= :buyersphere.organization_id organization-id]
                [:= :buyersphere.id buyersphere-id])
       (merge (apply h/returning (keys set-map)))
-      (db/->execute db)))
+      (db/->execute db)
+      first))
 
 (defn update-buyersphere-feature-answer [db organization-id buyersphere-id answer]
   (update-buyersphere-field db organization-id buyersphere-id {:features_answer [:lift answer]}))
@@ -94,10 +95,10 @@
   (let [timestamp_column (condp = stage
                            "evaluation" :qualified_on
                            "decision" :evaluated_on
-                           "adoption" :decided_on)])
-  (update-buyersphere-field db organization-id buyersphere-id 
-                            {:current_stage stage
-                             timestamp_column [[:now]]}))
+                           "adoption" :decided_on)]
+    (update-buyersphere-field db organization-id buyersphere-id
+                              {:current_stage stage
+                               timestamp_column [[:now]]})))
 
 (comment
   (get-by-id db/local-db 1 1)
@@ -108,6 +109,6 @@
   (get-full-buyersphere db/local-db 1 1)
   (update-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "yes"}})
   (update-buyersphere-status db/local-db 1 1 {:status "active"})
-  (update-buyersphere-stage db/local-db 1 1 {:stage "qualification"})
+  (update-buyersphere-stage db/local-db 1 1 {:stage "adoption"})
   ;
   )
