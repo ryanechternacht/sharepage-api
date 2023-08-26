@@ -39,7 +39,6 @@
   ([db organization-id]
    (get-by-organization db organization-id {}))
   ([db organization-id {:keys [user-id stage is-overdue]}]
-   (println user-id stage is-overdue)
    (let [query (cond-> (base-buyersphere-query organization-id)
                  (util/is-provided? user-id) (h/where [:in :buyersphere.id
                                    (-> (h/select :buyersphere_id)
@@ -76,14 +75,29 @@
         (assoc :buyer_team buyer-team)
         (assoc :seller_team seller-team))))
 
-;; TODO should this return full buyersphere?
-(defn save-buyersphere-feature-answer [db organization-id buyersphere-id featureAnswers]
+(defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
   (-> (h/update :buyersphere)
-      (h/set {:features_answer [:lift featureAnswers]})
+      (h/set set-map)
       (h/where [:= :buyersphere.organization_id organization-id]
                [:= :buyersphere.id buyersphere-id])
-      (h/returning :features_answer)
+      (merge (apply h/returning (keys set-map)))
       (db/->execute db)))
+
+(defn update-buyersphere-feature-answer [db organization-id buyersphere-id answer]
+  (update-buyersphere-field db organization-id buyersphere-id {:features_answer [:lift answer]}))
+
+(defn update-buyersphere-status [db organization-id buyersphere-id {status :status}]
+  (update-buyersphere-field db organization-id buyersphere-id {:status status}))
+
+;; TODO implement a revert stage mode
+(defn update-buyersphere-stage [db organization-id buyersphere-id {stage :stage}]
+  (let [timestamp_column (condp = stage
+                           "evaluation" :qualified_on
+                           "decision" :evaluated_on
+                           "adoption" :decided_on)])
+  (update-buyersphere-field db organization-id buyersphere-id 
+                            {:current_stage stage
+                             timestamp_column [[:now]]}))
 
 (comment
   (get-by-id db/local-db 1 1)
@@ -92,6 +106,8 @@
   (get-by-organization db/local-db 1 {:stage "evaluation"})
   (get-by-organization db/local-db 1 {:is_overdue true})
   (get-full-buyersphere db/local-db 1 1)
-  (save-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "maybe"}})
+  (update-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "yes"}})
+  (update-buyersphere-status db/local-db 1 1 {:status "active"})
+  (update-buyersphere-stage db/local-db 1 1 {:stage "qualification"})
   ;
   )

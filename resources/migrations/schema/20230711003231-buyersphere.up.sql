@@ -19,7 +19,7 @@ create table buyersphere (
   adopted_on timestamp with time zone,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
-  constraint buyersphere_current_stage check (current_stage in ('qualification', 'evaluation', 'decision', 'adoption', 'closed'))
+  constraint buyersphere_current_stage check (current_stage in ('qualification', 'evaluation', 'decision', 'adoption', 'closed')),
   constraint buyersphere_status check (status in ('active', 'on-hold', 'opt-out'))
 )
 --;;

@@ -11,7 +11,6 @@
 
 (def PUT-deal-timing
   (cpj/PUT "/v0.1/deal-timing" {:keys [db user organization body]}
-    (println "put")
     (if user
       (response/ok (d-deal-timing/upsert-deal-timing db (:id organization) body))
       (response/unauthorized))))
