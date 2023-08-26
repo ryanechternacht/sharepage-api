@@ -8,15 +8,19 @@ create table buyersphere (
   features_answer jsonb default '{"interests":{}}'::jsonb,
   pricing_answer jsonb default '{"selected_level":{}}'::jsonb,
   current_stage text not null default 'qualification',
+  status text not null default 'active',
   qualification_date date,
   evaluation_date date,
   decision_date date,
+  adoption_date date,
   qualified_on timestamp with time zone,
-  evaluation_on timestamp with time zone,
-  decision_on timestamp with time zone,
+  evaluated_on timestamp with time zone,
+  decided_on timestamp with time zone,
+  adopted_on timestamp with time zone,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   constraint buyersphere_current_stage check (current_stage in ('qualification', 'evaluation', 'decision', 'adoption', 'closed'))
+  constraint buyersphere_status check (status in ('active', 'on-hold', 'opt-out'))
 )
 --;;
 create table buyersphere_resource (

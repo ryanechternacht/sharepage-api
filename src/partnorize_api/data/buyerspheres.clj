@@ -10,8 +10,9 @@
    :buyersphere.features_answer :buyersphere.pricing_answer
    :buyersphere.current_stage :buyersphere.qualification_date
    :buyersphere.evaluation_date :buyersphere.decision_date
-   :buyersphere.qualified_on :buyersphere.evaluation_on
-   :buyersphere.decision_on])
+   :buyersphere.adoption_date :buyersphere.qualified_on 
+   :buyersphere.evaluated_on :buyersphere.decided_on
+   :buyersphere.adopted_on])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)

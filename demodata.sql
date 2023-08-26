@@ -7,10 +7,10 @@ insert into organization (name, domain, subdomain, logo, stytch_organization_id)
 );
 
 insert into buyersphere (organization_id, buyer, buyer_logo, intro_message, 
-                         qualification_date, evaluation_date, decision_date) 
+                         qualification_date, evaluation_date, decision_date, adoption_date) 
   values (1, 'House Tully', '/house_tully.png', 
     'Thank you for considering my son, Ned, for a marriage with your daughter. Together we can build an alliance to keep the peace and promote prosperity throughout the North and Riverlands.', 
-    now() + interval '30 day', now() + interval '60 day', now() + interval '90 day');
+    now() + interval '30 day', now() + interval '60 day', now() + interval '90 day', now() + interval '120 day');
 
 insert into deal_resource (organization_id, title, link) values
 (1, 'Where to buy our banner', 'https://www.amazon.com/Calhoun-Sportswear-Thrones-Banner-Fringe/dp/B01LW86RL5/ref=asc_df_B01LW86RL5/?tag=hyprod-20&linkCode=df0&hvadid=198074483184&hvpos=&hvnetw=g&hvrand=13151580190832163203&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9015695&hvtargid=pla-324365812736&psc=1'),
@@ -75,16 +75,16 @@ insert into deal_timing (organization_id, qualified_days, evaluation_days, decis
 (1, 30, 45, 60);
 
 insert into buyersphere (organization_id, buyer, buyer_logo, intro_message, 
-                         qualification_date, evaluation_date, decision_date, current_stage) values 
+                         qualification_date, evaluation_date, decision_date, adoption_date, current_stage) values 
   (1, 'House Lannister', '/house_lannister.png', 
     'I''ll deal with you if I have to.', 
-    now() + interval '90 day', now() + interval '120 day', now() + interval '180 day', 'evaluation'),
+    now() + interval '90 day', now() + interval '120 day', now() + interval '180 day', now() + interval '240 day', 'evaluation'),
   (1, 'House Greyjoy', '/house_greyjoy.jpeg', 
     'Good for nothing pirates!', 
-    now() + interval '75 day', now() + interval '105 day', now() + interval '160 day', 'decision'),
+    now() + interval '75 day', now() + interval '105 day', now() + interval '160 day', now() + interval '205 day', 'decision'),
   (1, 'House Tyrell', '/house_tyrell.webp', 
     'We have much need for your wine and grain. Let''s talk trade.', 
-    now() + interval '45 day', now() + interval '60 day', now() + interval '75 day', 'closed');
+    now() + interval '45 day', now() + interval '60 day', now() + interval '75 day', now() + interval '90 day', 'closed');
 
 insert into buyersphere_user_account (organization_id, buyersphere_id, user_account_id, team, ordering) values
 (1, 2, 1, 'seller', 0),

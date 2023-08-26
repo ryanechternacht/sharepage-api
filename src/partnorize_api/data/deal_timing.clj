@@ -14,7 +14,7 @@
       first))
 
 (defn upsert-deal-timing [db organization-id
-                          {:keys [qualified-days evaluation-days decision-days] :as b}]
+                          {:keys [qualified-days evaluation-days decision-days]}]
   (-> (h/insert-into :deal_timing)
       (h/columns :organization_id :qualified_days :evaluation_days :decision_days)
       (h/values [[organization-id qualified-days evaluation-days decision-days]])
