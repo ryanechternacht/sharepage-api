@@ -84,6 +84,7 @@
       (db/->execute db)
       first))
 
+;; Should these be rolled up into 1 thing?
 (defn update-buyersphere-feature-answer [db organization-id buyersphere-id answer]
   (update-buyersphere-field db organization-id buyersphere-id {:features_answer [:lift answer]}))
 
@@ -100,6 +101,9 @@
                               {:current_stage stage
                                timestamp_column [[:now]]})))
 
+(defn update-buyersphere-pricing-answer [db organization-id buyersphere-id {pricing-answer :pricing-answer :as body}]
+  (update-buyersphere-field db organization-id buyersphere-id {:pricing-answer [:lift pricing-answer]}))
+
 (comment
   (get-by-id db/local-db 1 1)
   (get-by-organization db/local-db 1)
@@ -110,5 +114,6 @@
   (update-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "yes"}})
   (update-buyersphere-status db/local-db 1 1 {:status "active"})
   (update-buyersphere-stage db/local-db 1 1 {:stage "adoption"})
+  (update-buyersphere-pricing-answer db/local-db 1 1 {:pricing-answer {"selected_level" {}, "can_pay" "maybe" :a :b}})
   ;
   )

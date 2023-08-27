@@ -27,6 +27,7 @@
       (response/ok (d-buyerspheres/update-buyersphere-status db (:id organization) id body))
       (response/unauthorized))))
 
+;; Should these be rolled up into 1 thing?
 (def PATCH-buyersphere-stage
   (cpj/PATCH "/v0.1/buyerspheres/:id/stage" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if user
@@ -37,6 +38,12 @@
   (cpj/PATCH "/v0.1/buyerspheres/:id/features" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if user
       (response/ok (d-buyerspheres/update-buyersphere-feature-answer db (:id organization) id body))
+      (response/unauthorized))))
+
+(def PATCH-buyersphere-pricing
+  (cpj/PATCH "/v0.1/buyerspheres/:id/pricing" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if user
+      (response/ok (d-buyerspheres/update-buyersphere-pricing-answer db (:id organization) id body))
       (response/unauthorized))))
 
 (def GET-buyersphere-conversations

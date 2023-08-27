@@ -44,6 +44,7 @@
   #'buyerspheres/PATCH-buyersphere-features
   #'buyerspheres/PATCH-buyersphere-status
   #'buyerspheres/PATCH-buyersphere-stage
+  #'buyerspheres/PATCH-buyersphere-pricing
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations
   #'deal-timing/GET-deal-timing

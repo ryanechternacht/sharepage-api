@@ -57,7 +57,7 @@ insert into buyersphere_user_account (organization_id, buyersphere_id, user_acco
 
 insert into buyersphere_conversation (organization_id, buyersphere_id, author, message, resolved) values
 (1, 1, 4, 'How do you tax your peasants? Fair and equitable tax rates is important to me and Minisa', true),
-(1, 1, 5, 'When was your last festival? How big are your jousting tourneys?', false),
+(1, 1, 5, '<p>When was your <em>last</em> festival? How big are your <strong>jousting</strong> tourneys?', false),
 (1, 1, 6, 'Will my daughter have a sept to pray in?', false);
 
 insert into pricing_tier (organization_id, ordering, title, description, 
