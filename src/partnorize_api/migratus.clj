@@ -12,7 +12,8 @@
                       :migration-table-name "migratus"
                       :db db})
 
-;; (def dev {:dbtype "postgresql"
+;; ;; dev
+;; (def db {:dbtype "postgresql"
 ;;           :dbname "buyersphere"
 ;;           :host "buyersphere.cc2idiull87l.us-east-2.rds.amazonaws.com"
 ;;           :user "postgres"
