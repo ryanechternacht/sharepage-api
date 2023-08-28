@@ -4,7 +4,7 @@ set timezone = 'Etc/UTC'
 --;;
 -- TODO switch to the auto timestamp versions
 create table organization (
-  id serial primary key,
+  id integer primary key generated always as identity,
   name text,
   domain text,
   subdomain text,

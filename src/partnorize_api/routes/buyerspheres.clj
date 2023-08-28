@@ -41,9 +41,9 @@
       (response/unauthorized))))
 
 (def PATCH-buyersphere-pricing
-  (cpj/PATCH "/v0.1/buyerspheres/:id/pricing" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+  (cpj/PATCH "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if user
-      (response/ok (d-buyerspheres/update-buyersphere-pricing-answer db (:id organization) id body))
+      (response/ok (d-buyerspheres/update-buyersphere db (:id organization) id body))
       (response/unauthorized))))
 
 (def GET-buyersphere-conversations

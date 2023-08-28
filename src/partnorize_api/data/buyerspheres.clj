@@ -7,7 +7,8 @@
 (def ^:private base-buyersphere-cols
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
    :buyersphere.buyer_logo :buyersphere.intro_message
-   :buyersphere.features_answer :buyersphere.pricing_answer
+   :buyersphere.features_answer
+   :buyersphere.pricing_can_pay :buyersphere.pricing_tier_id
    :buyersphere.current_stage :buyersphere.status
    :buyersphere.qualification_date :buyersphere.evaluation_date
    :buyersphere.decision_date :buyersphere.adoption_date
@@ -101,8 +102,10 @@
                               {:current_stage stage
                                timestamp_column [[:now]]})))
 
-(defn update-buyersphere-pricing-answer [db organization-id buyersphere-id {pricing-answer :pricing-answer :as body}]
-  (update-buyersphere-field db organization-id buyersphere-id {:pricing-answer [:lift pricing-answer]}))
+(defn update-buyersphere [db organization-id buyersphere-id body]
+  (update-buyersphere-field db organization-id buyersphere-id
+                            (select-keys body [:pricing-can-pay
+                                               :pricing-tier-id])))
 
 (comment
   (get-by-id db/local-db 1 1)
@@ -114,6 +117,6 @@
   (update-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "yes"}})
   (update-buyersphere-status db/local-db 1 1 {:status "active"})
   (update-buyersphere-stage db/local-db 1 1 {:stage "adoption"})
-  (update-buyersphere-pricing-answer db/local-db 1 1 {:pricing-answer {"selected_level" {}, "can_pay" "maybe" :a :b}})
+  (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   ;
   )

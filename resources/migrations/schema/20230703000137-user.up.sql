@@ -1,9 +1,10 @@
 create table user_account (
-  id serial primary key,
+  id integer primary key generated always as identity,
   email text not null,
   buyersphere_role text not null,
   display_role text,
-  name text,
+  first_name text,
+  last_name text,
   organization_id int references organization(id),
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),

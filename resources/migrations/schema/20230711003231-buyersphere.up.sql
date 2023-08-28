@@ -1,12 +1,13 @@
 create table buyersphere (
-  id serial primary key,
+  id integer primary key generated always as identity,
   organization_id int references organization(id),
   buyer text,
   buyer_logo text,
   intro_message text,
   intro_video_link text,
   features_answer jsonb default '{"interests":{}}'::jsonb,
-  pricing_answer jsonb default '{"selected_level":{}}'::jsonb,
+  pricing_tier_id int references pricing_tier(id),
+  pricing_can_pay text,
   current_stage text not null default 'qualification',
   status text not null default 'active',
   qualification_date date,
@@ -20,11 +21,12 @@ create table buyersphere (
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   constraint buyersphere_current_stage check (current_stage in ('qualification', 'evaluation', 'decision', 'adoption', 'closed')),
-  constraint buyersphere_status check (status in ('active', 'on-hold', 'opt-out'))
+  constraint buyersphere_status check (status in ('active', 'on-hold', 'opt-out')),
+  constraint buyersphere_pricing_can_pay check (pricing_can_pay in ('yes', 'maybe', 'no'))
 )
 --;;
 create table buyersphere_resource (
-  id serial primary key,
+  id integer primary key generated always as identity,
   organization_id int references organization(id),
   buyersphere_id int references buyersphere(id),
   title text,
@@ -34,7 +36,7 @@ create table buyersphere_resource (
 )
 --;;
 create table buyersphere_conversation (
-  id serial primary key,
+  id integer primary key generated always as identity,
   organization_id int references organization(id),
   buyersphere_id int references buyersphere(id),
   author int references user_account(id),
@@ -45,7 +47,7 @@ create table buyersphere_conversation (
 )
 --;;
 create table buyersphere_user_account (
-  id serial primary key,
+  id integer primary key generated always as identity,
   organization_id int references organization(id),
   buyersphere_id int references buyersphere(id),
   user_account_id int references user_account(id),

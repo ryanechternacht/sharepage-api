@@ -1,5 +1,5 @@
 create table pricing_tier (
-  id integer generated always as identity,
+  id integer primary key generated always as identity,
   organization_id int references organization(id),
   ordering int not null,
   title text,
