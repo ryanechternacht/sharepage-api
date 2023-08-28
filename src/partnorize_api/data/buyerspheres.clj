@@ -85,27 +85,20 @@
       (db/->execute db)
       first))
 
-;; Should these be rolled up into 1 thing?
-(defn update-buyersphere-feature-answer [db organization-id buyersphere-id answer]
-  (update-buyersphere-field db organization-id buyersphere-id {:features_answer [:lift answer]}))
+(def ^:private stage-timestamp-to-update
+  {"evaluation" :qualified_on
+   "decision" :evaluated_on
+   "adoption" :decided_on})
 
-(defn update-buyersphere-status [db organization-id buyersphere-id {status :status}]
-  (update-buyersphere-field db organization-id buyersphere-id {:status status}))
-
-;; TODO implement a revert stage mode
-(defn update-buyersphere-stage [db organization-id buyersphere-id {stage :stage}]
-  (let [timestamp_column (condp = stage
-                           "evaluation" :qualified_on
-                           "decision" :evaluated_on
-                           "adoption" :decided_on)]
-    (update-buyersphere-field db organization-id buyersphere-id
-                              {:current_stage stage
-                               timestamp_column [[:now]]})))
-
-(defn update-buyersphere [db organization-id buyersphere-id body]
-  (update-buyersphere-field db organization-id buyersphere-id
-                            (select-keys body [:pricing-can-pay
-                                               :pricing-tier-id])))
+(defn update-buyersphere [db organization-id buyersphere-id {:keys [current-stage features-answer] :as body}]
+  (let [fields (cond-> (select-keys body [:pricing-can-pay
+                                          :pricing-tier-id
+                                          :current-stage
+                                          :status])
+                 current-stage (assoc (stage-timestamp-to-update current-stage)
+                                      [[:now]])
+                 features-answer (assoc :features-answer [:lift features-answer]))]
+    (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
   (get-by-id db/local-db 1 1)
@@ -114,9 +107,9 @@
   (get-by-organization db/local-db 1 {:stage "evaluation"})
   (get-by-organization db/local-db 1 {:is_overdue true})
   (get-full-buyersphere db/local-db 1 1)
-  (update-buyersphere-feature-answer db/local-db 1 1 {:interests {1 "yes"}})
-  (update-buyersphere-status db/local-db 1 1 {:status "active"})
-  (update-buyersphere-stage db/local-db 1 1 {:stage "adoption"})
+  (update-buyersphere db/local-db 1 1 {:features-answer {:interests {1 "yes"}}})
+  (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
+  (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
   ;
   )
