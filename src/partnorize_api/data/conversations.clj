@@ -8,6 +8,7 @@
                 :buyersphere_conversation.buyersphere_id
                 :buyersphere_conversation.message
                 :buyersphere_conversation.resolved
+                :buyersphere_conversation.created_at
                 :user_account.first_name :user_account.last_name
                 :user_account.display_role)
       (h/from :buyersphere_conversation)
@@ -43,8 +44,20 @@
          (map reformat-author)
          first)))
 
+(defn update-conversation [db organization-id buyersphere-id conversation-id body]
+  (let [fields (select-keys body [:resolved :message])]
+    (-> (h/update :buyersphere_conversation)
+        (h/set fields)
+        (h/where [:= :buyersphere_conversation.organization_id organization-id]
+                 [:= :buyersphere_conversation.buyersphere_id buyersphere-id]
+                 [:= :buyersphere_conversation.id conversation-id])
+        (merge (apply h/returning (keys fields)))
+        (db/->execute db)
+        first)))
+
 (comment
   (get-by-buyersphere db/local-db 1 1)
   (create-conversation db/local-db 1 1 1 "hello, world!")
+  (update-conversation db/local-db 1 1 44 {:message "goodbye!" :resolved true})
   ;
   )

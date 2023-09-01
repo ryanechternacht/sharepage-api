@@ -42,3 +42,14 @@
                                                         (:id user)
                                                         (:message body)))
       (response/unauthorized))))
+
+(def PATCH-buyersphere-conversation
+  (cpj/PATCH "/v0.1/buyerspheres/:b-id/conversations/:c-id" 
+    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if user
+      (response/ok (d-conversations/update-conversation db
+                                                        (:id organization)
+                                                        b-id
+                                                        c-id
+                                                        body))
+      (response/unauthorized))))
