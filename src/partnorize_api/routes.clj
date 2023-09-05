@@ -8,6 +8,7 @@
             [partnorize-api.routes.pain-points :as pain-points]
             [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.pricing-tiers :as pricing-tiers]
+            [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
 
@@ -45,6 +46,9 @@
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations
   #'buyerspheres/PATCH-buyersphere-conversation
+  #'buyerspheres/POST-buyersphere-resource
+  #'buyerspheres/PATCH-buyersphere-resource
+  #'buyerspheres/DELETE-buyersphere-resource
   #'deal-timing/GET-deal-timing
   #'deal-timing/PUT-deal-timing
   #'features/GET-features
@@ -64,6 +68,10 @@
   #'pricing-tiers/POST-pricing-tiers
   #'pricing-tiers/PUT-pricing-tiers
   #'pricing-tiers/DELETE-pricing-tiers
+  #'resources/GET-resources
+  #'resources/POST-resources
+  #'resources/PUT-resources
+  #'resources/DELETE-resources
   #'users/GET-users
   #'users/GET-users-me
   #'users/POST-users

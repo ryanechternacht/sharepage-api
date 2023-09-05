@@ -1,8 +1,9 @@
 (ns partnorize-api.data.buyerspheres
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]
+            [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.teams :as d-teams]
-            [partnorize-api.data.utilities :as util]))
+            [partnorize-api.data.utilities :as util]
+            [partnorize-api.db :as db]))
 
 (def ^:private base-buyersphere-cols
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
@@ -19,13 +20,6 @@
   (-> (apply h/select base-buyersphere-cols)
       (h/from :buyersphere)
       (h/where [:= :buyersphere.organization_id organization-id])))
-
-(defn- base-buyersphere-resource-query [organization-id]
-  (-> (h/select :buyersphere_resource.id :buyersphere_resource.organization_id
-                :buyersphere_resource.title :buyersphere_resource.link
-                :buyersphere_resource.created_at)
-      (h/from :buyersphere_resource)
-      (h/where [:= :buyersphere_resource.organization_id organization-id])))
 
 (defn get-by-ids [db organization-id ids]
   (-> (base-buyersphere-query organization-id)
@@ -60,16 +54,10 @@
       ;; TODO what to order on?
      (db/->execute query db))))
 
-(defn- get-buyersphere-resources-by-buyersphere-id [db organization-id buyersphere-id]
-  (-> (base-buyersphere-resource-query organization-id)
-      (h/where [:= :buyersphere_resource.buyersphere_id buyersphere-id])
-      (h/order-by :buyersphere_resource.title)
-      (db/->execute db)))
-
 ;; TODO is this how I want this to work?
 (defn get-full-buyersphere [db organization-id id]
   (let [buyersphere (get-by-id db organization-id id)
-        resources (get-buyersphere-resources-by-buyersphere-id db organization-id id)
+        resources (d-buyer-res/get-buyersphere-resources-by-buyersphere-id db organization-id id)
         {:keys [buyer-team seller-team]} (d-teams/get-by-buyersphere db organization-id id)]
     (-> buyersphere
         (assoc :resources resources)
