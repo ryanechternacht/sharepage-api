@@ -94,5 +94,5 @@ insert into buyersphere_user_account (organization_id, buyersphere_id, user_acco
 (1, 4, 3, 'seller', 0);
 
 insert into buyersphere_note (organization_id, buyersphere_id, title, body, author) values
-(1, 1, 'Dowry Negotiation Notes', '<p>They are <em>tight<em> on money. This is our opening</p>', 2),
+(1, 1, 'Dowry Negotiation Notes', '<p>They are <em>tight</em> on money. This is our opening</p>', 2),
 (1, 1, 'Love note to Catelyn', '<p>Roses are red, Violets are blue.</p><p>I want to marry you!</p>', 3);

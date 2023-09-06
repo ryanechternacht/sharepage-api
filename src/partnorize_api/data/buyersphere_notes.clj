@@ -13,7 +13,7 @@
       (h/join :user_account [:= :buyersphere_note.author :user_account.id])
       (h/where [:= :buyersphere_note.organization_id organization-id]
                [:= :buyersphere_note.buyersphere_id buyersphere-id])
-      (h/order-by :buyersphere_note.updated_at)))
+      (h/order-by :buyersphere_note.id)))
 
 (defn- reformat-author [{:keys [first_name last_name display_role] :as note}]
   (-> note
@@ -43,12 +43,12 @@
          first)))
 
 (defn update-buyersphere-note [db organization-id buyersphere-id note-id {:keys [title body]}]
-  (let [exec-update (-> (h/update :buyersphere_note)
-                        (h/set {:title title :body body})
-                        (h/where [:= :buyersphere_note.organization_id organization-id]
-                                 [:= :buyersphere_note.buyersphere_id buyersphere-id]
-                                 [:= :buyersphere_note.id note-id])
-                        (db/->execute db))
+  (let [_ (-> (h/update :buyersphere_note)
+              (h/set {:title title :body body})
+              (h/where [:= :buyersphere_note.organization_id organization-id]
+                       [:= :buyersphere_note.buyersphere_id buyersphere-id]
+                       [:= :buyersphere_note.id note-id])
+              (db/->execute db))
         get-updated-query (-> (base-note-query organization-id buyersphere-id)
                               (h/where [:= :buyersphere_note.id note-id]))]
     (->> get-updated-query

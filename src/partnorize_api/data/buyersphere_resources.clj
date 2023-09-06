@@ -1,7 +1,6 @@
 (ns partnorize-api.data.buyersphere-resources
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]
-            [partnorize-api.data.utilities :as util]))
+            [partnorize-api.db :as db]))
 
 (def ^:private base-buyersphere-resource-cols
   [:buyersphere_resource.id :buyersphere_resource.organization_id

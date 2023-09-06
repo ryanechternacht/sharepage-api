@@ -34,7 +34,7 @@
 (defn get-by-organization
   ([db organization-id]
    (get-by-organization db organization-id {}))
-  ([db organization-id {:keys [user-id stage is-overdue]}]
+  ([db organization-id {:keys [user-id stage]}]
    (let [query (cond-> (base-buyersphere-query organization-id)
                  (util/is-provided? user-id) (h/where [:in :buyersphere.id
                                    (-> (h/select :buyersphere_id)

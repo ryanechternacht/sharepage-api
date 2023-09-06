@@ -1,7 +1,6 @@
 (ns partnorize-api.data.resources
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]
-            [partnorize-api.data.utilities :as u]))
+            [partnorize-api.db :as db]))
 
 (def ^:private base-resource-columns
   [:deal_resource.id :deal_resource.organization_id

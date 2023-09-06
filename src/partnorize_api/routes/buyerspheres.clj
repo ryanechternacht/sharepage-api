@@ -9,7 +9,7 @@
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
-  (cpj/GET "/v0.1/buyerspheres" [user-id stage :as {:keys [db user organization] :as req}]
+  (cpj/GET "/v0.1/buyerspheres" [user-id stage :as {:keys [db user organization]}]
     (if user
       (response/ok (d-buyerspheres/get-by-organization db
                                                        (:id organization)
