@@ -46,6 +46,9 @@
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations
   #'buyerspheres/PATCH-buyersphere-conversation
+  #'buyerspheres/POST-buyersphere-note
+  #'buyerspheres/PATCH-buyersphere-note
+  #'buyerspheres/DELETE-buyersphere-note
   #'buyerspheres/POST-buyersphere-resource
   #'buyerspheres/PATCH-buyersphere-resource
   #'buyerspheres/DELETE-buyersphere-resource

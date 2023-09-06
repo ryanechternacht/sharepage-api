@@ -2,6 +2,7 @@
   (:require [compojure.core :as cpj]
             [compojure.coercions :as coerce]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
+            [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversations :as d-conversations]
             [ring.util.http-response :as response]))
@@ -84,4 +85,35 @@
                                                             (:id organization)
                                                             b-id
                                                             r-id))
+      (response/unauthorized))))
+
+(def POST-buyersphere-note
+  (cpj/POST "/v0.1/buyerspheres/:b-id/notes"
+    [b-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if user
+      (response/ok (d-buyer-notes/create-buyersphere-note db
+                                                          (:id organization)
+                                                          b-id
+                                                          body))
+      (response/unauthorized))))
+
+(def PATCH-buyersphere-note
+  (cpj/PATCH "/v0.1/buyerspheres/:b-id/notes/:n-id"
+    [b-id :<< coerce/as-int n-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if user
+      (response/ok (d-buyer-notes/update-buyersphere-note db
+                                                          (:id organization)
+                                                          b-id
+                                                          n-id
+                                                          body))
+      (response/unauthorized))))
+
+(def DELETE-buyersphere-note
+  (cpj/DELETE "/v0.1/buyerspheres/:b-id/notes/:n-id"
+    [b-id :<< coerce/as-int n-id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if user
+      (response/ok (d-buyer-notes/delete-buyersphere-note db
+                                                          (:id organization)
+                                                          b-id
+                                                          n-id))
       (response/unauthorized))))

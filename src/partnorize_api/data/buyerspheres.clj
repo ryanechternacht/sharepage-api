@@ -1,5 +1,6 @@
 (ns partnorize-api.data.buyerspheres
   (:require [honey.sql.helpers :as h]
+            [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.utilities :as util]
@@ -58,9 +59,11 @@
 (defn get-full-buyersphere [db organization-id id]
   (let [buyersphere (get-by-id db organization-id id)
         resources (d-buyer-res/get-buyersphere-resources-by-buyersphere-id db organization-id id)
+        notes (d-buyer-notes/get-by-buyersphere db organization-id id)
         {:keys [buyer-team seller-team]} (d-teams/get-by-buyersphere db organization-id id)]
     (-> buyersphere
         (assoc :resources resources)
+        (assoc :notes notes)
         (assoc :buyer_team buyer-team)
         (assoc :seller_team seller-team))))
 
