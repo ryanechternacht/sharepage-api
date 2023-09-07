@@ -1,12 +1,15 @@
 (ns partnorize-api.middleware.users
-  (:require [partnorize-api.data.users :as d-users]))
+  (:require [partnorize-api.data.users :as d-users]
+            [partnorize-api.data.utilities :as util]))
 
 ;; TODO do something more useful with the session info (like link it to whatever info we have saved)
 (defn- wrap-user-impl [handler {:keys [session db organization] :as request}]
   (if (:email_address session)
-    (handler (assoc request :user (d-users/get-by-email db
-                                                        (:id organization)
-                                                        (:email_address session))))
+    (let [user (util/camel-case
+                (d-users/get-by-email db
+                                      (:id organization)
+                                      (:email_address session)))]
+      (handler (assoc request :user user)))
     (handler request)))
 
 ; This form has the advantage that changes to wrap-debug-impl are

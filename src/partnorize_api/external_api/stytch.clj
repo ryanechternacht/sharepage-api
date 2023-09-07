@@ -13,7 +13,7 @@
                   :accept :json
                   :as :json})))
 
-(defn- make-stytch-link 
+(defn- make-stytch-link
   "NOTE: do not include a leading / or you will overwrite prior path info"
   [base-url path]
   (str (uri/join base-url path)))
@@ -39,7 +39,7 @@
    Returns the a session identifier user or nil if the session isn't valid."
   [{:keys [base-url project secret]}
    magic-link-token]
-  (try 
+  (try
     (-> (make-stytch-call (make-stytch-link base-url "magic_links/authenticate")
                           project
                           secret
@@ -72,13 +72,33 @@
   "Sends the user a magic-email-link. Returns a truthy value if the
    email was sent and a falsey value if it wasn't"
   [{:keys [base-url project secret redirect-url]}
-   user-email stytch-organization-id]
+   stytch-organization-id user-email]
   (try
-    (-> (make-stytch-call (make-stytch-link base-url "magic_links/email/login_or_signup")
+    (make-stytch-call (make-stytch-link base-url "magic_links/email/login_or_signup")
+                      project
+                      secret
+                      {:email_address user-email
+                       :organization_id stytch-organization-id
+                       :login_redirect_url redirect-url})
+    (catch Exception _
+      nil)))
+
+(defn create-user
+  "Creates a user in the given organization. Returns truthy if the
+   user was successfully created"
+  [{:keys [base-url project secret]}
+   stytch-organization-id user-email name]
+  (try
+    (-> (make-stytch-call (make-stytch-link base-url
+                                            (str "organizations/"
+                                                 stytch-organization-id
+                                                 "/members"))
                           project
                           secret
                           {:email_address user-email
-                           :organization_id stytch-organization-id
-                           :login_redirect_url redirect-url}))
+                           :name name})
+        :body
+        :member
+        :member_id)
     (catch Exception _
       nil)))

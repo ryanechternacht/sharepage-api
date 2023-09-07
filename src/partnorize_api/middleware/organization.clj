@@ -1,6 +1,7 @@
 (ns partnorize-api.middleware.organization
   (:require [clojure.string :as str]
-            [partnorize-api.data.organizations :as d-org]))
+            [partnorize-api.data.organizations :as d-org]
+            [partnorize-api.data.utilities :as util]))
 
 (defn- get-subdomain-from-headers [headers]
   (try
@@ -10,7 +11,7 @@
 
 (defn- wrap-organization-impl [handler {db :db headers :headers :as request}]
   (if-let [subdomain (get-subdomain-from-headers headers)]
-    (if-let [organization (d-org/get-by-subdomain db subdomain)]
+    (if-let [organization (util/camel-case (d-org/get-by-subdomain db subdomain))]
       (handler (assoc request :organization organization))
       (handler request))
     (handler request)))

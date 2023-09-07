@@ -17,10 +17,11 @@
       (response/unauthorized))))
 
 (def POST-users
-  (cpj/POST "/v0.1/users" {:keys [db user organization body]}
+  (cpj/POST "/v0.1/users" {:keys [config db user organization body]}
     (if user
       ;; TODO add the rest of the create user stytch code
-      (response/ok (d-users/create-user db
-                                        (:id organization)
+      (response/ok (d-users/create-user config
+                                        db
+                                        organization
                                         body))
       (response/unauthorized))))

@@ -1,6 +1,8 @@
 (ns partnorize-api.data.users
   (:require  [honey.sql.helpers :as h]
-             [partnorize-api.db :as db]))
+             [partnorize-api.middleware.config :as config]
+             [partnorize-api.db :as db]
+             [partnorize-api.external-api.stytch :as stytch]))
 
 (def ^:private user-columns
   [:user_account.id :user_account.email :user_account.buyersphere_role
@@ -24,22 +26,29 @@
       (h/where [:= :user_account.buyersphere_role "admin"])
       (db/->execute db)))
 
-(defn create-user [db organization-id {:keys [first-name last-name display-role email]}]
-  (-> (h/insert-into :user_account)
-      (h/columns :organization_id :buyersphere_role :first_name
-                 :last_name :display_role :email)
-      (h/values [[organization-id "admin" first-name
-                  last-name display-role email]])
-      (#(apply h/returning % user-columns))
-      (db/->execute db)
-      first))
+(defn create-user [config db organization {:keys [first-name last-name display-role email]}]
+  (when-let [stytch-member-id (stytch/create-user (:stytch config)
+                                                  (:stytch-organization-id organization)
+                                                  email
+                                                  (str first-name " " last-name))]
+    (-> (h/insert-into :user_account)
+        (h/columns :organization_id :buyersphere_role :first_name
+                   :last_name :display_role :email :stytch_member_id)
+        (h/values [[(:id organization) "admin" first-name
+                    last-name display-role email stytch-member-id]])
+        (#(apply h/returning % user-columns))
+        (db/->execute db)
+        first)))
 
 (comment
   (get-by-email db/local-db 1 "ryan@echternacht.org")
   (get-by-organization db/local-db 1)
-  (create-user db/local-db 1 {:first_name "grace"
-                              :last_name "ooi"
-                              :email "grace@ooi"
-                              :display_role "my love"})
+  (create-user config/config
+               db/local-db
+               {:id 1 :stytch-organization-id "organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e"}
+               {:first-name "grace"
+                :last-name "ooi"
+                :email "grac2e@echternacht.org"
+                :display-role "my love"})
   ;
   )
