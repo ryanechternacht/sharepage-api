@@ -1,11 +1,13 @@
 (ns partnorize-api.routes.buyerspheres
-  (:require [compojure.core :as cpj]
-            [compojure.coercions :as coerce]
+  (:require [compojure.coercions :as coerce]
+            [compojure.core :as cpj]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversations :as d-conversations]
-            [ring.util.http-response :as response]))
+            [partnorize-api.data.users :as d-users]
+            [ring.util.http-response :as response]
+            [partnorize-api.data.teams :as d-teams]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
@@ -116,4 +118,22 @@
                                                           (:id organization)
                                                           b-id
                                                           n-id))
+      (response/unauthorized))))
+
+(def POST-addbuyer-to-buyersphere
+  (cpj/POST "/v0.1/buyerspheres/:id/teams/buyer"
+    [id :<< coerce/as-int :as {:keys [config db user organization body]}]
+    (if user
+      (let [new-user (d-users/create-user config
+                                          db
+                                          organization
+                                          body)
+            _ (d-teams/add-user-to-buyersphere db
+                                               (:id organization)
+                                               id
+                                               "buyer"
+                                               (:id new-user))]
+        (response/ok (:buyer-team (d-teams/get-by-buyersphere db
+                                                              (:id organization)
+                                                              id))))
       (response/unauthorized))))

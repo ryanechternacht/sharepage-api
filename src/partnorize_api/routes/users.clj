@@ -19,7 +19,6 @@
 (def POST-users
   (cpj/POST "/v0.1/users" {:keys [config db user organization body]}
     (if user
-      ;; TODO add the rest of the create user stytch code
       (response/ok (d-users/create-user config
                                         db
                                         organization

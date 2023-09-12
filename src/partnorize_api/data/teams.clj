@@ -1,6 +1,7 @@
 (ns partnorize-api.data.teams
   (:require  [honey.sql.helpers :as h]
-             [partnorize-api.db :as db]))
+             [partnorize-api.db :as db]
+             [partnorize-api.data.utilities :as u]))
 
 (defn- base-team-query [organization-id buyersphere-id]
   (-> (h/select :user_account.email :user_account.buyersphere_role
@@ -25,8 +26,22 @@
     {:buyer-team (people "buyer")
      :seller-team (people "seller")}))
 
+(defn add-user-to-buyersphere
+  "Team should be either 'buyer' or 'seller'."
+  [db organization-id buyersphere-id team user-id]
+  (-> (h/insert-into :buyersphere_user_account)
+      (h/columns :organization_id :buyersphere_id :team :user_account_id :ordering)
+      (h/values [[organization-id
+                  buyersphere-id
+                  team
+                  user-id
+                  (u/get-next-ordering-query :buyersphere_user_account organization-id
+                                             [:= :buyersphere-id buyersphere-id]
+                                             [:= :team team])]])
+      (db/->execute db)))
 
 (comment
   (get-by-buyersphere db/local-db 1 1)
+  (add-user-to-buyersphere db/local-db 1 1 "seller" 8)
   ;
   )

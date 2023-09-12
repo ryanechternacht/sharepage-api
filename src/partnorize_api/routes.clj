@@ -52,6 +52,7 @@
   #'buyerspheres/POST-buyersphere-resource
   #'buyerspheres/PATCH-buyersphere-resource
   #'buyerspheres/DELETE-buyersphere-resource
+  #'buyerspheres/POST-addbuyer-to-buyersphere
   #'deal-timing/GET-deal-timing
   #'deal-timing/PUT-deal-timing
   #'features/GET-features

@@ -10,13 +10,20 @@
   "generates a query designed to be used as a subquery in an `insert into`
    statement for a table like `persona` or `pain_point` that will get the
    1 + the max ordering for the current org"
-  [table organization-id]
-  (-> (h/select [[:raw "COALESCE(MAX(ordering)) + 1"]])
-      (h/from table)
-      (h/where [:= :organization_id organization-id])))
+  ([table organization-id]
+   (-> (h/select [[:raw "COALESCE(MAX(ordering)) + 1"]])
+       (h/from table)
+       (h/where [:= :organization_id organization-id])))
+  ([table organization-id & other-wheres]
+   (-> (h/select [[:raw "COALESCE(MAX(ordering)) + 1"]])
+       (h/from table)
+       (h/where (apply conj
+                       [:and [:= :organization_id organization-id]]
+                       other-wheres)))))
 
 (comment
   (db/->format (get-next-ordering-query :persona 1))
+  (db/->format (get-next-ordering-query :buyersphere_user_account 1 [:= :buyersphere-id 1] [:= :team "seller"]))
   ;
   )
 
