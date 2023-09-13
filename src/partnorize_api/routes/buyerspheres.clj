@@ -120,7 +120,7 @@
                                                           n-id))
       (response/unauthorized))))
 
-(def POST-addbuyer-to-buyersphere
+(def POST-add-buyer-to-buyersphere
   (cpj/POST "/v0.1/buyerspheres/:id/teams/buyer"
     [id :<< coerce/as-int :as {:keys [config db user organization body]}]
     (if user
@@ -137,3 +137,20 @@
                                                               (:id organization)
                                                               id))))
       (response/unauthorized))))
+
+(def POST-add-seller-to-buyersphere
+  (cpj/POST "/v0.1/buyerspheres/:id/teams/seller"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if user
+      (let [_ (d-teams/add-user-to-buyersphere db
+                                               (:id organization)
+                                               id
+                                               "seller"
+                                               (:user-id body))]
+        (response/ok (:seller-team (d-teams/get-by-buyersphere db
+                                                               (:id organization)
+                                                               id))))
+      (response/unauthorized))))
+
+
+
