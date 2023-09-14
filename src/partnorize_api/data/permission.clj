@@ -33,7 +33,7 @@
         count
         pos?)))
 
-(defn does-user-have-buyersphere-view-permission [db organization buyersphere-id user]
+(defn can-user-see-buyersphere [db organization buyersphere-id user]
   (or (does-user-have-org-permissions? db organization user)
       (is-user-buyersphere-buyer? db organization buyersphere-id user)))
 
@@ -41,11 +41,10 @@
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 4})
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 1})
   (is-user-buyersphere-buyer? db/local-db {:id 3} 123 {:id 1234})
-  
-  (does-user-have-buyersphere-view-permission db/local-db {:id 1} 1 {:id 4})
-  (does-user-have-buyersphere-view-permission db/local-db {:id 1} 1 {:id 1})
-  (does-user-have-buyersphere-view-permission db/local-db {:id 1} 2 {:id 4})
-  (does-user-have-buyersphere-view-permission db/local-db {:id 3} 123 {:id 1234})
-  
+
+  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 4})
+  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 1})
+  (can-user-see-buyersphere db/local-db {:id 1} 2 {:id 4})
+  (can-user-see-buyersphere db/local-db {:id 3} 123 {:id 1234})
   ;
   )
