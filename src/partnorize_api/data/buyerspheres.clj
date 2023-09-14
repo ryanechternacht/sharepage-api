@@ -2,6 +2,8 @@
   (:require [honey.sql.helpers :as h]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
+            [partnorize-api.data.deal-timing :as d-deal-timing]
+            [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.utilities :as util]
             [partnorize-api.db :as db]))
@@ -37,9 +39,9 @@
   ([db organization-id {:keys [user-id stage]}]
    (let [query (cond-> (base-buyersphere-query organization-id)
                  (util/is-provided? user-id) (h/where [:in :buyersphere.id
-                                   (-> (h/select :buyersphere_id)
-                                       (h/from :buyersphere_user_account)
-                                       (h/where [:= :user_account_id user-id]))])
+                                                       (-> (h/select :buyersphere_id)
+                                                           (h/from :buyersphere_user_account)
+                                                           (h/where [:= :user_account_id user-id]))])
                  (util/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
                 ;;  is-overdue (h/where [:or
                 ;;                       [:and
@@ -96,11 +98,45 @@
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
-  (get-by-organization db/local-db 1 {:is_overdue true})
   (get-full-buyersphere db/local-db 1 1)
   (update-buyersphere db/local-db 1 1 {:features-answer {:interests {1 "yes"}}})
   (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
+  ;
+  )
+
+(defn- create-buyersphere-record [db organization-id {:keys [buyer buyer-logo]}]
+  (let [{:keys [qualified-days evaluation-days decision-days]}
+        (util/camel-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))]
+    (-> (h/insert-into :buyersphere)
+        (h/columns :organization_id :buyer
+                   :buyer_logo :qualification_date
+                   :evaluation_date :decision_date)
+        (h/values [[organization-id
+                    buyer
+                    buyer-logo
+                    [:raw (str "NOW() + INTERVAL '" qualified-days " DAYS'")]
+                    [:raw (str "NOW() + INTERVAL '" evaluation-days " DAYS'")]
+                    [:raw (str "NOW() + INTERVAL '" decision-days " DAYS'")]]])
+        (merge (apply h/returning base-buyersphere-cols))
+        (db/->execute db)
+        first)))
+
+(defn- add-default-resources [db organization-id buyersphere-id]
+  (let [resources (d-res/get-resources-by-organization-id db organization-id)
+        build-values (juxt :organization-id (constantly buyersphere-id) :title :link)]
+    (-> (h/insert-into :buyersphere_resource)
+        (h/columns :organization_id :buyersphere_id :title :link)
+        (h/values (map build-values resources))
+        (db/->execute db))))
+
+(defn create-buyersphere [db organization-id buyersphere]
+  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere)
+        _ (add-default-resources db organization-id new-id)]
+    new-id))
+
+(comment
+  (create-buyersphere db/local-db 1 {:buyer "nike" :buyer-logo "https://nike.com"})
   ;
   )

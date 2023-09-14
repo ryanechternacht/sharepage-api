@@ -42,6 +42,7 @@
   #'auth/POST-send-magic-link-login-email
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere
+  #'buyerspheres/POST-buyersphere
   #'buyerspheres/PATCH-buyersphere
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations

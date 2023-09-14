@@ -2,6 +2,9 @@
   (:require [honey.sql.helpers :as h]
             [partnorize-api.db :as db]))
 
+;; TODO this should support ordering!
+;; TODO this should support stage specific adds
+
 (def ^:private base-resource-columns
   [:deal_resource.id :deal_resource.organization_id
    :deal_resource.title :deal_resource.link])
