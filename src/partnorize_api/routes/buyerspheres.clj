@@ -29,7 +29,7 @@
 (def POST-buyersphere
   (cpj/POST "/v0.1/buyerspheres" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-buyerspheres/create-buyersphere db organization body))
+      (response/ok (d-buyerspheres/create-buyersphere db (:id organization) body))
       (response/unauthorized))))
 
 (def PATCH-buyersphere
