@@ -7,7 +7,8 @@
 (def ^:private user-columns
   [:user_account.id :user_account.email :user_account.buyersphere_role
    :user_account.display_role :user_account.organization_id
-   :user_account.first_name :user_account.last_name])
+   :user_account.first_name :user_account.last_name
+   :user_account.is_admin])
 
 (defn- base-user-query [organization-id] 
   (-> (apply h/select user-columns)
@@ -15,11 +16,21 @@
       (h/where [:= :user_account.organization_id organization-id])
       (h/order-by :first_name :last_name)))
 
+;; TODO I don't love how global admin stuff has to pollute this 
+;; to work correctly
 (defn get-by-email [db organization-id email]
-  (-> (base-user-query organization-id)
-      (h/where [:= :user_account.email email])
-      (db/->execute db)
-      first))
+  (let [user-in-org-query (-> (base-user-query organization-id)
+                              (h/where [:= :user_account.email email])
+                              (select-keys [:select :from :where]))
+        global-admin-query (-> (apply h/select user-columns)
+                               (h/from :user_account)
+                               (h/where [:= :user_account.email email]
+                                        [:is :user_account.is_admin :true]))]
+    (-> (h/union user-in-org-query
+                 global-admin-query)
+        (h/order-by :is_admin)
+        (db/->execute db)
+        first)))
 
 (defn get-by-organization [db organization-id]
   (-> (base-user-query organization-id)
@@ -42,7 +53,9 @@
 
 (comment
   (get-by-email db/local-db 1 "ryan@echternacht.org")
+  (get-by-email db/local-db 2 "admin@buyersphere.com")
   (get-by-organization db/local-db 1)
+  (get-by-organization db/local-db 2) ;; is_admin check
   (create-user config/config
                db/local-db
                {:id 1 :stytch-organization-id "organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e"}

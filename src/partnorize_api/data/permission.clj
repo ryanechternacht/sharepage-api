@@ -75,6 +75,5 @@
   ;; admin checks
   (is-user-buyersphere-buyer? db/local-db {:id 2} 1 {:id 16})
   (can-user-see-buyersphere db/local-db {:id 2} 1 {:id 16})
-  
   ;
   )
