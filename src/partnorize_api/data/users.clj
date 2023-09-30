@@ -28,7 +28,7 @@
                                         [:is :user_account.is_admin :true]))]
     (-> (h/union user-in-org-query
                  global-admin-query)
-        (h/order-by :is_admin)
+        (h/order-by [:is_admin :desc])
         (db/->execute db)
         first)))
 
