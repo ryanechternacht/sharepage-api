@@ -53,8 +53,8 @@
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [organization config body]}
     (if (stytch/send-magic-link-email 
-         (:stytch config) 
-         (:stytch-organization-id organization) 
+         (:stytch config)
+         (:stytch-organization-id organization)
          (:user-email body))
       (response/ok "Email sent")
       (response/bad-request "Email could not be sent"))))

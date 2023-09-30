@@ -134,6 +134,7 @@
       (let [new-user (d-users/create-user config
                                           db
                                           organization
+                                          "buyer"
                                           body)
             _ (d-teams/add-user-to-buyersphere db
                                                (:id organization)

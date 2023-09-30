@@ -6,12 +6,12 @@
 (def ^:private default-session-timeout_minutes (* 30 24 60))
 
 (defn- make-stytch-call [url project secret body]
-  (-> (http/post url
-                 {:content-type :json
-                  :basic-auth [project secret]
-                  :body (json/generate-string body)
-                  :accept :json
-                  :as :json})))
+  (http/post url
+             {:content-type :json
+              :basic-auth [project secret]
+              :body (json/generate-string body)
+              :accept :json
+              :as :json}))
 
 (defn- make-stytch-link
   "NOTE: do not include a leading / or you will overwrite prior path info"
@@ -84,21 +84,18 @@
       nil)))
 
 (defn create-user
-  "Creates a user in the given organization. Returns truthy if the
-   user was successfully created"
+  "Creates a user in the given organization. Throws if the user
+   could not be created in stytch"
   [{:keys [base-url project secret]}
    stytch-organization-id user-email name]
-  (try
-    (-> (make-stytch-call (make-stytch-link base-url
-                                            (str "organizations/"
-                                                 stytch-organization-id
-                                                 "/members"))
-                          project
-                          secret
-                          {:email_address user-email
-                           :name name})
-        :body
-        :member
-        :member_id)
-    (catch Exception _
-      nil)))
+  (-> (make-stytch-call (make-stytch-link base-url
+                                          (str "organizations/"
+                                               stytch-organization-id
+                                               "/members"))
+                        project
+                        secret
+                        {:email_address user-email
+                         :name name})
+      :body
+      :member
+      :member_id))

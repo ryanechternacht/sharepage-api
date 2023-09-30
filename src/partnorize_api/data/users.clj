@@ -37,15 +37,15 @@
       (h/where [:= :user_account.buyersphere_role "admin"])
       (db/->execute db)))
 
-(defn create-user [config db organization {:keys [first-name last-name display-role email]}]
-  (when-let [stytch-member-id (stytch/create-user (:stytch config)
-                                                  (:stytch-organization-id organization)
-                                                  email
-                                                  (str first-name " " last-name))]
+(defn create-user [config db organization buyersphere-role {:keys [first-name last-name display-role email]}]
+  (let [stytch-member-id (stytch/create-user (:stytch config)
+                                             (:stytch-organization-id organization)
+                                             email
+                                             (str first-name " " last-name))]
     (-> (h/insert-into :user_account)
         (h/columns :organization_id :buyersphere_role :first_name
                    :last_name :display_role :email :stytch_member_id)
-        (h/values [[(:id organization) "admin" first-name
+        (h/values [[(:id organization) buyersphere-role first-name
                     last-name display-role email stytch-member-id]])
         (#(apply h/returning % user-columns))
         (db/->execute db)
@@ -59,9 +59,10 @@
   (create-user config/config
                db/local-db
                {:id 1 :stytch-organization-id "organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e"}
+               "buyer"
                {:first-name "grace"
                 :last-name "ooi"
-                :email "grac2e@echternacht.org"
+                :email "grace11@echternacht.org"
                 :display-role "my love"})
   ;
   )

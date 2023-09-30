@@ -96,3 +96,15 @@ insert into buyersphere_user_account (organization_id, buyersphere_id, user_acco
 insert into buyersphere_note (organization_id, buyersphere_id, title, body, author) values
 (1, 1, 'Dowry Negotiation Notes', '<p>They are <em>tight</em> on money. This is our opening</p>', 2),
 (1, 1, 'Love note to Catelyn', '<p>Roses are red, Violets are blue.</p><p>I want to marry you!</p>', 3);
+
+-- other org for testing 
+insert into organization (name, domain, subdomain, logo, stytch_organization_id) 
+  values ('Other Org', 
+    'https://www.other.com', 
+    'other', 
+    '/ryan.jpeg', 
+    'organization-test-992a5a43-8076-41e6-8f6c-1ba717ae1f75'
+);
+
+insert into deal_timing (organization_id, qualified_days, evaluation_days, decision_days) values
+(2, 30, 45, 60);

@@ -23,5 +23,6 @@
       (response/ok (d-users/create-user config
                                         db
                                         organization
+                                        "admin"
                                         body))
       (response/unauthorized))))
