@@ -3,7 +3,8 @@
               [lambdaisland.uri :as uri]
               [ring.util.http-response :as response]
               [partnorize-api.data.organizations :as d-org]
-              [partnorize-api.external-api.stytch :as stytch]))
+              [partnorize-api.external-api.stytch :as stytch]
+              [partnorize-api.data.users :as d-users]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
@@ -21,16 +22,22 @@
 
 (defn- magic-link-login [db stytch-config front-end-base-url slug token]
   (let [org (d-org/get-by-subdomain db slug)
-        session-token (stytch/authenticate-magic-link stytch-config token)]
+        {session-token :session_token
+         {:keys [email_address name oauth_registrations]} :member} (stytch/authenticate-magic-link stytch-config token)]
     (if (and org session-token)
-      (set-session session-token (response/found (make-url front-end-base-url slug "")))
-      (response/found (make-url front-end-base-url slug "/login")))))
+       (do
+        (d-users/update-user-from-stytch db email_address name (-> oauth_registrations first :profile_picture_url))
+        (set-session session-token (response/found (make-url front-end-base-url slug ""))))
+    (response/found (make-url front-end-base-url slug "/login")))))
 
 (defn- oauth-login [db stytch-config front-end-base-url slug token]
   (let [org (d-org/get-by-subdomain db slug)
-        session-token (stytch/authenticate-oauth stytch-config token)]
+        {session-token :session_token
+         {:keys [email_address name oauth_registrations]} :member} (stytch/authenticate-oauth stytch-config token)]
     (if (and org session-token)
-      (set-session session-token (response/found (make-url front-end-base-url slug "")))
+      (do 
+        (d-users/update-user-from-stytch db email_address name (-> oauth_registrations first :profile_picture_url))
+        (set-session session-token (response/found (make-url front-end-base-url slug ""))))
       (response/found (make-url front-end-base-url slug "/login")))))
 
 (def GET-login

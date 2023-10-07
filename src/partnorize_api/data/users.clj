@@ -2,7 +2,8 @@
   (:require  [honey.sql.helpers :as h]
              [partnorize-api.middleware.config :as config]
              [partnorize-api.db :as db]
-             [partnorize-api.external-api.stytch :as stytch]))
+             [partnorize-api.external-api.stytch :as stytch]
+             [clojure.string :as str]))
 
 (def ^:private user-columns
   [:user_account.id :user_account.email :user_account.buyersphere_role
@@ -51,6 +52,25 @@
         (db/->execute db)
         first)))
 
+(defn update-user-from-stytch [db email name image]
+  (try
+    (let [updates (cond-> {}
+                    (not (str/blank? name))
+                    ((fn [m]
+                       (let [pieces (str/split name #" ")
+                             first-name (first pieces)
+                             last-name (str/join " " (rest pieces))]
+                         (merge m {:first_name first-name :last_name last-name}))))
+                    (not (str/blank? image))
+                    (merge {:image image}))]
+      (-> (h/update :user_account)
+          (h/set updates)
+          (h/where [:= :email email])
+          (db/->execute db)))
+    (catch Exception _
+         ;;  this isn't that important, so don't stop processing
+      nil)))
+
 (comment
   (get-by-email db/local-db 1 "ryan@echternacht.org")
   (get-by-email db/local-db 2 "admin@buyersphere.com")
@@ -64,5 +84,6 @@
                 :last-name "ooi"
                 :email "grace11@echternacht.org"
                 :display-role "my love"})
+  (update-user-from-stytch db/local-db "ryan@echternacht.org" "bill nye the third" "https://www.google.com")
   ;
   )

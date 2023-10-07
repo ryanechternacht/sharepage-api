@@ -45,15 +45,14 @@
                           secret
                           {:magic_links_token magic-link-token
                            :session_duration_minutes default-session-timeout_minutes})
-        :body
-        :session_token)
+        :body)
     (catch Exception _
       nil)))
 
 ;; TODO pull values out of this that are reasonable (besides just session_token)
 ;; these should have the username, profile pic, etc
 (defn authenticate-oauth
-  "Authenticates the magic link login attempt with stytch.
+  "Authenticates the oauth login attempt with stytch.
    Returns the a session identifier user or nil if the session isn't valid."
   [{:keys [base-url project secret]}
    auth-token]
@@ -63,8 +62,7 @@
                           secret
                           {:oauth_token auth-token
                            :session_duration_minutes default-session-timeout_minutes})
-        :body
-        :session_token)
+        :body)
     (catch Exception _
       nil)))
 
