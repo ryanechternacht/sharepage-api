@@ -35,7 +35,7 @@ insert into feature (organization_id, ordering, title, description) values
 
 -- real users
 insert into user_account (organization_id, email, first_name, last_name, buyersphere_role, display_role) values 
-(1, 'ryan@echternacht.org', 'ryan', 'echternacht', 'admin', 'Narrator');
+(1, 'ryan@echternacht.org', 'The', 'Storyteller', 'admin', 'Narrator');
 
 -- fake users
 insert into user_account (organization_id, email, first_name, last_name, buyersphere_role, display_role) values 

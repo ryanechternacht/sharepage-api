@@ -19,7 +19,7 @@
   (str (uri/join base-url path)))
 
 (defn authenticate-session
-  "Authenticates a session wiith stytch. Returns the logged in
+  "Authenticates a session with stytch. Returns the logged in
    user or nil if the session isn't valid"
   [{:keys [base-url project secret]}
    session-token]
