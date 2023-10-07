@@ -15,7 +15,8 @@
             [partnorize-api.middleware.users :as m-users]
             [partnorize-api.routes :as r]))
 
-(def session-store (m-stytch/stytch-store (:stytch m-config/config)))
+(def session-store (m-stytch/stytch-store (:stytch m-config/config)
+                                          (:pg-db m-config/config)))
 
 (def handler
   (-> r/routes
