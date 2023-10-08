@@ -102,7 +102,7 @@ insert into organization (name, domain, subdomain, logo, stytch_organization_id)
   values ('Other Org', 
     'https://www.other.com', 
     'other', 
-    '/ryan.jpeg', 
+    '/other.png', 
     'organization-test-992a5a43-8076-41e6-8f6c-1ba717ae1f75'
 );
 
