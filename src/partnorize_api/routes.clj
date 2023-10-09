@@ -62,6 +62,7 @@
   #'features/PUT-features
   #'features/DELETE-features
   #'organization/GET-organization
+  #'organization/PATCH-organization
   #'pain-points/GET-pain-points
   #'pain-points/POST-pain-points
   #'pain-points/PUT-pain-points
