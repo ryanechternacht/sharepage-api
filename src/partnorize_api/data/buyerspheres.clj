@@ -83,11 +83,13 @@
    "decision" :evaluated_on
    "adoption" :decided_on})
 
-(defn update-buyersphere [db organization-id buyersphere-id {:keys [current-stage features-answer] :as body}]
+(defn update-buyersphere [db organization-id buyersphere-id
+                          {:keys [current-stage features-answer] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
-                                          :status])
+                                          :status
+                                          :intro-message])
                  current-stage (assoc (stage-timestamp-to-update current-stage)
                                       [[:now]])
                  features-answer (assoc :features-answer [:lift features-answer]))]
@@ -103,6 +105,7 @@
   (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
+  (update-buyersphere db/local-db 1 1 {:intro-message "howdy!"})
   ;
   )
 

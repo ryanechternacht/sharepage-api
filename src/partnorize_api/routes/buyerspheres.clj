@@ -32,6 +32,7 @@
       (response/ok (d-buyerspheres/create-buyersphere db (:id organization) body))
       (response/unauthorized))))
 
+;; TODO technically a buyer can update the intro message if they craft the request correctly
 (def PATCH-buyersphere
   (cpj/PATCH "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/can-user-see-buyersphere db organization id user)
