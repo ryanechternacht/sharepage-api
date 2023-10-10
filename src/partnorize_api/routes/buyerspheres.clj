@@ -137,12 +137,12 @@
                                           db
                                           organization
                                           "buyer"
-                                          body)
-            _ (d-teams/add-user-to-buyersphere db
-                                               (:id organization)
-                                               id
-                                               "buyer"
-                                                (:id new-user))]
+                                          body)]
+        (d-teams/add-user-to-buyersphere db
+                                         (:id organization)
+                                         id
+                                         "buyer"
+                                         (:id new-user))
         (response/ok (:buyer-team (d-teams/get-by-buyersphere db
                                                               (:id organization)
                                                               id))))
@@ -152,11 +152,12 @@
   (cpj/POST "/v0.1/buyerspheres/:id/teams/seller"
     [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (let [_ (d-teams/add-user-to-buyersphere db
-                                               (:id organization)
-                                               id
-                                               "seller"
-                                               (:user-id body))]
+      (do
+        (d-teams/add-user-to-buyersphere db
+                                         (:id organization)
+                                         id
+                                         "seller"
+                                         (:user-id body))
         (response/ok (:seller-team (d-teams/get-by-buyersphere db
                                                                (:id organization)
                                                                id))))

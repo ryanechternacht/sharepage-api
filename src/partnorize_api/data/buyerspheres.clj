@@ -139,8 +139,8 @@
         (db/->execute db))))
 
 (defn create-buyersphere [db organization-id buyersphere]
-  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere)
-        _ (add-default-resources db organization-id new-id)]
+  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere)]
+    (add-default-resources db organization-id new-id)
     new-id))
 
 (comment

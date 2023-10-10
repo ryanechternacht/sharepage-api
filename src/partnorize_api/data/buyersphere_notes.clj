@@ -43,13 +43,13 @@
          first)))
 
 (defn update-buyersphere-note [db organization-id buyersphere-id note-id {:keys [title body]}]
-  (let [_ (-> (h/update :buyersphere_note)
-              (h/set {:title title :body body})
-              (h/where [:= :buyersphere_note.organization_id organization-id]
-                       [:= :buyersphere_note.buyersphere_id buyersphere-id]
-                       [:= :buyersphere_note.id note-id])
-              (db/->execute db))
-        get-updated-query (-> (base-note-query organization-id buyersphere-id)
+  (-> (h/update :buyersphere_note)
+      (h/set {:title title :body body})
+      (h/where [:= :buyersphere_note.organization_id organization-id]
+               [:= :buyersphere_note.buyersphere_id buyersphere-id]
+               [:= :buyersphere_note.id note-id])
+      (db/->execute db))
+  (let [get-updated-query (-> (base-note-query organization-id buyersphere-id)
                               (h/where [:= :buyersphere_note.id note-id]))]
     (->> get-updated-query
          (db/->>execute db)
