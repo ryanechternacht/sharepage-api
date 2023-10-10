@@ -43,6 +43,9 @@
                                              (:stytch-organization-id organization)
                                              email
                                              (str first-name " " last-name))]
+    (stytch/send-magic-link-email (:stytch config)
+                                  (:stytch-organization-id organization)
+                                  email)
     (-> (h/insert-into :user_account)
         (h/columns :organization_id :buyersphere_role :first_name
                    :last_name :display_role :email :stytch_member_id)
