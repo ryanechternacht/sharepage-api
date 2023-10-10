@@ -132,7 +132,7 @@
 
 (defn- add-default-resources [db organization-id buyersphere-id]
   (let [resources (d-res/get-resources-by-organization-id db organization-id)
-        build-values (juxt :organization-id (constantly buyersphere-id) :title :link)]
+        build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
     (-> (h/insert-into :buyersphere_resource)
         (h/columns :organization_id :buyersphere_id :title :link)
         (h/values (map build-values resources))
