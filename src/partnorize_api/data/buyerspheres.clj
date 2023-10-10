@@ -36,13 +36,17 @@
 (defn get-by-organization
   ([db organization-id]
    (get-by-organization db organization-id {}))
-  ([db organization-id {:keys [user-id stage]}]
+  ([db organization-id {:keys [user-id stage status]}]
    (let [query (cond-> (base-buyersphere-query organization-id)
                  (util/is-provided? user-id) (h/where [:in :buyersphere.id
                                                        (-> (h/select :buyersphere_id)
                                                            (h/from :buyersphere_user_account)
                                                            (h/where [:= :user_account_id user-id]))])
                  (util/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
+                 (util/is-provided? status) (cond->
+                                             (= status "not-active") (h/where [:<> :buyersphere.status "active"])
+                                             (not= status "not-active") (h/where [:= :buyersphere.status status]))
+
                 ;;  is-overdue (h/where [:or
                 ;;                       [:and
                 ;;                        [:= :current_stage "qualification"]

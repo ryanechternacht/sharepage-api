@@ -12,12 +12,13 @@
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
-  (cpj/GET "/v0.1/buyerspheres" [user-id stage :as {:keys [db user organization]}]
+  (cpj/GET "/v0.1/buyerspheres" [user-id stage status :as {:keys [db user organization]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-buyerspheres/get-by-organization db
                                                        (:id organization)
                                                        {:user-id (coerce/as-int user-id)
-                                                        :stage stage}))
+                                                        :stage stage
+                                                        :status status}))
       (response/unauthorized))))
 
 (def GET-buyersphere
