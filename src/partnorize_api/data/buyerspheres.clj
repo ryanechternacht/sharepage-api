@@ -73,6 +73,28 @@
         (assoc :buyer_team buyer-team)
         (assoc :seller_team seller-team))))
 
+(defn get-by-user
+  "This is intended for buyers to check which buyerspheres they 
+   are part of so the UI can send them to the right place 
+   (otherwise it's hard for them to get there w/o knowing the url)"
+  [db organization-id user-id]
+  (-> (base-buyersphere-query organization-id)
+      (h/join :buyersphere_user_account [:= :buyersphere.id :buyersphere_user_account.buyersphere_id])
+      (h/join)
+      (h/where [:= :buyersphere_user_account.user_account_id user-id])
+      (db/->execute db)))
+
+(comment
+  (get-by-id db/local-db 1 1)
+  (get-by-organization db/local-db 1)
+  (get-by-organization db/local-db 1 {:user-id 1})
+  (get-by-organization db/local-db 1 {:stage "evaluation"})
+  (get-full-buyersphere db/local-db 1 1)
+  (get-by-user db/local-db 1 1)
+  ;
+  )
+
+
 (defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
   (-> (h/update :buyersphere)
       (h/set set-map)
@@ -100,11 +122,6 @@
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
-  (get-by-id db/local-db 1 1)
-  (get-by-organization db/local-db 1)
-  (get-by-organization db/local-db 1 {:user-id 1})
-  (get-by-organization db/local-db 1 {:stage "evaluation"})
-  (get-full-buyersphere db/local-db 1 1)
   (update-buyersphere db/local-db 1 1 {:features-answer {:interests {1 "yes"}}})
   (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
