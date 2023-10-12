@@ -157,12 +157,13 @@
         (h/values (map build-values resources))
         (db/->execute db))))
 
-(defn create-buyersphere [db organization-id buyersphere]
+(defn create-buyersphere [db organization-id user-id buyersphere]
   (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere)]
     (add-default-resources db organization-id new-id)
+    (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
     new-id))
 
 (comment
-  (create-buyersphere db/local-db 1 {:buyer "nike" :buyer-logo "https://nike.com"})
+  (create-buyersphere db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"})
   ;
   )

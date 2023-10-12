@@ -30,7 +30,7 @@
 (def POST-buyersphere
   (cpj/POST "/v0.1/buyerspheres" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-buyerspheres/create-buyersphere db (:id organization) body))
+      (response/ok (d-buyerspheres/create-buyersphere db (:id organization) (:id user) body))
       (response/unauthorized))))
 
 ;; TODO technically a buyer can update the intro message if they craft the request correctly
