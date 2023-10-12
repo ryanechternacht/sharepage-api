@@ -8,7 +8,7 @@
 ;; TODO find a way to automate org-id and user checks
 (def GET-personas
   (cpj/GET "/v0.1/personas" {:keys [db user organization]}
-    (if (d-permission/does-user-have-org-permissions? db organization user)
+    (if (d-permission/can-user-see-anything? db organization user)
       (response/ok (d-personas/get-personas-by-organization-id db (:id organization)))
       (response/unauthorized))))
 

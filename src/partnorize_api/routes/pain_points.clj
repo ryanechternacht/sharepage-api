@@ -8,7 +8,7 @@
 ;; TODO find a way to automate org-id and user checks
 (def GET-pain-points
   (cpj/GET "/v0.1/pain-points" {:keys [db user organization]}
-    (if (d-permission/does-user-have-org-permissions? db organization user)
+    (if (d-permission/can-user-see-anything? db organization user)
       (response/ok (d-pain-points/get-pain-points-by-organization-id db (:id organization)))
       (response/unauthorized))))
 

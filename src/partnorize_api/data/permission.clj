@@ -60,6 +60,20 @@
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
       (is-user-buyersphere-buyer? db organization buyersphere-id user)))
 
+(defn- is-user-buyer? [db {o-id :id} {u-id :id}]
+  (-> (h/select :id)
+      (h/from :buyersphere_user_account)
+      (h/where [:= :organization_id o-id]
+               [:= :user_account_id u-id]
+               [:= :team "buyer"])
+      (db/->execute db)
+      seq))
+
+;; TODO we should probably merge this with can-user-see-buyersphere
+(defn can-user-see-anything? [db organization user]
+  (or (does-user-have-org-permissions? db organization user) ;; includes global admins
+      (is-user-buyer? db organization user)))
+
 (comment
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 4})
   (is-user-buyersphere-buyer? db/local-db {:id 3} 123 {:id 1234})
