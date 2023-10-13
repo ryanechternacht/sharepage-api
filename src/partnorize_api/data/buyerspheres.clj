@@ -115,7 +115,9 @@
                                           :pricing-tier-id
                                           :current-stage
                                           :status
-                                          :intro-message])
+                                          :intro-message
+                                          :buyer
+                                          :buyer-logo])
                  current-stage (assoc (stage-timestamp-to-update current-stage)
                                       [[:now]])
                  features-answer (assoc :features-answer [:lift features-answer]))]
@@ -127,6 +129,7 @@
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
   (update-buyersphere db/local-db 1 1 {:intro-message "howdy!"})
+  (update-buyersphere db/local-db 1 10 {:buyer "lol" :buyer-logo "lololol" :current-stage "adoption"})
   ;
   )
 
