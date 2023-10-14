@@ -1,0 +1,1 @@
+alter table buyersphere_conversation drop column due_date;

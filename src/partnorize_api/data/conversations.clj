@@ -1,6 +1,7 @@
 (ns partnorize-api.data.conversations
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]))
+            [partnorize-api.db :as db]
+            [clojure.instant :as inst]))
 
 ;; TODO a limit?
 (defn- base-conversation-query [organization-id buyersphere-id]
@@ -8,6 +9,7 @@
                 :buyersphere_conversation.buyersphere_id
                 :buyersphere_conversation.message
                 :buyersphere_conversation.resolved
+                :buyersphere_conversation.due_date
                 :buyersphere_conversation.created_at
                 :user_account.first_name :user_account.last_name
                 :user_account.display_role)
@@ -29,10 +31,11 @@
        (db/->>execute db)
        (map reformat-author)))
 
-(defn create-conversation [db organization-id buyersphere-id author-id message]
-  (let [new-id (-> (h/insert-into :buyersphere_conversation)
-                   (h/columns :organization_id :buyersphere_id :author :message)
-                   (h/values [[organization-id buyersphere-id author-id message]])
+(defn create-conversation [db organization-id buyersphere-id author-id message due-date]
+  (let [due-date-inst (inst/read-instant-date due-date)
+        new-id (-> (h/insert-into :buyersphere_conversation)
+                   (h/columns :organization_id :buyersphere_id :author :message :due_date)
+                   (h/values [[organization-id buyersphere-id author-id message due-date-inst]])
                    (h/returning :id)
                    (db/->execute db)
                    first
@@ -57,7 +60,7 @@
 
 (comment
   (get-by-buyersphere db/local-db 1 1)
-  (create-conversation db/local-db 1 1 1 "hello, world!")
+  (create-conversation db/local-db 1 1 1 "hello, world!" "2012-02-03")
   (update-conversation db/local-db 1 1 44 {:message "goodbye!" :resolved true})
   ;
   )

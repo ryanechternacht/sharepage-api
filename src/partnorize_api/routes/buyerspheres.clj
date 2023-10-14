@@ -53,7 +53,8 @@
                                                         (:id organization)
                                                         id
                                                         (:id user)
-                                                        (:message body)))
+                                                        (:message body)
+                                                        (:due-date body)))
       (response/unauthorized))))
 
 (def PATCH-buyersphere-conversation

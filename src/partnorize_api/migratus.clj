@@ -12,6 +12,7 @@
                       :migration-table-name "migratus"
                       :db db})
 
+;; TODO I need a better way to run migrations
 ;; ;; dev
 ;; (def db {:dbtype "postgresql"
 ;;           :dbname "buyersphere"
@@ -19,6 +20,14 @@
 ;;           :user "postgres"
 ;;           :password "Z4L25#FDM#pe"
 ;;           :ssl false})
+
+;; prod
+;; (def db {:dbtype "postgresql"
+;;          :dbname "buyersphere"
+;;          :host "buyersphere-prod.cc2idiull87l.us-east-2.rds.amazonaws.com"
+;;          :user "postgres"
+;;          :password "MUMlmURVCC9Wed9Lv79Pqi5a"
+;;          :ssl false})
 
 (comment
   (migratus/create migratus-config "example")
