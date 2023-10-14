@@ -38,6 +38,12 @@
       (h/where [:= :user_account.buyersphere_role "admin"])
       (db/->execute db)))
 
+(defn get-by-id [db organization-id id]
+  (-> (base-user-query organization-id)
+      (h/where [:= :user_account.id id])
+      (db/->execute db)
+      first))
+
 (defn create-user [config db organization buyersphere-role {:keys [first-name last-name display-role email]}]
   (let [stytch-member-id (stytch/create-user (:stytch config)
                                              (:stytch-organization-id organization)
@@ -77,8 +83,9 @@
 (comment
   (get-by-email db/local-db 1 "ryan@echternacht.org")
   (get-by-email db/local-db 2 "admin@buyersphere.com")
-  (get-by-organization db/local-db 1)
-  (get-by-organization db/local-db 2) ;; is_admin check
+  (get-by-id db/local-db 1 1)
+  (get-by-organization db/local-db 1) ;; is_admin check
+  (get-by-organization db/local-db 2)
   (create-user config/config
                db/local-db
                {:id 1 :stytch-organization-id "organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e"}
