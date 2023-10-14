@@ -54,7 +54,8 @@
                                                         id
                                                         (:id user)
                                                         (:message body)
-                                                        (:due-date body)))
+                                                        (:due-date body)
+                                                        (:assigned-to body)))
       (response/unauthorized))))
 
 (def PATCH-buyersphere-conversation
