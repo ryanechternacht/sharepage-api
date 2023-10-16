@@ -76,7 +76,7 @@
          first)))
 
 (defn replace-assigned-to-with-user [db organization-id conversation]
-  (let [{:keys [first_name last_name display_role id] :as u} (users/get-by-id db organization-id (:assigned_to conversation))]
+  (let [{:keys [first_name last_name display_role id]} (users/get-by-id db organization-id (:assigned_to conversation))]
     (-> conversation
         (dissoc :assigned_to)
         (assoc :assigned_to {:id id
