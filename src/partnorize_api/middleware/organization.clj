@@ -11,8 +11,10 @@
 
 (defn- wrap-organization-impl [handler {db :db headers :headers :as request}]
   (if-let [subdomain (get-subdomain-from-headers headers)]
-    (if-let [organization (util/camel-case (d-org/get-by-subdomain db subdomain))]
-      (handler (assoc request :organization organization))
+    (if-let [organization (util/kebab-case (d-org/get-by-subdomain db subdomain))]
+      (handler (-> request
+                   (assoc :organization organization)
+                   (assoc :subdomain subdomain)))
       (handler request))
     (handler request)))
 

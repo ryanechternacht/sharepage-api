@@ -5,7 +5,7 @@
 ;; TODO do something more useful with the session info (like link it to whatever info we have saved)
 (defn- wrap-user-impl [handler {:keys [session db organization] :as request}]
   (if (:email_address session)
-    (let [user (util/camel-case
+    (let [user (util/kebab-case
                 (d-users/get-by-email db
                                       (:id organization)
                                       (:email_address session)))]

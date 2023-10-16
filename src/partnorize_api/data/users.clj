@@ -15,7 +15,7 @@
   (-> (apply h/select user-columns)
       (h/from :user_account)
       (h/where [:= :user_account.organization_id organization-id])
-      (h/order-by :first_name :last_name)))
+      (h/order-by :user_account.first_name :user_account.last_name)))
 
 ;; TODO I don't love how global admin stuff has to pollute this 
 ;; to work correctly
@@ -43,6 +43,17 @@
       (h/where [:= :user_account.id id])
       (db/->execute db)
       first))
+
+(defn get-by-email-global
+  "Finds a user, not bounded by the current org. Returns all user
+   accounts created for the user, sorted by db id for predictability.
+   This is intended for the generalized login page."
+  [db email]
+  (-> (apply h/select user-columns)
+      (h/from :user_account)
+      (h/where [:= :user_account.email email])
+      (h/order-by :user_account.id)
+      (db/->execute db)))
 
 (defn create-user [config db organization buyersphere-role {:keys [first-name last-name display-role email]}]
   (let [stytch-member-id (stytch/create-user (:stytch config)
@@ -86,6 +97,8 @@
   (get-by-id db/local-db 1 1)
   (get-by-organization db/local-db 1) ;; is_admin check
   (get-by-organization db/local-db 2)
+  (get-by-email-global db/local-db "ryan@echternacht.org")
+  (get-by-email-global db/local-db "asdf")
   (create-user config/config
                db/local-db
                {:id 1 :stytch-organization-id "organization-test-bd2b29e6-8c0a-48e6-a1c4-d9689883785e"}

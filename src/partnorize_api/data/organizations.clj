@@ -17,6 +17,12 @@
       (db/->execute db)
       first))
 
+(defn get-by-id [db id]
+  (-> base-organizations-query
+      (h/where [:= :organization.id id])
+      (db/->execute db)
+      first))
+
 (defn update-organization [db id body]
   (let [fields (select-keys body [:name :logo])]
     (-> (h/update :organization)
@@ -28,6 +34,7 @@
 
 (comment 
   (get-by-subdomain db/local-db "stark")
+  (get-by-id db/local-db 3)
   (update-organization db/local-db 1 {:name "Stark" :a :b})
   ;
   )

@@ -135,7 +135,7 @@
 
 (defn- create-buyersphere-record [db organization-id {:keys [buyer buyer-logo]}]
   (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
-        (util/camel-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))]
+        (util/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))]
     (-> (h/insert-into :buyersphere)
         (h/columns :organization_id :buyer
                    :buyer_logo :qualification_date

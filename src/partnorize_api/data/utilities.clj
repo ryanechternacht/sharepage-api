@@ -73,12 +73,12 @@
   ;
   )
 
-(defn camel-case [coll]
+(defn kebab-case [coll]
   (cske/transform-keys csk/->kebab-case-keyword coll))
 
 (comment
-  (camel-case {:a_b 1 :c_d "hello"})
-  (camel-case [{:a_b 1 :c_d "hello"}
+  (kebab-case {:a_b 1 :c_d "hello"})
+  (kebab-case [{:a_b 1 :c_d "hello"}
                {:a_c 3 :d_e "b"}])
   ;
   )
