@@ -1,7 +1,8 @@
 (ns partnorize-api.external-api.stytch
   (:require [cheshire.core :as json]
             [clj-http.client :as http]
-            [lambdaisland.uri :as uri]))
+            [lambdaisland.uri :as uri]
+            [clojure.edn :as edn]))
 
 (def ^:private default-session-timeout_minutes (* 30 24 60))
 
@@ -31,7 +32,8 @@
                            :session_duration_minutes default-session-timeout_minutes})
         :body
         :member)
-    (catch Exception _
+    (catch Exception e
+      (println "authenticate-session exception" e)
       nil)))
 
 (defn authenticate-magic-link
@@ -46,7 +48,8 @@
                           {:magic_links_token magic-link-token
                            :session_duration_minutes default-session-timeout_minutes})
         :body)
-    (catch Exception _
+    (catch Exception e
+      (println "authenticate-magic-link exception" e)
       nil)))
 
 ;; TODO pull values out of this that are reasonable (besides just session_token)
@@ -63,7 +66,8 @@
                           {:oauth_token auth-token
                            :session_duration_minutes default-session-timeout_minutes})
         :body)
-    (catch Exception _
+    (catch Exception e
+      (println "authenticate-oauth exception" e)
       nil)))
 
 (defn send-magic-link-email
@@ -78,7 +82,8 @@
                       {:email_address user-email
                        :organization_id stytch-organization-id
                        :login_redirect_url redirect-url})
-    (catch Exception _
+    (catch Exception e
+      (println "send-magic-link-email exception" e)
       nil)))
 
 (defn create-user
