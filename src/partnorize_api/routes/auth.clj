@@ -60,17 +60,11 @@
 
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}
-    (println "organization" organization)
-    (println "body" body)
-    (println "subdomain" subdomain)
     (let [email (:user-email body)
-          _ (println "email" email)
           org (if (not= subdomain "app")
                 organization
                 (when-let [u (first (d-users/get-by-email-global db email))]
-                  (println "user" u)
-                  (util/kebab-case (d-org/get-by-id db (:organization_id u)))))
-          _ (println "org" org)]
+                  (util/kebab-case (d-org/get-by-id db (:organization_id u)))))]
       (if (and org
                (stytch/send-magic-link-email
                 (:stytch config)
