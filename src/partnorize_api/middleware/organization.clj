@@ -10,13 +10,12 @@
       nil)))
 
 (defn- wrap-organization-impl [handler {db :db headers :headers :as request}]
-  (if-let [subdomain (get-subdomain-from-headers headers)]
-    (if-let [organization (util/kebab-case (d-org/get-by-subdomain db subdomain))]
-      (handler (-> request
-                   (assoc :organization organization)
-                   (assoc :subdomain subdomain)))
-      (handler request))
-    (handler request)))
+  (let [subdomain (get-subdomain-from-headers headers)
+        organization (when subdomain
+                       (util/kebab-case (d-org/get-by-subdomain db subdomain)))]
+    (handler (cond-> request
+               subdomain (assoc :subdomain subdomain)
+               organization (assoc :organization organization)))))
 
 ; This form has the advantage that changes to wrap-debug-impl are
 ; automatically reflected in the handler (due to the lookup in `wrap-user`)
