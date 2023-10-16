@@ -60,6 +60,9 @@
 
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}
+    (println "organization" organization)
+    (println "body" body)
+    (println "subdomain" subdomain)
     (let [email (:user-email body)
           _ (println "email" email)
           org (if (not= subdomain "app")
@@ -75,4 +78,3 @@
                 email))
         (response/ok "Email sent")
         (response/bad-request "Email could not be sent")))))
-

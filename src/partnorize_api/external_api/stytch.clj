@@ -1,8 +1,7 @@
 (ns partnorize-api.external-api.stytch
   (:require [cheshire.core :as json]
             [clj-http.client :as http]
-            [lambdaisland.uri :as uri]
-            [clojure.edn :as edn]))
+            [lambdaisland.uri :as uri]))
 
 (def ^:private default-session-timeout_minutes (* 30 24 60))
 
