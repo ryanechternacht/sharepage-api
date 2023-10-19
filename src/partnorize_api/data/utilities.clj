@@ -80,5 +80,6 @@
   (kebab-case {:a_b 1 :c_d "hello"})
   (kebab-case [{:a_b 1 :c_d "hello"}
                {:a_c 3 :d_e "b"}])
+  (kebab-case {:a_b {:cD :e_f}})
   ;
   )
