@@ -13,6 +13,7 @@
                 :buyersphere_conversation.resolved
                 :buyersphere_conversation.due_date
                 :buyersphere_conversation.created_at
+                :buyersphere_conversation.assigned_team
                 [:user_account_author.id :author_id]
                 [:user_account_author.first_name :author_first_name]
                 [:user_account_author.last_name :author_last_name]
@@ -46,7 +47,7 @@
                                      assigned_to_last_name
                                      assigned_to_display_role] :as conversation}]
   (-> conversation
-      (dissoc :assigned_to_first_name :assigned_to_last_name :assigned_to_display_role)
+      (dissoc :assigned_to_first_name :assigned_to_last_name :assigned_to_display_role :assigned_to_id)
       (cond->
        assigned_to_id (assoc :assigned_to {:id assigned_to_id
                                            :first_name assigned_to_first_name
@@ -79,7 +80,7 @@
 (defn replace-assigned-to-with-user [db organization-id conversation]
   (let [{:keys [first_name last_name display_role id]} (users/get-by-id db organization-id (:assigned_to conversation))]
     (-> conversation
-        (dissoc :assigned_to)
+        (dissoc :assigned_to_id)
         (cond->
          id (assoc :assigned_to {:id id
                                  :first_name first_name
@@ -87,7 +88,7 @@
                                  :display_role display_role})))))
 
 (defn update-conversation [db organization-id buyersphere-id conversation-id body]
-  (let [fields (cond-> (select-keys body [:resolved :message :due-date :assigned-to])
+  (let [fields (cond-> (select-keys body [:resolved :message :due-date :assigned-to :assigned-team])
                  (:due-date body) (update :due-date inst/read-instant-date))
         result (-> (h/update :buyersphere_conversation)
                    (h/set fields)
@@ -98,12 +99,13 @@
                    (db/->execute db)
                    first)]
     (cond->> result
-      :assigned-to (replace-assigned-to-with-user db organization-id))))
+      (:assigned-to body) (replace-assigned-to-with-user db organization-id))))
 
 (comment
   (get-by-buyersphere db/local-db 1 1)
   (create-conversation db/local-db 1 1 1 "hello, world!" "2012-02-03" 5)
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :due-date "2023-10-05T22:00:00.000Z" :assigned-to 2})
-  (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to 2})
+  (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to 2 :assigned-team "buyer"})
+  (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to nil :assigned-team "buyer"})
   ;
   )

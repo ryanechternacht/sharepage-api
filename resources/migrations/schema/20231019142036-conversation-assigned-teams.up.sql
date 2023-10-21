@@ -15,9 +15,11 @@ alter table buyersphere_conversation add constraint buyersphere_assigned_team ch
 --;;
 
 
-alter table buyersphere_conversation add column collaboration_type text not null;
+alter table buyersphere_conversation add column collaboration_type text;
 --;;
 update buyersphere_conversation
 set collaboration_type = 'question';
+--;;
+alter table buyersphere_conversation alter column collaboration_type set not null;
 --;;
 alter table buyersphere_conversation add constraint buyersphere_conversation_collaboration_type check (collaboration_type in ('task', 'question', 'comment', 'meeting'));

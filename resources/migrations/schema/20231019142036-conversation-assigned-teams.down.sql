@@ -2,3 +2,5 @@
 -- alter table buyersphere_conversation alter column assigned_to set not null;
 
 alter table buyersphere_conversation drop column assigned_team;
+-- ;;
+alter table buyersphser_conversation drop column collaboration_type;
