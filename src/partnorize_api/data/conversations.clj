@@ -14,6 +14,7 @@
                 :buyersphere_conversation.due_date
                 :buyersphere_conversation.created_at
                 :buyersphere_conversation.assigned_team
+                :buyersphere_conversation.collaboration_type
                 [:user_account_author.id :author_id]
                 [:user_account_author.first_name :author_first_name]
                 [:user_account_author.last_name :author_last_name]
@@ -60,11 +61,14 @@
        (map reformat-author)
        (map reformat-assigned-to)))
 
-(defn create-conversation [db organization-id buyersphere-id author-id message due-date assigned-to-id]
+(defn create-conversation [db organization-id buyersphere-id author-id message 
+                           due-date assigned-to-id assigned-team collaboration-type]
   (let [due-date-inst (inst/read-instant-date due-date)
         new-id (-> (h/insert-into :buyersphere_conversation)
-                   (h/columns :organization_id :buyersphere_id :author :message :due_date :assigned_to)
-                   (h/values [[organization-id buyersphere-id author-id message due-date-inst assigned-to-id]])
+                   (h/columns :organization_id :buyersphere_id :author :message :due_date 
+                              :assigned_to :assigned_team :collaboration_type)
+                   (h/values [[organization-id buyersphere-id author-id message 
+                               due-date-inst assigned-to-id assigned-team collaboration-type]])
                    (h/returning :id)
                    (db/->execute db)
                    first
@@ -88,7 +92,7 @@
                                  :display_role display_role})))))
 
 (defn update-conversation [db organization-id buyersphere-id conversation-id body]
-  (let [fields (cond-> (select-keys body [:resolved :message :due-date :assigned-to :assigned-team])
+  (let [fields (cond-> (select-keys body [:resolved :message :due-date :assigned-to :assigned-team :collaboration-type])
                  (:due-date body) (update :due-date inst/read-instant-date))
         result (-> (h/update :buyersphere_conversation)
                    (h/set fields)
@@ -103,9 +107,11 @@
 
 (comment
   (get-by-buyersphere db/local-db 1 1)
-  (create-conversation db/local-db 1 1 1 "hello, world!" "2012-02-03" 5)
+  (create-conversation db/local-db 1 1 1 "hello, world!" "2012-02-03" 5 "buyer" "comment")
+  (create-conversation db/local-db 1 1 1 "hello, world!" "2012-02-03" nil "seller" "comment")
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :due-date "2023-10-05T22:00:00.000Z" :assigned-to 2})
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to 2 :assigned-team "buyer"})
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to nil :assigned-team "buyer"})
+  (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :collaboration-type "meeting"})
   ;
   )

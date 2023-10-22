@@ -55,7 +55,9 @@
                                                         (:id user)
                                                         (:message body)
                                                         (:due-date body)
-                                                        (:assigned-to body)))
+                                                        (:assigned-to body)
+                                                        (:assigned-team body)
+                                                        (:collaboration-type body)))
       (response/unauthorized))))
 
 (def PATCH-buyersphere-conversation
