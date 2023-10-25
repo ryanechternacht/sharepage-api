@@ -14,7 +14,7 @@
       (response/unauthorized))))
 
 (def PATCH-pricing
-  (cpj/GET "/v0.1/pricing" {:keys [db user organization body]}
+  (cpj/PATCH "/v0.1/pricing" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-pricing/update-global-pricing db (:id organization) (:show-by-default body)))
       (response/unauthorized))))

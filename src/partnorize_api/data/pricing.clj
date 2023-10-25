@@ -69,13 +69,17 @@
   (-> (h/select :organization_id :show_by_default)
       (h/from :pricing_global_settings)
       (h/where [:= :pricing_global_settings.organization_id organization-id])
-      (db/->execute db)))
+      (db/->execute db)
+      first))
 
 (defn update-global-pricing [db organization-id show-by-default]
+  (println "show-by-default" show-by-default)
   (-> (h/update :pricing_global_settings)
       (h/set {:show_by_default show-by-default})
       (h/where [:= :pricing_global_settings.organization_id organization-id])
-      (db/->execute db)))
+      (h/returning :show_by_default)
+      (db/->execute db)
+      first))
 
 (comment
   (get-global-pricing-by-organization-id db/local-db 1)
