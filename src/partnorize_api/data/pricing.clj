@@ -16,7 +16,6 @@
       (h/order-by :pricing_tier.ordering)
       (db/->execute db)))
 
-
 (defn create-pricing-tier [db organization-id
                            {:keys [title description best-for
                                    amount-per-period amount-other period-type]}]
@@ -63,5 +62,23 @@
                                         :best-for "best_for_2" :amount-per-period 100
                                         :amount-other "hello 2" :period-type "other"})
   (delete-pricing-tier db/local-db 1 5)
+  ;
+  )
+
+(defn get-global-pricing-by-organization-id [db organization-id]
+  (-> (h/select :organization_id :show_by_default)
+      (h/from :pricing_global_settings)
+      (h/where [:= :pricing_global_settings.organization_id organization-id])
+      (db/->execute db)))
+
+(defn update-global-pricing [db organization-id show-by-default]
+  (-> (h/update :pricing_global_settings)
+      (h/set {:show_by_default show-by-default})
+      (h/where [:= :pricing_global_settings.organization_id organization-id])
+      (db/->execute db)))
+
+(comment
+  (get-global-pricing-by-organization-id db/local-db 1)
+  (update-global-pricing db/local-db 1 false)
   ;
   )
