@@ -16,7 +16,7 @@
 (def PUT-pricing
   (cpj/PUT "/v0.1/pricing" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-pricing/update-global-pricing db (:id organization) (:show-by-default body)))
+      (response/ok (d-pricing/upsert-global-pricing db (:id organization) (:show-by-default body)))
       (response/unauthorized))))
 
 (def POST-pricing-tiers
