@@ -13,8 +13,8 @@
                     :settings (d-pricing/get-global-pricing-by-organization-id db (:id organization))})
       (response/unauthorized))))
 
-(def PATCH-pricing
-  (cpj/PATCH "/v0.1/pricing" {:keys [db user organization body]}
+(def PUT-pricing
+  (cpj/PUT "/v0.1/pricing" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-pricing/update-global-pricing db (:id organization) (:show-by-default body)))
       (response/unauthorized))))

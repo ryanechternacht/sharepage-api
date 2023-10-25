@@ -72,7 +72,7 @@
   #'personas/PUT-personas
   #'personas/DELETE-personas
   #'pricing/GET-pricing
-  #'pricing/PATCH-pricing
+  #'pricing/PUT-pricing
   #'pricing/POST-pricing-tiers
   #'pricing/PUT-pricing-tiers
   #'pricing/DELETE-pricing-tiers

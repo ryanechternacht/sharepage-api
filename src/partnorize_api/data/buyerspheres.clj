@@ -3,6 +3,7 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.deal-timing :as d-deal-timing]
+            [partnorize-api.data.pricing :as d-pricing]
             [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.utilities :as util]
@@ -135,15 +136,18 @@
 
 (defn- create-buyersphere-record [db organization-id {:keys [buyer buyer-logo]}]
   (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
-        (util/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))]
+        (util/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
+        {show-pricing :show-by-default}
+        (util/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))]
     (-> (h/insert-into :buyersphere)
         (h/columns :organization_id :buyer
-                   :buyer_logo :qualification_date
-                   :evaluation_date :decision_date
-                   :adoption_date)
+                   :buyer_logo :show_pricing
+                   :qualification_date :evaluation_date 
+                   :decision_date :adoption_date)
         (h/values [[organization-id
                     buyer
                     buyer-logo
+                    show-pricing
                     [:raw (str "NOW() + INTERVAL '" qualified-days " DAYS'")]
                     [:raw (str "NOW() + INTERVAL '" evaluation-days " DAYS'")]
                     [:raw (str "NOW() + INTERVAL '" decision-days " DAYS'")]

@@ -16,3 +16,6 @@ for each row execute procedure trigger_update_timestamp();
 
 insert into pricing_global_settings (organization_id, show_by_default)
 select id, true from organization;
+--;;
+
+alter table buyersphere add column show_pricing boolean default true;

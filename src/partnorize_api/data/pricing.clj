@@ -66,23 +66,26 @@
   )
 
 (defn get-global-pricing-by-organization-id [db organization-id]
-  (-> (h/select :organization_id :show_by_default)
-      (h/from :pricing_global_settings)
-      (h/where [:= :pricing_global_settings.organization_id organization-id])
-      (db/->execute db)
-      first))
+  (or (-> (h/select :organization_id :show_by_default)
+          (h/from :pricing_global_settings)
+          (h/where [:= :pricing_global_settings.organization_id organization-id])
+          (db/->execute db)
+          first)
+      {:organization_id organization-id
+       :show_by_default true}))
 
-(defn update-global-pricing [db organization-id show-by-default]
-  (println "show-by-default" show-by-default)
-  (-> (h/update :pricing_global_settings)
-      (h/set {:show_by_default show-by-default})
-      (h/where [:= :pricing_global_settings.organization_id organization-id])
-      (h/returning :show_by_default)
+(defn upsert-global-pricing [db organization-id show-by-default]
+  (-> (h/insert-into :pricing_global_settings)
+      (h/columns :organization_id :show_by_default)
+      (h/values [[organization-id show-by-default]])
+      (h/on-conflict :organization_id)
+      (h/do-update-set :show_by_default)
+      (h/returning :organization_id :show_by_default)
       (db/->execute db)
       first))
 
 (comment
   (get-global-pricing-by-organization-id db/local-db 1)
-  (update-global-pricing db/local-db 1 false)
+  (upsert-global-pricing db/local-db 1 false)
   ;
   )
