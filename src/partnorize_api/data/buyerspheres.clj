@@ -18,7 +18,8 @@
    :buyersphere.qualification_date :buyersphere.evaluation_date
    :buyersphere.decision_date :buyersphere.adoption_date
    :buyersphere.qualified_on :buyersphere.evaluated_on
-   :buyersphere.decided_on :buyersphere.adopted_on])
+   :buyersphere.decided_on :buyersphere.adopted_on
+   :buyersphere.show_pricing])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -118,7 +119,8 @@
                                           :status
                                           :intro-message
                                           :buyer
-                                          :buyer-logo])
+                                          :buyer-logo
+                                          :show-pricing])
                  current-stage (assoc (stage-timestamp-to-update current-stage)
                                       [[:now]])
                  features-answer (assoc :features-answer [:lift features-answer]))]
@@ -131,6 +133,7 @@
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
   (update-buyersphere db/local-db 1 1 {:intro-message "howdy!"})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :buyer-logo "lololol" :current-stage "adoption"})
+  (update-buyersphere db/local-db 1 10 {:buyer "lol" :show-pricing false})
   ;
   )
 
