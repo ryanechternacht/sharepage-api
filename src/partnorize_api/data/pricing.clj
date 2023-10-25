@@ -1,4 +1,4 @@
-(ns partnorize-api.data.pricing-tiers
+(ns partnorize-api.data.pricing
   (:require [honey.sql.helpers :as h]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))

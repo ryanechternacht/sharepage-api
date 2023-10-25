@@ -7,7 +7,7 @@
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
             [partnorize-api.routes.personas :as personas]
-            [partnorize-api.routes.pricing-tiers :as pricing-tiers]
+            [partnorize-api.routes.pricing :as pricing]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
@@ -71,10 +71,10 @@
   #'personas/POST-personas
   #'personas/PUT-personas
   #'personas/DELETE-personas
-  #'pricing-tiers/GET-pricing-tiers
-  #'pricing-tiers/POST-pricing-tiers
-  #'pricing-tiers/PUT-pricing-tiers
-  #'pricing-tiers/DELETE-pricing-tiers
+  #'pricing/GET-pricing
+  #'pricing/POST-pricing-tiers
+  #'pricing/PUT-pricing-tiers
+  #'pricing/DELETE-pricing-tiers
   #'resources/GET-resources
   #'resources/POST-resources
   #'resources/PUT-resources
