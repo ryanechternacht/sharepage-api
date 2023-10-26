@@ -1,5 +1,6 @@
 (ns partnorize-api.data.buyerspheres
   (:require [honey.sql.helpers :as h]
+            [clojure.instant :as inst]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.deal-timing :as d-deal-timing]
@@ -106,13 +107,9 @@
       (db/->execute db)
       first))
 
-(def ^:private stage-timestamp-to-update
-  {"evaluation" :qualified_on
-   "decision" :evaluated_on
-   "adoption" :decided_on})
-
 (defn update-buyersphere [db organization-id buyersphere-id
-                          {:keys [current-stage features-answer] :as body}]
+                          {:keys [features-answer qualified-on evaluated-on
+                                  decided-on adopted-on] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -121,9 +118,11 @@
                                           :buyer
                                           :buyer-logo
                                           :show-pricing])
-                 current-stage (assoc (stage-timestamp-to-update current-stage)
-                                      [[:now]])
-                 features-answer (assoc :features-answer [:lift features-answer]))]
+                 features-answer (assoc :features-answer [:lift features-answer])
+                 qualified-on (assoc :qualified-on (inst/read-instant-date qualified-on))
+                 evaluated-on (assoc :evaluated-on (inst/read-instant-date evaluated-on))
+                 decided-on (assoc :decided-on (inst/read-instant-date decided-on))
+                 adopted-on (assoc :adopted-on (inst/read-instant-date adopted-on)))]
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
@@ -134,6 +133,7 @@
   (update-buyersphere db/local-db 1 1 {:intro-message "howdy!"})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :buyer-logo "lololol" :current-stage "adoption"})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :show-pricing false})
+  (update-buyersphere db/local-db 1 10 {:qualified-on "2023-10-26T00:00:54Z"})
   ;
   )
 
