@@ -7,7 +7,7 @@
             [partnorize-api.data.pricing :as d-pricing]
             [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
-            [partnorize-api.data.utilities :as util]
+            [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
 (def ^:private base-buyersphere-cols
@@ -28,9 +28,13 @@
       (h/where [:= :buyersphere.organization_id organization-id])))
 
 (defn get-by-ids [db organization-id ids]
-  (-> (base-buyersphere-query organization-id)
-      (h/where [:in :buyersphere.id ids])
-      (db/->execute db)))
+  (let [buyerspheres (-> (base-buyersphere-query organization-id)
+                         (h/where [:in :buyersphere.id ids])
+                         (db/->execute db))]
+    (->> buyerspheres
+         (map #(update % :qualification_date u/to-date-string))
+         (map #(update % :evaluation_date u/to-date-string))
+         (map #(update % :decision_date u/to-date-string)))))
 
 (defn get-by-id [db organization-id id]
   (first (get-by-ids db organization-id [id])))
@@ -41,12 +45,12 @@
    (get-by-organization db organization-id {}))
   ([db organization-id {:keys [user-id stage status]}]
    (let [query (cond-> (base-buyersphere-query organization-id)
-                 (util/is-provided? user-id) (h/where [:in :buyersphere.id
+                 (u/is-provided? user-id) (h/where [:in :buyersphere.id
                                                        (-> (h/select :buyersphere_id)
                                                            (h/from :buyersphere_user_account)
                                                            (h/where [:= :user_account_id user-id]))])
-                 (util/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
-                 (util/is-provided? status) (cond->
+                 (u/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
+                 (u/is-provided? status) (cond->
                                              (= status "not-active") (h/where [:<> :buyersphere.status "active"])
                                              (not= status "not-active") (h/where [:= :buyersphere.status status]))
 
@@ -74,7 +78,10 @@
         (assoc :resources resources)
         (assoc :notes notes)
         (assoc :buyer_team buyer-team)
-        (assoc :seller_team seller-team))))
+        (assoc :seller_team seller-team)
+        (update :qualification_date u/to-date-string)
+        (update :evaluation_date u/to-date-string)
+        (update :decision_date u/to-date-string))))
 
 (defn get-by-user
   "This is intended for buyers to check which buyerspheres they 
@@ -83,7 +90,6 @@
   [db organization-id user-id]
   (-> (base-buyersphere-query organization-id)
       (h/join :buyersphere_user_account [:= :buyersphere.id :buyersphere_user_account.buyersphere_id])
-      (h/join)
       (h/where [:= :buyersphere_user_account.user_account_id user-id])
       (db/->execute db)))
 
@@ -99,17 +105,22 @@
 
 
 (defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
-  (-> (h/update :buyersphere)
-      (h/set set-map)
-      (h/where [:= :buyersphere.organization_id organization-id]
-               [:= :buyersphere.id buyersphere-id])
-      (merge (apply h/returning (keys set-map)))
-      (db/->execute db)
-      first))
+  (let [updated (cond-> (-> (h/update :buyersphere)
+                            (h/set set-map)
+                            (h/where [:= :buyersphere.organization_id organization-id]
+                                     [:= :buyersphere.id buyersphere-id])
+                            (merge (apply h/returning (keys set-map)))
+                            (db/->execute db)
+                            first))]
+    (cond-> updated
+      (:qualification-date set-map) (update :qualification_date u/to-date-string)
+      (:evaluation-date set-map) (update :evaluation_date u/to-date-string)
+      (:decision-date set-map) (update :decision_date u/to-date-string))))
 
 (defn update-buyersphere [db organization-id buyersphere-id
                           {:keys [features-answer qualified-on evaluated-on
-                                  decided-on adopted-on] :as body}]
+                                  decided-on adopted-on qualification-date 
+                                  evaluation-date decision-date] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -122,7 +133,10 @@
                  qualified-on (assoc :qualified-on (inst/read-instant-date qualified-on))
                  evaluated-on (assoc :evaluated-on (inst/read-instant-date evaluated-on))
                  decided-on (assoc :decided-on (inst/read-instant-date decided-on))
-                 adopted-on (assoc :adopted-on (inst/read-instant-date adopted-on)))]
+                 adopted-on (assoc :adopted-on (inst/read-instant-date adopted-on))
+                 qualification-date (assoc :qualification-date (u/read-date-string qualification-date))
+                 evaluation-date (assoc :evaluation-date (u/read-date-string evaluation-date))
+                 decision-date (assoc :decision-date (u/read-date-string decision-date)))]
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
@@ -134,14 +148,15 @@
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :buyer-logo "lololol" :current-stage "adoption"})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :show-pricing false})
   (update-buyersphere db/local-db 1 10 {:qualified-on "2023-10-26T00:00:54Z"})
+  (update-buyersphere db/local-db 1 10 {:qualification-date "2023-01-02"})
   ;
   )
 
 (defn- create-buyersphere-record [db organization-id {:keys [buyer buyer-logo]}]
   (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
-        (util/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
+        (u/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
         {show-pricing :show-by-default}
-        (util/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))
+        (u/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))
         evaluation-days (+ qualified-days evaluation-days)
         decision-days (+ evaluation-days decision-days)
         adoption-days (+ decision-days adoption-days)]
