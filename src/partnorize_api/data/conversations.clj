@@ -1,9 +1,9 @@
 (ns partnorize-api.data.conversations
-  (:require [honey.sql.helpers :as h]
+  (:require [clojure.core :as c]
+            [honey.sql.helpers :as h]
             [partnorize-api.data.users :as users]
             [partnorize-api.db :as db]
-            [clojure.instant :as inst]
-            [clojure.core :as c]))
+            [partnorize-api.data.utilities :as u]))
 
 ;; TODO a limit?
 (defn- base-conversation-query [organization-id buyersphere-id]
@@ -59,15 +59,16 @@
   (->> (base-conversation-query organization-id buyersphere-id)
        (db/->>execute db)
        (map reformat-author)
-       (map reformat-assigned-to)))
+       (map reformat-assigned-to)
+       (map #(update % :due_date u/to-date-string))))
 
-(defn create-conversation [db organization-id buyersphere-id author-id message 
+(defn create-conversation [db organization-id buyersphere-id author-id message
                            due-date assigned-to-id assigned-team collaboration-type]
-  (let [due-date-inst (inst/read-instant-date due-date)
+  (let [due-date-inst (u/read-date-string due-date)
         new-id (-> (h/insert-into :buyersphere_conversation)
-                   (h/columns :organization_id :buyersphere_id :author :message :due_date 
+                   (h/columns :organization_id :buyersphere_id :author :message :due_date
                               :assigned_to :assigned_team :collaboration_type)
-                   (h/values [[organization-id buyersphere-id author-id message 
+                   (h/values [[organization-id buyersphere-id author-id message
                                due-date-inst assigned-to-id assigned-team collaboration-type]])
                    (h/returning :id)
                    (db/->execute db)
@@ -79,9 +80,10 @@
          (db/->>execute db)
          (map reformat-author)
          (map reformat-assigned-to)
+         (map #(update % :due_date u/to-date-string))
          first)))
 
-(defn replace-assigned-to-with-user [db organization-id conversation]
+(defn replace-assigned-to-id-with-user [conversation db organization-id]
   (let [{:keys [first_name last_name display_role id]} (users/get-by-id db organization-id (:assigned_to conversation))]
     (-> conversation
         (dissoc :assigned_to_id)
@@ -93,7 +95,7 @@
 
 (defn update-conversation [db organization-id buyersphere-id conversation-id body]
   (let [fields (cond-> (select-keys body [:resolved :message :due-date :assigned-to :assigned-team :collaboration-type])
-                 (:due-date body) (update :due-date inst/read-instant-date))
+                 (:due-date body) (update :due-date u/read-date-string))
         result (-> (h/update :buyersphere_conversation)
                    (h/set fields)
                    (h/where [:= :buyersphere_conversation.organization_id organization-id]
@@ -102,8 +104,9 @@
                    (merge (apply h/returning (keys fields)))
                    (db/->execute db)
                    first)]
-    (cond->> result
-      (:assigned-to body) (replace-assigned-to-with-user db organization-id))))
+    (cond-> result
+      (:assigned-to body) (replace-assigned-to-id-with-user db organization-id)
+      (:due-date body) (update :due_date u/to-date-string))))
 
 (comment
   (get-by-buyersphere db/local-db 1 1)

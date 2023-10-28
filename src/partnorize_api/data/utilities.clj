@@ -4,7 +4,8 @@
             [camel-snake-kebab.extras :as cske]
             [clojure.string :as str]
             [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]))
+            [partnorize-api.db :as db]
+            [java-time.api :as jt]))
 
 (defn get-next-ordering-query
   "generates a query designed to be used as a subquery in an `insert into`
@@ -83,3 +84,15 @@
   (kebab-case {:a_b {:cD :e_f}})
   ;
   )
+
+(defn to-date-string 
+  "Converts a inst (normally from the db) into a date string
+   (e.g. '2020-02-03). This is normally for when the true value
+   is a date, but it keeps getting converted into a datetime
+   by honey, our db provider, etc."
+  [dt]
+  (-> dt
+      jt/local-date
+      .toString))
+
+(def read-date-string jt/local-date)
