@@ -7,8 +7,8 @@
             [partnorize-api.data.conversations :as d-conversations]
             [partnorize-api.data.permission :as d-permission]
             [partnorize-api.data.users :as d-users]
-            [ring.util.http-response :as response]
-            [partnorize-api.data.teams :as d-teams]))
+            [partnorize-api.data.teams :as d-teams]
+            [ring.util.http-response :as response]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres

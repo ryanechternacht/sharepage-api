@@ -1,8 +1,8 @@
 (ns partnorize-api.routes.organization
   (:require [compojure.core :as cpj]
-            [ring.util.http-response :as response]
             [partnorize-api.data.organizations :as d-organization]
-            [partnorize-api.data.permission :as d-permission]))
+            [partnorize-api.data.permission :as d-permission]
+            [ring.util.http-response :as response]))
 
 ;; TODO do we need to auth this? probably?
 (def GET-organization

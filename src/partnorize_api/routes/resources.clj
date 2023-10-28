@@ -1,9 +1,9 @@
 (ns partnorize-api.routes.resources
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
-            [ring.util.http-response :as response]
             [partnorize-api.data.permission :as d-permission]
-            [partnorize-api.data.resources :as d-resources]))
+            [partnorize-api.data.resources :as d-resources]
+            [ring.util.http-response :as response]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-resources

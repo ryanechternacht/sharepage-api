@@ -1,11 +1,11 @@
 (ns partnorize-api.routes.auth
   (:require [compojure.core :as cpj]
             [lambdaisland.uri :as uri]
-            [ring.util.http-response :as response]
             [partnorize-api.data.organizations :as d-org]
             [partnorize-api.data.users :as d-users]
-            [partnorize-api.data.utilities :as util]
-            [partnorize-api.external-api.stytch :as stytch]))
+            [partnorize-api.data.utilities :as u]
+            [partnorize-api.external-api.stytch :as stytch]
+            [ring.util.http-response :as response]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
@@ -64,7 +64,7 @@
           org (if (not= subdomain "app")
                 organization
                 (when-let [u (first (d-users/get-by-email-global db email))]
-                  (util/kebab-case (d-org/get-by-id db (:organization_id u)))))]
+                  (u/kebab-case (d-org/get-by-id db (:organization_id u)))))]
       (if (and org
                (stytch/send-magic-link-email
                 (:stytch config)

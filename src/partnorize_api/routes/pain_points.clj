@@ -1,9 +1,9 @@
 (ns partnorize-api.routes.pain-points
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
-            [ring.util.http-response :as response]
             [partnorize-api.data.pain-points :as d-pain-points]
-            [partnorize-api.data.permission :as d-permission]))
+            [partnorize-api.data.permission :as d-permission]
+            [ring.util.http-response :as response]))
 
 ;; TODO find a way to automate org-id and user checks
 (def GET-pain-points

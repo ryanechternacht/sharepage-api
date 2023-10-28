@@ -1,19 +1,19 @@
 (ns partnorize-api.server
   (:require [camel-snake-kebab.core :as csk]
-            [ring.adapter.jetty :as jetty]
-            [ring.middleware.cors :as m-cors]
-            [ring.middleware.json :as m-json]
-            [ring.middleware.keyword-params :as m-keyword-param]
-            [ring.middleware.multipart-params :as m-multi-params]
-            [ring.middleware.params :as m-params]
-            [ring.middleware.session :as m-session]
             [partnorize-api.middleware.config :as m-config]
             [partnorize-api.middleware.db :as m-db]
             ;; [partnorize-api.middleware.debug :as m-debug]
             [partnorize-api.middleware.organization :as m-org]
             [partnorize-api.middleware.stytch-store :as m-stytch]
             [partnorize-api.middleware.users :as m-users]
-            [partnorize-api.routes :as r]))
+            [partnorize-api.routes :as r]
+            [ring.adapter.jetty :as jetty]
+            [ring.middleware.cors :as m-cors]
+            [ring.middleware.json :as m-json]
+            [ring.middleware.keyword-params :as m-keyword-param]
+            [ring.middleware.multipart-params :as m-multi-params]
+            [ring.middleware.params :as m-params]
+            [ring.middleware.session :as m-session]))
 
 (def session-store (m-stytch/stytch-store (:stytch m-config/config)
                                           (:pg-db m-config/config)))
