@@ -141,11 +141,14 @@
   (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
         (util/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
         {show-pricing :show-by-default}
-        (util/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))]
+        (util/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))
+        evaluation-days (+ qualified-days evaluation-days)
+        decision-days (+ evaluation-days decision-days)
+        adoption-days (+ decision-days adoption-days)]
     (-> (h/insert-into :buyersphere)
         (h/columns :organization_id :buyer
                    :buyer_logo :show_pricing
-                   :qualification_date :evaluation_date 
+                   :qualification_date :evaluation_date
                    :decision_date :adoption_date)
         (h/values [[organization-id
                     buyer
