@@ -20,7 +20,8 @@
    :buyersphere.decision_date :buyersphere.adoption_date
    :buyersphere.qualified_on :buyersphere.evaluated_on
    :buyersphere.decided_on :buyersphere.adopted_on
-   :buyersphere.show_pricing])
+   :buyersphere.show_pricing :buyersphere.deal_amount
+   :buyersphere.crm_opportunity_id])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
