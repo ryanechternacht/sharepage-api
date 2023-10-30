@@ -39,6 +39,7 @@
 (cpj/defroutes routes
   #'GET-root-healthz
   #'auth/GET-login
+  #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere

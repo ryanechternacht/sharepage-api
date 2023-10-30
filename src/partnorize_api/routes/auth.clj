@@ -58,6 +58,16 @@
                token)
       (response/bad-request "Unknown stytch_token_type"))))
 
+;; (-> b)
+
+;; 00DHs000002k3xp!AQcAQPsEifb49EI1pp2WODpi1DqIg9fcrzGgqSQaQxur4MX6_3A7M42qQLYZrM_BXwuHKhpGJl43NayVWVPLUzstNPsxsk2A
+
+(def GET-auth-salesforce
+  (cpj/GET "/v0.1/auth/salesforce" [code :as body]
+    (println code)
+    (def b body)
+    (response/ok)))
+
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}
     (let [email (:user-email body)
