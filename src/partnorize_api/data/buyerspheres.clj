@@ -132,7 +132,8 @@
 (defn update-buyersphere [db organization-id buyersphere-id
                           {:keys [features-answer qualified-on evaluated-on
                                   decided-on adopted-on qualification-date 
-                                  evaluation-date decision-date] :as body}]
+                                  evaluation-date decision-date
+                                  deal-amount crm-opportunity-id] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -140,7 +141,9 @@
                                           :intro-message
                                           :buyer
                                           :buyer-logo
-                                          :show-pricing])
+                                          :show-pricing
+                                          :deal-amount
+                                          :crm-opportunity-id])
                  features-answer (assoc :features-answer [:lift features-answer])
                  qualified-on (assoc :qualified-on (inst/read-instant-date qualified-on))
                  evaluated-on (assoc :evaluated-on (inst/read-instant-date evaluated-on))
@@ -161,6 +164,7 @@
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :show-pricing false})
   (update-buyersphere db/local-db 1 10 {:qualified-on "2023-10-26T00:00:54Z"})
   (update-buyersphere db/local-db 1 10 {:qualification-date "2023-01-02"})
+  (update-buyersphere db/local-db 1 10 {:crm-opportunity-id "abc123" :deal-amount 12345})
   ;
   )
 
