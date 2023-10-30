@@ -9,6 +9,7 @@
             [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.pricing :as pricing]
             [partnorize-api.routes.resources :as resources]
+            [partnorize-api.routes.salesforce :as salesforce]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
 
@@ -81,6 +82,7 @@
   #'resources/POST-resources
   #'resources/PUT-resources
   #'resources/DELETE-resources
+  #'salesforce/GET-opportunities
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
