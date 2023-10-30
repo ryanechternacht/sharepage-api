@@ -96,3 +96,39 @@
       .toString))
 
 (def read-date-string jt/local-date)
+
+(defn index-by
+  "Takes a collection and returns a map of the result of applying
+   f to each entry, mapped to the entry that matches the result. 
+   Only 1 result will be returned for entry (the last processed). 
+   Entries where the result of applying f to item returns nil are
+   dropped. 
+   
+   Ex: turn a set of db results into a map of id -> the result
+   (normally to build lookups for intermediate processing). 
+   
+   If the optional vf is supplied, this fn will be applied to applied
+   to each value as it is mapped. E.g. `(index-by :id :id2 db-rows)` 
+   will return a map of :id -> :id2 for rows with an :id value"
+  ([f coll]
+   (index-by f identity coll))
+  ([f vf coll]
+   (->> coll
+        (group-by f)
+        (reduce (fn [m [k v]]
+                  (if k
+                    (assoc m k (vf (first v)))
+                    m))
+                {}))))
+
+(comment
+  (index-by :crm_opportunity_id [{:id 20, :crm_opportunity_id "006Hs00001H8xaUIAR"}
+                                 {:id 19 :crm_opportunity_id "abc123"}
+                                 {:id 18 :crm_opportunity_id nil}
+                                 {:id 17}])
+  (index-by :crm_opportunity_id :id [{:id 20, :crm_opportunity_id "006Hs00001H8xaUIAR"}
+                                     {:id 19 :crm_opportunity_id "abc123"}
+                                     {:id 18 :crm_opportunity_id nil}
+                                     {:id 17}])
+  ;
+  )

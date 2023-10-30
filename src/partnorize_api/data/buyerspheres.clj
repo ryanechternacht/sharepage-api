@@ -93,6 +93,17 @@
       (h/where [:= :buyersphere_user_account.user_account_id user-id])
       (db/->execute db)))
 
+(defn get-by-opportunity-ids
+  "This is intended for linking up buyerspheres that are linked
+   to a crm already"
+  [db organization-id opportunity-ids]
+  (-> (h/select :id :crm_opportunity_id)
+      (h/from :buyersphere)
+      (h/where [:= :organization_id organization-id]
+               [:in :crm_opportunity_id opportunity-ids])
+      (db/->execute db)))
+
+
 (comment
   (get-by-id db/local-db 1 1)
   (get-by-organization db/local-db 1)
@@ -100,6 +111,7 @@
   (get-by-organization db/local-db 1 {:stage "evaluation"})
   (get-full-buyersphere db/local-db 1 1)
   (get-by-user db/local-db 1 1)
+  (get-by-opportunity-ids db/local-db 1 ["006Hs00001H8xaUIAR" "abc123"])
   ;
   )
 

@@ -3,7 +3,7 @@
             [honey.sql.helpers :as h]
             [partnorize-api.db :as db]))
 
-(def access-token "00DHs000002k3xp!AQcAQFR4tNln_6HOLDMWJ88gQHeFvp4uqbHjc_IDPI9hOU3kaF64IJ.Fh9qF1aLuHixfC1y4vnSWOlTPofND9NYM5yxE4qDy")
+(def access-token "00DHs000002k3xp!AQcAQDQvzGa7pfBY1g1QcchDjrRNAmANfvt7Oq1f0jXkPBssE1qS1LSTQHrouh_M4nX_fv_AfwmIlDcEnKstmo4IpgBT_i.S")
 
 ;; curl --location 'https://thebuyersphere-dev-ed.develop.my.salesforce.com/services/data/v59.0/query?q=select%20name%20from%20account%20' \
 ;; --header 'Authorization: Bearer 00DHs000002k3xp!AQcAQPsEifb49EI1pp2WODpi1DqIg9fcrzGgqSQaQxur4MX6_3A7M42qQLYZrM_BXwuHKhpGJl43NayVWVPLUzstNPsxsk2A' \
@@ -13,9 +13,8 @@
 (defn query-opportunities
   ([] (query-opportunities nil))
   ([company-name]
-   (println "query")
    (let [query (db/->format
-                (cond-> (-> (h/select :id :name :account.id :account.name)
+                (cond-> (-> (h/select :id :name :amount :account.id :account.name)
                             (h/from :opportunity)
                             (h/limit 25)
                             (h/order-by :LastModifiedDate))
@@ -28,9 +27,12 @@
      (->> response
           :body
           :records
-          (map (fn [{id :Id name :Name {account-name :Name account-id :Id} :Account}]
+          ;; TODO there are better ways to do this fo sho
+          (map (fn [{id :Id name :Name amount :Amount
+                     {account-name :Name account-id :Id} :Account}]
                  {:id id
                   :name name
+                  :amount amount
                   :account-name account-name
                   :account-id account-id}))))))
 
