@@ -164,7 +164,8 @@
   ;
   )
 
-(defn- create-buyersphere-record [db organization-id {:keys [buyer buyer-logo]}]
+(defn- create-buyersphere-record [db organization-id
+                                  {:keys [buyer buyer-logo deal-amount crm-opportunity-id]}]
   (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
         (u/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
         {show-pricing :show-by-default}
@@ -175,12 +176,15 @@
     (-> (h/insert-into :buyersphere)
         (h/columns :organization_id :buyer
                    :buyer_logo :show_pricing
+                   :deal_amount :crm_opportunity_id
                    :qualification_date :evaluation_date
                    :decision_date :adoption_date)
         (h/values [[organization-id
                     buyer
                     buyer-logo
                     show-pricing
+                    deal-amount
+                    crm-opportunity-id
                     [:raw (str "NOW() + INTERVAL '" qualified-days " DAYS'")]
                     [:raw (str "NOW() + INTERVAL '" evaluation-days " DAYS'")]
                     [:raw (str "NOW() + INTERVAL '" decision-days " DAYS'")]
@@ -204,6 +208,7 @@
     new-id))
 
 (comment
-  (create-buyersphere db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"})
+  (create-buyersphere db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
+                                       :deal-amount 1234 :crm-opportunity-id "abc123"})
   ;
   )
