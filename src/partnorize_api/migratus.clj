@@ -7,6 +7,7 @@
 ;; fire up a repl with config set to the right AWS environment?
 (def db (:pg-db config/config))
 
+;; TODO get rid of /migrations/schema folder
 (def migratus-config {:store                :database
                       :migration-dir        "migrations/schema/"
                       :migration-table-name "migratus"

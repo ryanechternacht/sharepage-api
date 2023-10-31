@@ -61,17 +61,18 @@
       (response/bad-request "Unknown stytch_token_type"))))
 
 (def GET-auth-salesforce
-  (cpj/GET "/v0.1/auth/salesforce" [code state :as {:keys [db organization user]}]
+  (cpj/GET "/v0.1/auth/salesforce" [code state :as {:keys [db organization user config]}]
     (if code
       ;; returning from SF
-      (let [{:keys [access_token instance_url] :as sf-acc} (sf/get-sf-access-token code)
-            {:keys [organization-id user-id]} (u/base-64-decode-clj state)]
+      (let [{:keys [access_token instance_url]} (sf/get-sf-access-token (:salesforce config) code)
+            {:keys [organization-id user-id]} (u/base-64-decode-clj state)
+            bs-landing-page (u/make-link (-> config :front-end :base-url) "salesforce")]
         (d-sf/save-salesforce-access-details db organization-id user-id access_token instance_url)
-        (response/found "http://stark.buyersphere-local.com/salesforce"))
+        (response/found bs-landing-page))
       ;; send to SF
       (let [state (u/base-64-encode-clj {:organization-id (:id organization)
                                          :user-id (:id user)})]
-        (response/found (sf/generate-salesforce-login-link state))))))
+        (response/found (sf/generate-salesforce-login-link (:salesforce config) state))))))
 
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}

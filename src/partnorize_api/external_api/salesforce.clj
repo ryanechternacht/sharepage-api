@@ -5,11 +5,8 @@
             [partnorize-api.db :as db]
             [partnorize-api.data.utilities :as u]))
 
-(def client-id "3MVG9HB6vm3GZZR_toYEItEdxC3yoPsewXbClCDa2GZ9fi6mBqsAG2GNlVVj17possa3.lBE08Y88uBz4HkAH")
-(def client-secret "479AD063C715B71A2EC24545310C11CED013D13A1B37FA0B9141D652495983BA")
-(def redirect-uri "https://c1c0-2603-6010-5307-c1c3-f081-d3fc-8ae9-4928.ngrok-free.app/v0.1/auth/salesforce")
-
-(defn generate-salesforce-login-link [state]
+(defn generate-salesforce-login-link
+  [{:keys [client-id redirect-uri]} state]
   (-> (uri/uri "https://login.salesforce.com/services/oauth2/authorize")
       (assoc :query (uri/map->query-string {:client_id client-id
                                             :redirect_uri redirect-uri
@@ -17,7 +14,7 @@
                                             :state state}))
       str))
 
-(defn get-sf-access-token [code]
+(defn get-sf-access-token [{:keys [client-id client-secret redirect-uri]} code]
   (try
     (-> (http/post "https://login.salesforce.com/services/oauth2/token"
                    {:accept :json
