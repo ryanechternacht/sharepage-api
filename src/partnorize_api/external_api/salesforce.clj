@@ -2,9 +2,8 @@
   (:require [clj-http.client :as http]
             [honey.sql.helpers :as h]
             [lambdaisland.uri :as uri]
-            [partnorize-api.db :as db]))
-
-(def access-token "00DHs000002k3xp!AQcAQM8dq9LmGyD45Er28BBL_QZ7y3HYSeMLyg1UcR3XuEhj2yZpo8IWPc57olOwnM0HWoIuATb_EOwj4MaSjzyA6iKTEZC8")
+            [partnorize-api.db :as db]
+            [partnorize-api.data.utilities :as u]))
 
 (def client-id "3MVG9HB6vm3GZZR_toYEItEdxC3yoPsewXbClCDa2GZ9fi6mBqsAG2GNlVVj17possa3.lBE08Y88uBz4HkAH")
 (def client-secret "479AD063C715B71A2EC24545310C11CED013D13A1B37FA0B9141D652495983BA")
@@ -28,23 +27,24 @@
                                   :client_id client-id
                                   :client_secret client-secret
                                   :redirect_uri redirect-uri}})
-        :body
-        :access_token)
+        :body)
     (catch Exception e
       (println "get-sf-access-token exception" e)
       nil)))
 
 ;; TODO paging
+;; TODO filter by user
 (defn query-opportunities
-  ([] (query-opportunities nil))
-  ([company-name]
-   (let [query (db/->format
+  ([instance-url access-token] (query-opportunities instance-url access-token nil))
+  ([instance-url access-token company-name]
+   (let [{} ()
+         query (db/->format
                 (cond-> (-> (h/select :id :name :amount :account.id :account.name)
                             (h/from :opportunity)
                             (h/limit 25)
                             (h/order-by :LastModifiedDate))
                   company-name (h/where [:like :name (str "%" company-name "%")])))
-         response (http/get "https://thebuyersphere-dev-ed.develop.my.salesforce.com/services/data/v59.0/query"
+         response (http/get (u/make-link instance-url "/services/data/v59.0/query")
                             {:oauth-token access-token
                              :accept :json
                              :as :json
@@ -62,6 +62,6 @@
                   :account-id account-id}))))))
 
 (comment
-  (query-opportunities)
+  (query-opportunities "https://thebuyersphere-dev-ed.develop.my.salesforce.com" "00DHs000002k3xp!AQcAQDbb_VNa_nRy4IonODB5TqI3NaZT7criTMkdPaLfxeCY.B0ZH5UECsO5oacdKk6MXJw6L669wp.1TWnJ5.UT3T5LnXG5")
   ;
   )

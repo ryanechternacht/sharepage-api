@@ -5,6 +5,7 @@
             [clojure.string :as str]
             [honey.sql.helpers :as h]
             [java-time.api :as jt]
+            [lambdaisland.uri :as uri]
             [partnorize-api.db :as db]))
 
 (defn get-next-ordering-query
@@ -159,5 +160,20 @@
   (let [data {:c 1 :b 2}]
     (= data
        (base-64-decode-clj (base-64-encode-clj data))))
+  ;
+  )
+
+(defn make-link
+  "NOTE: ensure to include a trailing / on base-url and do not include 
+   a leading / on the path or you might overwrite path infor"
+  [base-url path]
+  (str (uri/join base-url path)))
+
+(comment
+  (make-link "http://www.google.com/base-path/" "more/path")
+
+  ;; BAD usages: 1. no trailing / on base-url, 2. leading '/' in path
+  (make-link "http://www.google.com/base-path" "more/path")
+  (make-link "http://www.google.com/base-path/" "/more/path")
   ;
   )

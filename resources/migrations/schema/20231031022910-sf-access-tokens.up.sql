@@ -2,6 +2,7 @@ create table salesforce_access (
   user_account_id int primary key references user_account(id),
   organization_id int references organization(id) not null,
   access_token text,
+  instance_url text,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null
 );

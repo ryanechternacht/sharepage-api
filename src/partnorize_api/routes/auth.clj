@@ -64,9 +64,9 @@
   (cpj/GET "/v0.1/auth/salesforce" [code state :as {:keys [db organization user]}]
     (if code
       ;; returning from SF
-      (let [access-token (sf/get-sf-access-token code)
+      (let [{:keys [access_token instance_url] :as sf-acc} (sf/get-sf-access-token code)
             {:keys [organization-id user-id]} (u/base-64-decode-clj state)]
-        (d-sf/save-salesforce-access-token db organization-id user-id access-token)
+        (d-sf/save-salesforce-access-details db organization-id user-id access_token instance_url)
         (response/found "http://stark.buyersphere-local.com/salesforce"))
       ;; send to SF
       (let [state (u/base-64-encode-clj {:organization-id (:id organization)
