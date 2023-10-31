@@ -4,9 +4,10 @@
             [partnorize-api.data.organizations :as d-org]
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.utilities :as u]
+            [partnorize-api.data.salesforce-access :as d-sf]
+            [partnorize-api.external-api.salesforce :as sf]
             [partnorize-api.external-api.stytch :as stytch]
-            [ring.util.http-response :as response]
-            [partnorize-api.external-api.salesforce :as sf]))
+            [ring.util.http-response :as response]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
@@ -60,12 +61,17 @@
       (response/bad-request "Unknown stytch_token_type"))))
 
 (def GET-auth-salesforce
-  (cpj/GET "/v0.1/auth/salesforce" [code]
+  (cpj/GET "/v0.1/auth/salesforce" [code state :as {:keys [db organization user]}]
     (if code
-      (let [access-token (sf/get-sf-access-token code)]
-        (println "access-token" access-token)
+      ;; returning from SF
+      (let [access-token (sf/get-sf-access-token code)
+            {:keys [organization-id user-id]} (u/base-64-decode-clj state)]
+        (d-sf/save-salesforce-access-token db organization-id user-id access-token)
         (response/found "http://stark.buyersphere-local.com/salesforce"))
-      (response/found (sf/generate-salesforce-login-link)))))
+      ;; send to SF
+      (let [state (u/base-64-encode-clj {:organization-id (:id organization)
+                                         :user-id (:id user)})]
+        (response/found (sf/generate-salesforce-login-link state))))))
 
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}

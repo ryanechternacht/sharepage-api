@@ -4,8 +4,8 @@
             [camel-snake-kebab.extras :as cske]
             [clojure.string :as str]
             [honey.sql.helpers :as h]
-            [partnorize-api.db :as db]
-            [java-time.api :as jt]))
+            [java-time.api :as jt]
+            [partnorize-api.db :as db]))
 
 (defn get-next-ordering-query
   "generates a query designed to be used as a subquery in an `insert into`
@@ -130,5 +130,34 @@
                                      {:id 19 :crm_opportunity_id "abc123"}
                                      {:id 18 :crm_opportunity_id nil}
                                      {:id 17}])
+  ;
+  )
+
+;; with generous help from
+;; https://stackoverflow.com/questions/11825444/clojure-base64-encoding
+(defn base-64-encode-clj 
+  "Base64 encode a clojure data structure. Intended to be used with
+   base-64-decode-clj to return a clojure data structure"
+  [val]
+  (->> val
+       str
+       .getBytes
+       (.encodeToString (java.util.Base64/getEncoder))))
+
+(defn base-64-decode-clj 
+  "Base64 decodes a value and runs it through the reader to get a 
+   clj data structure. Intended to be used with `bsae-64-encode-clj"
+  [encoded]
+  (->> encoded
+       (.decode (java.util.Base64/getDecoder))
+       String.
+       read-string))
+
+(comment
+  (base-64-encode-clj {:a 1 :b 2})
+  (base-64-decode-clj "ezphIDEsIDpiIDJ9")
+  (let [data {:c 1 :b 2}]
+    (= data
+       (base-64-decode-clj (base-64-encode-clj data))))
   ;
   )
