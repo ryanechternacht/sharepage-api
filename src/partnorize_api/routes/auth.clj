@@ -5,7 +5,8 @@
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.external-api.stytch :as stytch]
-            [ring.util.http-response :as response]))
+            [ring.util.http-response :as response]
+            [partnorize-api.external-api.salesforce :as sf]))
 
 (defn set-session [session_token response]
   ;; TODO only on local
@@ -63,10 +64,12 @@
 ;; 00DHs000002k3xp!AQcAQPsEifb49EI1pp2WODpi1DqIg9fcrzGgqSQaQxur4MX6_3A7M42qQLYZrM_BXwuHKhpGJl43NayVWVPLUzstNPsxsk2A
 
 (def GET-auth-salesforce
-  (cpj/GET "/v0.1/auth/salesforce" [code :as body]
-    (println code)
-    (def b body)
-    (response/ok)))
+  (cpj/GET "/v0.1/auth/salesforce" [code]
+    (if code
+      (let [access-token (sf/get-sf-access-token code)]
+        (println "access-token" access-token)
+        (response/found "http://stark.buyersphere-local.com/salesforce"))
+      (response/found (sf/generate-salesforce-login-link)))))
 
 (def POST-send-magic-link-login-email
   (cpj/POST "/v0.1/send-magic-link-login-email" {:keys [db organization config body subdomain]}
