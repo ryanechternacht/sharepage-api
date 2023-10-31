@@ -31,8 +31,8 @@
                            :session_duration_minutes default-session-timeout_minutes})
         :body
         :member)
-    (catch Exception e
-      (println "authenticate-session exception" e)
+    (catch Exception _
+      ;; (println "authenticate-session exception" _)
       nil)))
 
 (defn authenticate-magic-link

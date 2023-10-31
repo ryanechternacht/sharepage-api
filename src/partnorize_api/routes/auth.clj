@@ -59,10 +59,6 @@
                token)
       (response/bad-request "Unknown stytch_token_type"))))
 
-;; (-> b)
-
-;; 00DHs000002k3xp!AQcAQPsEifb49EI1pp2WODpi1DqIg9fcrzGgqSQaQxur4MX6_3A7M42qQLYZrM_BXwuHKhpGJl43NayVWVPLUzstNPsxsk2A
-
 (def GET-auth-salesforce
   (cpj/GET "/v0.1/auth/salesforce" [code]
     (if code
