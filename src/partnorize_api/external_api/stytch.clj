@@ -36,7 +36,7 @@
   [{:keys [base-url project secret]}
    magic-link-token]
   (try
-    (-> (make-stytch-call (make-stytch-link base-url "magic_links/authenticate")
+    (-> (make-stytch-call (u/make-link base-url "magic_links/authenticate")
                           project
                           secret
                           {:magic_links_token magic-link-token

@@ -25,7 +25,7 @@
       m-org/wrap-organization
       m-db/wrap-db
       m-config/wrap-config
-      (m-session/wrap-session {:store session-store 
+      (m-session/wrap-session {:store session-store
                                :cookie-attrs (:cookie-attrs m-config/config)
                                :cookie-name "buyersphere-session"})
       m-keyword-param/wrap-keyword-params
