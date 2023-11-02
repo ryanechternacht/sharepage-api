@@ -3,6 +3,7 @@ create table salesforce_access (
   organization_id int references organization(id) not null,
   access_token text,
   instance_url text,
+  refresh_token text,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null
 );
