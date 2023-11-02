@@ -64,11 +64,12 @@
   (cpj/GET "/v0.1/auth/salesforce" [code state :as {:keys [db organization user config]}]
     (if code
       ;; returning from SF
-      (let [{:keys [access_token instance_url refresh_token] :as at} (sf/get-sf-access-token (:salesforce config) code)
+      (let [{:keys [access_token instance_url refresh_token id]} (sf/get-sf-access-token (:salesforce config) code)
+            {sf-user-id :user_id} (sf/get-sf-user-info access_token id)
             {:keys [organization-id user-id]} (u/base-64-decode-clj state)
             {subdomain :subdomain} (d-org/get-by-id db organization-id)
             bs-landing-page (make-url (-> config :front-end :base-url) subdomain "/salesforce")]
-        (d-sf/save-salesforce-access-details! db organization-id user-id access_token instance_url refresh_token)
+        (d-sf/save-salesforce-access-details! db organization-id user-id access_token instance_url refresh_token sf-user-id)
         (response/found bs-landing-page))
       ;; send to SF
       (let [state (u/base-64-encode-clj {:organization-id (:id organization)

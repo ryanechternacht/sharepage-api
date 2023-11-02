@@ -7,9 +7,9 @@
 
 ;; TODO any/all auth
 (def GET-opportunities
-  (cpj/GET "/v0.1/salesforce/opportunities" [name :as {:keys [db organization user config]}]
+  (cpj/GET "/v0.1/salesforce/opportunities" [name only-mine :as {:keys [db organization user config]}]
     (let [organization-id (:id organization)]
-      (if-let [opptys (sf/query-opportunities-with-sf-refresh! (:salesforce config) db organization-id (:id user) name)]
+      (if-let [opptys (sf/query-opportunities-with-sf-refresh! (:salesforce config) db organization-id (:id user) name only-mine)]
         (let [oppty-ids (map :id opptys)
               buyerspheres (d-buyerspheres/get-by-opportunity-ids db organization-id oppty-ids)
               bs-by-crm-id (u/index-by :crm_opportunity_id :id buyerspheres)

@@ -4,6 +4,7 @@ create table salesforce_access (
   access_token text,
   instance_url text,
   refresh_token text,
+  sf_user_id text,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null
 );
