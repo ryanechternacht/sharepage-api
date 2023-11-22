@@ -7,7 +7,8 @@
 
 (def ^:private base-resource-columns
   [:deal_resource.id :deal_resource.organization_id
-   :deal_resource.title :deal_resource.link])
+   :deal_resource.title :deal_resource.link
+   :deal_resource.created_at])
 
 (defn get-resources-by-organization-id [db organization-id]
   (-> (apply h/select base-resource-columns)

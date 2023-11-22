@@ -61,10 +61,10 @@
 (defn query-opportunities
   ([instance-url access-token company-name owner]
    (let [query (db/->format
-                (cond-> (-> (h/select :id :name :amount :account.id :account.name :owner.name)
+                (cond-> (-> (h/select :id :name :amount :account.id :account.name :owner.name :closedate :account.website)
                             (h/from :opportunity)
                             (h/where [:= :isclosed false])
-                            (h/limit 25)
+                            (h/limit 50)
                             (h/order-by :LastModifiedDate))
                   company-name (h/where [:like :name (str "%" company-name "%")])
                   owner (h/where [:= :owner.id owner])))
@@ -77,15 +77,17 @@
           :body
           :records
           ;; TODO there are better ways to do this fo sho
-          (map (fn [{id :Id name :Name amount :Amount
-                     {account-name :Name account-id :Id} :Account
+          (map (fn [{id :Id name :Name amount :Amount close-date :CloseDate
+                     {account-name :Name account-id :Id website :Website} :Account
                      {owner-name :Name} :Owner}]
                  {:id id
                   :name name
                   :amount amount
                   :account-name account-name
                   :account-id account-id
-                  :owner-name owner-name}))))))
+                  :owner-name owner-name
+                  :close-date close-date
+                  :logo (str "https://logo.clearbit.com/" (u/get-domain website))}))))))
 
 ;; TODO this sucks and should be refactored to suck less
 (defn query-opportunities-with-sf-refresh!

@@ -177,3 +177,22 @@
   (make-link "http://www.google.com/base-path/" "/more/path")
   ;
   )
+
+(defn get-domain [url]
+  (->> url
+       uri/uri
+       ;; "www.google.com" is assumed to be all path, so we
+       ;; prefer host, but use path if that's all that's set
+       ((juxt :host :path))
+       (keep identity)
+       first
+       (#(str/split % #"\."))
+       (take-last 2)
+       (str/join ".")))
+
+(comment
+  (get-domain "https://www.google.com")
+  (get-domain "https://www.google.com/asdf/asdf/asdf")
+  (get-domain "stark.api.google.com")
+  ;
+  )
