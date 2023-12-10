@@ -98,6 +98,11 @@
 
 (def read-date-string jt/local-date)
 
+(comment
+  (read-date-string "2023-10-05")
+  ;
+  )
+
 (defn index-by
   "Takes a collection and returns a map of the result of applying
    f to each entry, mapped to the entry that matches the result. 

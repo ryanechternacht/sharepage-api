@@ -1,5 +1,6 @@
 (ns partnorize-api.routes
   (:require [compojure.core :as cpj]
+            [partnorize-api.routes.activities :as activities]
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.deal-timing :as deal-timing]
@@ -39,6 +40,7 @@
 
 (cpj/defroutes routes
   #'GET-root-healthz
+  #'activities/GET-activities
   #'auth/GET-login
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
