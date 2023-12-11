@@ -62,10 +62,18 @@
                                            :last_name assigned_to_last_name
                                            :display_role assigned_to_display_role}))))
 
+(defn- reformat-buyer [{:keys [buyersphere_buyer
+                               buyersphere_buyer_logo] :as conversation}]
+  (-> conversation
+      (dissoc :buyersphere_buyer :buyersphere_buyer_logo)
+      (assoc :buyer {:name buyersphere_buyer
+                     :logo buyersphere_buyer_logo})))
+
 (defn- reformat-conversation [conversation]
   (-> conversation
       reformat-author
       reformat-assigned-to
+      reformat-buyer
       (update :due_date u/to-date-string)))
 
 (defn get-by-buyersphere [db organization-id buyersphere-id]
