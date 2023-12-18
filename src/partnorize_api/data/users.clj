@@ -91,6 +91,17 @@
          ;;  this isn't that important, so don't stop processing
       nil)))
 
+(defn update-user [db organization-id id {:keys [first-name last-name display-role email]}]
+  (-> (h/update :user_account)
+      (h/set {:first_name first-name
+              :last_name last-name
+              :display_role display-role})
+      (h/where [:= :organization_id organization-id]
+               [:= :id id])
+      (#(apply h/returning % user-columns))
+      (db/->execute db)
+      first))
+
 (comment
   (get-by-email db/local-db 1 "ryan@echternacht.org")
   (get-by-email db/local-db 2 "admin@buyersphere.com")
@@ -108,5 +119,7 @@
                 :email "grace11@echternacht.org"
                 :display-role "my love"})
   (update-user-from-stytch db/local-db "ryan@echternacht.org" "bill nye the third" "https://www.google.com")
+  (update-user db/local-db 1 14 {:first-name "grace" :last-name "ooi"
+                                 :display-role "wifey" :email "asdfasdf"})
   ;
   )

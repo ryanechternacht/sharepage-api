@@ -89,6 +89,7 @@
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
   #'users/POST-users
+  #'users/PATCH-users
   get-404
   post-404
   patch-404

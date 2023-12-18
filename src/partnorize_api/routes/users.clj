@@ -1,5 +1,6 @@
 (ns partnorize-api.routes.users
-  (:require [compojure.core :as cpj]
+  (:require [compojure.coercions :as coerce]
+            [compojure.core :as cpj]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.permission :as d-permission]
@@ -31,5 +32,14 @@
                                         db
                                         organization
                                         "admin"
+                                        body))
+      (response/unauthorized))))
+
+(def PATCH-users
+  (cpj/PATCH "/v0.1/users/:id" [id :<< coerce/as-int :as {:keys [config db user organization body]}]
+    (if (d-permission/does-user-have-org-permissions? db organization user)
+      (response/ok (d-users/update-user db
+                                        (:id organization)
+                                        id
                                         body))
       (response/unauthorized))))
