@@ -32,7 +32,7 @@
 
 (defn authenticate-magic-link
   "Authenticates the magic link login attempt with stytch.
-   Returns the a session identifier user or nil if the session isn't valid."
+   Returns the session identifier or nil if the magic link login isn't valid."
   [{:keys [base-url project secret]}
    magic-link-token]
   (try
@@ -50,7 +50,7 @@
 ;; these should have the username, profile pic, etc
 (defn authenticate-oauth
   "Authenticates the oauth login attempt with stytch.
-   Returns the a session identifier user or nil if the session isn't valid."
+   Returns the session identifier or nil if the oauth login isn't valid."
   [{:keys [base-url project secret]}
    auth-token]
   (try

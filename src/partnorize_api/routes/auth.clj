@@ -23,6 +23,8 @@
       (assoc :path path)
       str))
 
+;; TODO should we save the session ids from magic-link-login and 
+;; oauth-login so that we don't need to reauth them right away?
 (defn- magic-link-login [db stytch-config front-end-base-url slug token]
   (let [org (d-org/get-by-subdomain db slug)
         {session-token :session_token
