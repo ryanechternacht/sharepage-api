@@ -5,7 +5,7 @@
              [partnorize-api.external-api.stytch :as stytch]
              [clojure.string :as str]))
 
-(def ^:private user-columns
+(def user-columns
   [:user_account.id :user_account.email :user_account.buyersphere_role
    :user_account.display_role :user_account.organization_id
    :user_account.first_name :user_account.last_name

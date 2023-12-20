@@ -1,6 +1,7 @@
 (ns partnorize-api.middleware.stytch-store
   (:require [honey.sql.helpers :as h]
             [ring.middleware.session.store :as rs]
+            [partnorize-api.data.buyer-tracking :as tracking]
             [partnorize-api.db :as db]
             [partnorize-api.external-api.stytch :as stytch]))
 
@@ -41,6 +42,7 @@
       cached-member
       (when-let [member (stytch/authenticate-session stytch-config session-token)]
         (cache-stytch-login db session-token member)
+        (tracking/if-user-is-buyer-track-login db member)
         member)))
   (write-session
     [_ _ value]

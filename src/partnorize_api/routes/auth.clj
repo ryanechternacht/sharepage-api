@@ -14,7 +14,7 @@
   ;; this is needed because we can only set use http for localhost in stytch, and I haven't setup
   ;; https locally yet
   (println "for browser:" "buyersphere-session" session_token ".buyersphere-local.com")
-  (println "for postman" (format "buyersphere-session=%s" session_token))
+  (println "for postman:" (format "buyersphere-session=%s" session_token))
   (assoc response :session session_token))
 
 (defn- make-url [base-url subdomain path]
