@@ -1,6 +1,7 @@
 (ns partnorize-api.routes.buyerspheres
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
+            [partnorize-api.data.buyer-tracking :as d-buyer-tracking]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
@@ -165,4 +166,10 @@
         (response/ok (:seller-team (d-teams/get-by-buyersphere db
                                                                (:id organization)
                                                                id))))
+      (response/unauthorized))))
+
+(def GET-buyersphere-buyer-activity
+  (cpj/GET "/v0.1/buyerspheres/:id/buyer-activity" [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-see-buyersphere db organization id user)
+      (response/ok (d-buyer-tracking/get-tracking-for-buyersphere db (:id organization) id))
       (response/unauthorized))))
