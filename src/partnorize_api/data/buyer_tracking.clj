@@ -1,5 +1,6 @@
 (ns partnorize-api.data.buyer-tracking
   (:require [honey.sql.helpers :as h]
+            [partnorize-api.data.buyerspheres :as buyersphere]
             [partnorize-api.data.users :as users]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
@@ -58,33 +59,54 @@
   ;
   )
 
-(defn get-tracking-for-buyersphere-query [organization-id buyersphere-id]
-  (-> (apply h/select (concat users/user-columns
-                              [:buyer_tracking.activity
-                               :buyer_tracking.created_at]))
+(def ^:private base-tracking-columns
+  (concat users/user-columns
+          buyersphere/base-buyersphere-cols
+          [:buyer_tracking.activity
+           :buyer_tracking.activity_data
+           :buyer_tracking.created_at
+           :buyer_tracking.buyersphere_id]))
+
+(defn base-tracking-query [organization-id]
+  (-> (apply h/select base-tracking-columns)
       (h/from :buyer_tracking)
       (h/join :user_account [:=
                              :buyer_tracking.user_account_id
                              :user_account.id])
-      (h/where [:= :buyer_tracking.organization_id organization-id]
-               [:= :buyer_tracking.buyersphere_id buyersphere-id])))
+      (h/join :buyersphere [:=
+                            :buyer_tracking.buyersphere_id
+                            :buyersphere.id])
+      (h/where [:= :buyer_tracking.organization_id organization-id])
+      (h/order-by [:created_at :desc])
+      (h/limit 100)))
+
+(defn get-tracking-for-buyersphere-query [organization-id buyersphere-id]
+  (-> (base-tracking-query organization-id)
+      (h/where [:= :buyer_tracking.buyersphere_id buyersphere-id])))
 
 (defn reformat-tracking [{:keys [id email buyersphere_id display_role 
                                  organization_id first_name last_name
-                                 image activity created_at]}]
+                                 image buyer buyer_logo activity created_at]}]
   {:activity activity
    :created_at created_at
    :user {:id id
           :email email
-          :buyersphere_id buyersphere_id
           :display_role display_role
-          :organization_id organization_id
           :first_name first_name
           :last_name last_name
-          :image image}})
+          :image image}
+   :buyersphere {:id buyersphere_id
+                 :buyer buyer
+                 :buyer_logo buyer_logo}})
 
 (defn get-tracking-for-buyersphere [db organization-id buyersphere-id]
   (let [query (get-tracking-for-buyersphere-query organization-id buyersphere-id)]
+    (->> query
+         (db/->>execute db)
+         (map reformat-tracking))))
+
+(defn get-tracking-for-organization [db organization-id]
+  (let [query (base-tracking-query organization-id)]
     (->> query
          (db/->>execute db)
          (map reformat-tracking))))
@@ -103,5 +125,6 @@
                       :buyersphere_role "buyer",
                       :created_at #inst "2023-12-20T06:01:44.926274000-00:00"})
   (get-tracking-for-buyersphere db/local-db 1 1)
+  (get-tracking-for-organization db/local-db 1)
   ;
   )

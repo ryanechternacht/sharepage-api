@@ -10,7 +10,7 @@
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
-(def ^:private base-buyersphere-cols
+(def base-buyersphere-cols
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
    :buyersphere.buyer_logo :buyersphere.intro_message
    :buyersphere.features_answer

@@ -2,6 +2,7 @@
   (:require [compojure.core :as cpj]
             [partnorize-api.routes.activities :as activities]
             [partnorize-api.routes.auth :as auth]
+            [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
@@ -44,6 +45,7 @@
   #'auth/GET-login
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
+  #'buyer-activity/GET-buyer-activity
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere
   #'buyerspheres/POST-buyersphere

@@ -3,8 +3,9 @@ create table buyer_tracking (
   buyersphere_id int references buyersphere(id),
   user_account_id int references user_account(id),
   activity text not null,
+  activity_data jsonb,
   created_at timestamp with time zone not null,
-  constraint buyer_tracking_activity check (activity in ('login'))
+  constraint buyer_tracking_activity check (activity in ('site-activity'))
 );
 --;;
 create or replace function trigger_insert_only_timestamps()
