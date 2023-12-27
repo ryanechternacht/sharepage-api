@@ -3,7 +3,6 @@ create table conversation_template_item (
   organization_id int references organization(id),
   message text,
   due_date_days int not null,
-  assigned_to int references user_account(id),
   assigned_team text,
   collaboration_type text,
   created_at timestamp with time zone not null,
