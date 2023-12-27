@@ -42,12 +42,12 @@
 (defn if-user-is-buyer-track-login [db {:keys [email_address organization_id]}]
   (when-let [buyers (seq (get-if-buyer db email_address organization_id))]
     (track-buyer-activity-batched db
-                                  "login"
+                                  "site-activity"
                                   buyers)))
 
 (comment
   (get-if-buyer db/local-db "holster@tully.com" "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781")
-  (track-buyer-activity db/local-db "login" 1 1 5)
+  (track-buyer-activity db/local-db "site-activity" 1 1 5)
   (if-user-is-buyer-track-login db/local-db
                                 {:email_address "holster@tully.com"
                                  :organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"})
@@ -117,7 +117,7 @@
                       :first_name "Holster",
                       :organization_id 1,
                       :is_admin false,
-                      :activity "login",
+                      :activity "site-activity",
                       :id 4,
                       :last_name "Tully",
                       :display_role "Lord of Riverrun",
