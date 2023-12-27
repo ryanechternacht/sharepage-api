@@ -4,6 +4,7 @@
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
+            [partnorize-api.routes.conversation_templates :as conversation-templates]
             [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
             [partnorize-api.routes.organization :as organization]
@@ -62,6 +63,9 @@
   #'buyerspheres/POST-add-buyer-to-buyersphere
   #'buyerspheres/POST-add-seller-to-buyersphere
   #'buyerspheres/GET-buyersphere-buyer-activity
+  #'conversation-templates/GET-conversation-template
+  #'conversation-templates/POST-conversation-template-item
+  #'conversation-templates/PATCH-conversation-template-item
   #'deal-timing/GET-deal-timing
   #'deal-timing/PUT-deal-timing
   #'features/GET-features
