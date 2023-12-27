@@ -55,8 +55,8 @@
 (comment
   (get-by-organization db/local-db 1)
 
-  (create-conversation-template-item db/local-db 1 "new-thing" 3 "buyer" "task")
+  (create-conversation-template-item db/local-db 1 "new-thing 5" 7 "buyer" "task")
   (update-conversation-template-item db/local-db 1 2 {:message "goodbye! hello" :due-date-days 15
-                                                      :assigned-to 4 :assigned-team "seller"})
+                                                      :assigned-team "seller"})
   ;
   )

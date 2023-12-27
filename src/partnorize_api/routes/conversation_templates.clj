@@ -22,7 +22,6 @@
                     (:id organization)
                     (:message body)
                     (:due-date-days body)
-                    (:assigned-to body)
                     (:assigned-team body)
                     (:collaboration-type body)))
       (response/unauthorized))))
