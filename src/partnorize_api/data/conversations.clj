@@ -33,7 +33,7 @@
       (h/left-join [:user_account :user_account_assigned_to]
                    [:= :buyersphere_conversation.assigned_to :user_account_assigned_to.id])
       (h/where [:= :buyersphere_conversation.organization_id organization-id])
-      (h/order-by :buyersphere_conversation.updated_at)))
+      (h/order-by :buyersphere_conversation.due_date)))
 
 (defn- conversations-for-buyersphere-query [organization-id buyersphere-id]
   (h/where (base-conversation-query organization-id)
