@@ -85,6 +85,7 @@
   ([db organization-id] (get-by-organization db organization-id {}))
   ([db organization-id {:keys [user-id]}]
   (let [query (cond-> (base-conversation-query organization-id)
+                true (h/where [:is :resolved false])
                 (u/is-provided? user-id) (h/where [:= :buyersphere_conversation.assigned_to user-id]))]
     (->> query
          (db/->>execute db)
