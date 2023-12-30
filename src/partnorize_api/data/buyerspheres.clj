@@ -3,6 +3,7 @@
             [clojure.instant :as inst]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
+            [partnorize-api.data.conversation-templates :as d-conv-templ]
             [partnorize-api.data.deal-timing :as d-deal-timing]
             [partnorize-api.data.pricing :as d-pricing]
             [partnorize-api.data.resources :as d-res]
@@ -106,7 +107,7 @@
 
 
 (comment
-  (get-by-id db/local-db 1 1)
+  (get-by-id db/local-db 1 25)
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
@@ -168,35 +169,6 @@
   ;
   )
 
-(defn- create-buyersphere-record [db organization-id
-                                  {:keys [buyer buyer-logo deal-amount crm-opportunity-id]}]
-  (let [{:keys [qualified-days evaluation-days decision-days adoption-days]}
-        (u/kebab-case (d-deal-timing/get-deal-timing-by-organization-id db organization-id))
-        {show-pricing :show-by-default}
-        (u/kebab-case (d-pricing/get-global-pricing-by-organization-id db organization-id))
-        evaluation-days (+ qualified-days evaluation-days)
-        decision-days (+ evaluation-days decision-days)
-        adoption-days (+ decision-days adoption-days)]
-    (-> (h/insert-into :buyersphere)
-        (h/columns :organization_id :buyer
-                   :buyer_logo :show_pricing
-                   :deal_amount :crm_opportunity_id
-                   :qualification_date :evaluation_date
-                   :decision_date :adoption_date)
-        (h/values [[organization-id
-                    buyer
-                    buyer-logo
-                    show-pricing
-                    deal-amount
-                    crm-opportunity-id
-                    [:raw (str "NOW() + INTERVAL '" qualified-days " DAYS'")]
-                    [:raw (str "NOW() + INTERVAL '" evaluation-days " DAYS'")]
-                    [:raw (str "NOW() + INTERVAL '" decision-days " DAYS'")]
-                    [:raw (str "NOW() + INTERVAL '" adoption-days " DAYS'")]]])
-        (merge (apply h/returning base-buyersphere-cols))
-        (db/->execute db)
-        first)))
-
 (defn- add-default-resources [db organization-id buyersphere-id]
   (let [resources (d-res/get-resources-by-organization-id db organization-id)
         build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
@@ -205,14 +177,53 @@
         (h/values (map build-values resources))
         (db/->execute db))))
 
-(defn create-buyersphere [db organization-id user-id buyersphere]
-  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere)]
+(defn- create-buyersphere-record [db organization-id
+                                  {:keys [buyer buyer-logo deal-amount crm-opportunity-id]}]
+  (-> (h/insert-into :buyersphere)
+      (h/columns :organization_id
+                 :buyer
+                 :buyer_logo
+                 :show_pricing
+                 :deal_amount
+                 :crm_opportunity_id)
+      (h/values [[organization-id
+                  buyer
+                  buyer-logo
+                  true
+                  deal-amount
+                  crm-opportunity-id]])
+      (merge (apply h/returning base-buyersphere-cols))
+      (db/->execute db)
+      first))
+
+(defn- add-default-activities [db organization-id buyersphere-id user-id]
+  (let [insert-query (-> (h/insert-into :buyersphere_conversation
+                                        [:organization_id
+                                         :buyersphere_id
+                                         :author
+                                         :message
+                                         :due_date
+                                         :assigned_team
+                                         :collaboration_type]
+                                        (-> (h/select organization-id
+                                                      buyersphere-id
+                                                      user-id
+                                                      :template.message
+                                                      [[:raw (str "CURRENT_DATE + concat(template.due_date_days, 'DAYS')::interval")]]
+                                                      :template.assigned_team
+                                                      :template.collaboration_type)
+                                            (h/from [(d-conv-templ/base-conversation-template-query organization-id) :template]))))]
+    (db/execute db insert-query)))
+
+(defn create-buyersphere-coordinator [db organization-id user-id buyersphere-params]
+  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)]
     (add-default-resources db organization-id new-id)
+    (add-default-activities db organization-id new-id user-id)
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
     new-id))
 
 (comment
-  (create-buyersphere db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
-                                       :deal-amount 1234 :crm-opportunity-id "abc123"})
+  (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
+                                                   :deal-amount 1234 :crm-opportunity-id "abc123"})
   ;
   )

@@ -31,7 +31,7 @@
 (def POST-buyersphere
   (cpj/POST "/v0.1/buyerspheres" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-buyerspheres/create-buyersphere db (:id organization) (:id user) body))
+      (response/ok (d-buyerspheres/create-buyersphere-coordinator db (:id organization) (:id user) body))
       (response/unauthorized))))
 
 ;; TODO technically a buyer can update anything in a buyersphere if they craft the message correctly
