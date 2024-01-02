@@ -5,7 +5,7 @@
             [partnorize-api.db :as db]
             [partnorize-api.data.utilities :as u]))
 
-(defn- base-conversation-template-query [organization-id]
+(defn base-conversation-template-query [organization-id]
   (-> (h/select :conversation_template_item.id
                 :conversation_template_item.message
                 :conversation_template_item.due_date_days
