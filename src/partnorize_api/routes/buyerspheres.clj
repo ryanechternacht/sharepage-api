@@ -72,6 +72,16 @@
                                                         body))
       (response/unauthorized))))
 
+(def DELETE-buyersphere-conversation
+  (cpj/DELETE "/v0.1/buyerspheres/:b-id/conversations/:c-id"
+    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+      (response/ok (d-conversations/delete-conversation db
+                                                            (:id organization)
+                                                            b-id
+                                                            c-id))
+      (response/unauthorized))))
+
 (def POST-buyersphere-resource
   (cpj/POST "/v0.1/buyerspheres/:b-id/resources"
     [b-id :<< coerce/as-int :as {:keys [db user organization body]}]

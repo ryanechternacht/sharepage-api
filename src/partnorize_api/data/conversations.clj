@@ -136,6 +136,13 @@
       (:assigned-to body) (replace-assigned-to-id-with-user db organization-id)
       (:due-date body) (update :due_date u/to-date-string))))
 
+(defn delete-conversation [db organization-id buyersphere-id conversation-id]
+  (let [query (-> (h/delete-from :buyersphere_conversation)
+                  (h/where [:= :organization_id organization-id]
+                           [:= :buyersphere_id buyersphere-id]
+                           [:= :id conversation-id]))]
+    (db/execute db query)))
+
 (comment
   (get-by-buyersphere db/local-db 1 1)
   (get-by-organization db/local-db 1)
@@ -146,5 +153,6 @@
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to 2 :assigned-team "buyer"})
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :assigned-to nil :assigned-team "buyer"})
   (update-conversation db/local-db 1 1 29 {:message "goodbye! hello" :resolved false :collaboration-type "meeting"})
+  (delete-conversation db/local-db 1 27 93)
   ;
   )
