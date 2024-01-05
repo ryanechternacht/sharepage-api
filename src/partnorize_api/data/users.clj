@@ -17,8 +17,8 @@
       (h/where [:= :user_account.organization_id organization-id])
       (h/order-by :user_account.first_name :user_account.last_name)))
 
-(def ^:private role-map {"admin" "seller"
-                         "buyer" "buyer"})
+(def role-map {"admin" "seller"
+               "buyer" "buyer"})
 
 (defn- add-team [{:keys [buyersphere_role] :as user}]
   (-> user

@@ -21,10 +21,12 @@
                 [:user_account_author.first_name :author_first_name]
                 [:user_account_author.last_name :author_last_name]
                 [:user_account_author.display_role :author_display_role]
+                [:user_account_author.buyersphere_role :author_buyersphere_role]
                 [:user_account_assigned_to.id :assigned_to_id]
                 [:user_account_assigned_to.first_name :assigned_to_first_name]
                 [:user_account_assigned_to.last_name :assigned_to_last_name]
-                [:user_account_assigned_to.display_role :assigned_to_display_role])
+                [:user_account_assigned_to.display_role :assigned_to_display_role]
+                [:user_account_assigned_to.buyersphere_role :assigned_to_buyersphere_role])
       (h/from :buyersphere_conversation)
       (h/join [:user_account :user_account_author]
               [:= :buyersphere_conversation.author :user_account_author.id])
@@ -42,25 +44,29 @@
 (defn- reformat-author [{:keys [author_id
                                 author_first_name
                                 author_last_name
-                                author_display_role] :as conversation}]
+                                author_display_role
+                                author_buyersphere_role] :as conversation}]
   (-> conversation
       (dissoc :author_first_name :author_last_name :author_display_role)
       (assoc :author {:id author_id
                       :first_name author_first_name
                       :last_name author_last_name
-                      :display_role author_display_role})))
+                      :display_role author_display_role
+                      :team (users/role-map author_buyersphere_role)})))
 
 (defn- reformat-assigned-to [{:keys [assigned_to_id
                                      assigned_to_first_name
                                      assigned_to_last_name
-                                     assigned_to_display_role] :as conversation}]
+                                     assigned_to_display_role
+                                     assigned_to_buyersphere_role] :as conversation}]
   (-> conversation
       (dissoc :assigned_to_first_name :assigned_to_last_name :assigned_to_display_role :assigned_to_id)
       (cond->
        assigned_to_id (assoc :assigned_to {:id assigned_to_id
                                            :first_name assigned_to_first_name
                                            :last_name assigned_to_last_name
-                                           :display_role assigned_to_display_role}))))
+                                           :display_role assigned_to_display_role
+                                           :team (users/role-map assigned_to_buyersphere_role)}))))
 
 (defn- reformat-buyer [{:keys [buyersphere_buyer
                                buyersphere_buyer_logo] :as conversation}]
