@@ -4,8 +4,6 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversation-templates :as d-conv-templ]
-            [partnorize-api.data.deal-timing :as d-deal-timing]
-            [partnorize-api.data.pricing :as d-pricing]
             [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.utilities :as u]

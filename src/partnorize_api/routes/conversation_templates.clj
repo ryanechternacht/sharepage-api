@@ -1,10 +1,8 @@
-(ns partnorize-api.routes.conversation_templates
+(ns partnorize-api.routes.conversation-templates
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
             [partnorize-api.data.conversation-templates :as d-conversation-templates]
             [partnorize-api.data.permission :as d-permission]
-            [partnorize-api.data.teams :as d-teams]
-            [partnorize-api.data.users :as d-users]
             [ring.util.http-response :as response]))
 
 (def GET-conversation-template

@@ -2,7 +2,6 @@
   (:require [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as buyersphere]
             [partnorize-api.data.users :as users]
-            [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
 (defn get-if-buyer
@@ -85,8 +84,8 @@
       (h/where [:= :buyer_tracking.buyersphere_id buyersphere-id])))
 
 (defn reformat-tracking [{:keys [id email buyersphere_id display_role 
-                                 organization_id first_name last_name
-                                 image buyer buyer_logo activity created_at]}]
+                                 first_name last_name image buyer 
+                                 buyer_logo activity created_at]}]
   {:activity activity
    :created_at created_at
    :user {:id id

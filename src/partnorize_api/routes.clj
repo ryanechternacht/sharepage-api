@@ -4,7 +4,7 @@
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
-            [partnorize-api.routes.conversation_templates :as conversation-templates]
+            [partnorize-api.routes.conversation-templates :as conversation-templates]
             [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
             [partnorize-api.routes.organization :as organization]

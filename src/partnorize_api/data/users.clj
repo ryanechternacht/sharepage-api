@@ -112,7 +112,7 @@
          ;;  this isn't that important, so don't stop processing
       nil)))
 
-(defn update-user [db organization-id id {:keys [first-name last-name display-role email]}]
+(defn update-user [db organization-id id {:keys [first-name last-name display-role]}]
   (let [query (-> (h/update :user_account)
                   (h/set {:first_name first-name
                           :last_name last-name

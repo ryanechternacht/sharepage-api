@@ -36,7 +36,7 @@
       (response/unauthorized))))
 
 (def PATCH-users
-  (cpj/PATCH "/v0.1/users/:id" [id :<< coerce/as-int :as {:keys [config db user organization body]}]
+  (cpj/PATCH "/v0.1/users/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-users/update-user db
                                         (:id organization)
