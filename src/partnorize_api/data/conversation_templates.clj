@@ -50,11 +50,19 @@
                           first)]
     updated-item))
 
+(defn delete-conversation-template-item
+  [db organization-id id]
+  (let [query (-> (h/delete-from :conversation_template_item)
+                  (h/where [:= :organization_id organization-id]
+                           [:= :id id]))]
+    (db/execute db query)))
+
 (comment
   (get-by-organization db/local-db 1)
 
   (create-conversation-template-item db/local-db 1 "new-thing 5" 7 "buyer" "task")
   (update-conversation-template-item db/local-db 1 2 {:message "goodbye! hello" :due-date-days 15
                                                       :assigned-team "seller"})
+  (delete-conversation-template-item db/local-db 1 3)
   ;
   )

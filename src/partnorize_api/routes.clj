@@ -67,6 +67,7 @@
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
+  #'conversation-templates/DELETE-conversation-template-item
   #'deal-timing/GET-deal-timing
   #'deal-timing/PUT-deal-timing
   #'features/GET-features

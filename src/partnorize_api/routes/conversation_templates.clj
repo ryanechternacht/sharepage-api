@@ -16,7 +16,7 @@
   (cpj/POST "/v0.1/conversation-template/item" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-conversation-templates/create-conversation-template-item
-                    db 
+                    db
                     (:id organization)
                     (:message body)
                     (:due-date-days body)
@@ -33,4 +33,13 @@
                     (:id organization)
                     id
                     body))
+      (response/unauthorized))))
+
+(def DELETE-conversation-template-item
+  (cpj/DELETE "/v0.1/conversation-template/item/:id" [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/does-user-have-org-permissions? db organization user)
+      (response/ok (d-conversation-templates/delete-conversation-template-item
+                    db
+                    (:id organization)
+                    id))
       (response/unauthorized))))
