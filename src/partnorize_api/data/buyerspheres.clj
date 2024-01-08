@@ -218,7 +218,7 @@
     (add-default-resources db organization-id new-id)
     (add-default-activities db organization-id new-id user-id)
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
-    new-id))
+    {:new-id new-id}))
 
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
