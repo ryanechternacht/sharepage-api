@@ -20,7 +20,8 @@
    :buyersphere.qualified_on :buyersphere.evaluated_on
    :buyersphere.decided_on :buyersphere.adopted_on
    :buyersphere.show_pricing :buyersphere.deal_amount
-   :buyersphere.crm_opportunity_id])
+   :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
+   :buyersphere.objectives_answer :buyersphere.constraints_answer])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -109,7 +110,7 @@
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
-  (get-full-buyersphere db/local-db 1 1)
+  (get-full-buyersphere db/local-db 1 38)
   (get-by-user db/local-db 1 1)
   (get-by-opportunity-ids db/local-db 1 ["006Hs00001H8xaUIAR" "abc123"])
   ;
@@ -117,13 +118,14 @@
 
 
 (defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
-  (let [updated (cond-> (-> (h/update :buyersphere)
-                            (h/set set-map)
-                            (h/where [:= :buyersphere.organization_id organization-id]
-                                     [:= :buyersphere.id buyersphere-id])
-                            (merge (apply h/returning (keys set-map)))
-                            (db/->execute db)
-                            first))]
+  (let [update-query (-> (h/update :buyersphere)
+                                 (h/set set-map)
+                                 (h/where [:= :buyersphere.organization_id organization-id]
+                                          [:= :buyersphere.id buyersphere-id])
+                                 (merge (apply h/returning (keys set-map))))
+        updated (->> update-query
+                     (db/->>execute db)
+                     first)]
     (cond-> updated
       (:qualification-date set-map) (update :qualification_date u/to-date-string)
       (:evaluation-date set-map) (update :evaluation_date u/to-date-string)
@@ -132,7 +134,8 @@
 (defn update-buyersphere [db organization-id buyersphere-id
                           {:keys [features-answer qualified-on evaluated-on
                                   decided-on adopted-on qualification-date
-                                  evaluation-date decision-date] :as body}]
+                                  evaluation-date decision-date success-criteria-answer
+                                  objectives-answer constraints-answer] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -144,6 +147,9 @@
                                           :deal-amount
                                           :crm-opportunity-id])
                  features-answer (assoc :features-answer [:lift features-answer])
+                 success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
+                 objectives-answer (assoc :objectives-answer [:lift objectives-answer])
+                 constraints-answer (assoc :constraints-answer [:lift constraints-answer])
                  qualified-on (assoc :qualified-on (inst/read-instant-date qualified-on))
                  evaluated-on (assoc :evaluated-on (inst/read-instant-date evaluated-on))
                  decided-on (assoc :decided-on (inst/read-instant-date decided-on))
@@ -164,6 +170,9 @@
   (update-buyersphere db/local-db 1 10 {:qualified-on "2023-10-26T00:00:54Z"})
   (update-buyersphere db/local-db 1 10 {:qualification-date "2023-01-02"})
   (update-buyersphere db/local-db 1 11 {:crm-opportunity-id "abc123" :deal-amount 12345})
+  (update-buyersphere db/local-db 1 38 {:success-criteria-answer {:text "hello"}
+                                        :objectives-answer {:text "goodnight"}
+                                        :constraints-answer {:text "goodbye"}})
   ;
   )
 
