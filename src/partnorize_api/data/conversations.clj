@@ -135,7 +135,8 @@
                    (h/where [:= :buyersphere_conversation.organization_id organization-id]
                             [:= :buyersphere_conversation.buyersphere_id buyersphere-id]
                             [:= :buyersphere_conversation.id conversation-id])
-                   (merge (apply h/returning (keys fields)))
+                  ;;  always include :message for tracking (gross)
+                   (merge (apply h/returning (concat (keys fields) [:message])))
                    (db/->execute db)
                    first)]
     (cond-> result
@@ -146,8 +147,11 @@
   (let [query (-> (h/delete-from :buyersphere_conversation)
                   (h/where [:= :organization_id organization-id]
                            [:= :buyersphere_id buyersphere-id]
-                           [:= :id conversation-id]))]
-    (db/execute db query)))
+                           [:= :id conversation-id])
+                  (h/returning :id :message))]
+    (->> query 
+         (db/->>execute db)
+         first)))
 
 (comment
   (get-by-buyersphere db/local-db 1 1)

@@ -50,36 +50,64 @@
 (def POST-buyersphere-conversations
   (cpj/POST "/v0.1/buyerspheres/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/can-user-see-buyersphere db organization id user)
-      (response/ok (d-conversations/create-conversation db
-                                                        (:id organization)
-                                                        id
-                                                        (:id user)
-                                                        (:message body)
-                                                        (:due-date body)
-                                                        (:assigned-to body)
-                                                        (:assigned-team body)
-                                                        (:collaboration-type body)))
+      (let [{:keys [id message] :as new-conversation}
+            (d-conversations/create-conversation db
+                                                 (:id organization)
+                                                 id
+                                                 (:id user)
+                                                 (:message body)
+                                                 (:due-date body)
+                                                 (:assigned-to body)
+                                                 (:assigned-team body)
+                                                 (:collaboration-type body))]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "create-activity"
+         {:id id
+          :message message})
+        (response/ok new-conversation))
       (response/unauthorized))))
 
 (def PATCH-buyersphere-conversation
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/conversations/:c-id"
     [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/can-user-see-buyersphere db organization b-id user)
-      (response/ok (d-conversations/update-conversation db
-                                                        (:id organization)
-                                                        b-id
-                                                        c-id
-                                                        body))
+      (let [{:keys [message] :as updated-conversation}
+            (d-conversations/update-conversation db
+                                                 (:id organization)
+                                                 b-id
+                                                 c-id
+                                                 body)
+            activity-type (cond
+                            (not (contains? body :resolved)) "edit-activity"
+                            (:resolved body) "resolve-activity"
+                            :else "unresolve-activity")]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         activity-type
+         {:id c-id
+          :message message})
+        (response/ok updated-conversation))
       (response/unauthorized))))
 
 (def DELETE-buyersphere-conversation
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/conversations/:c-id"
     [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/can-user-see-buyersphere db organization b-id user)
-      (response/ok (d-conversations/delete-conversation db
-                                                        (:id organization)
-                                                        b-id
-                                                        c-id))
+      (let [{:keys [message] :as deleted-conversation}
+            (d-conversations/delete-conversation db
+                                                 (:id organization)
+                                                 b-id
+                                                 c-id)]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "delete-activity"
+         {:id c-id
+          :message message})
+        (response/ok deleted-conversation))
       (response/unauthorized))))
 
 (def POST-buyersphere-resource
