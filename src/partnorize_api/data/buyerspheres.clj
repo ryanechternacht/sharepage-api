@@ -119,10 +119,11 @@
 
 (defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
   (let [update-query (-> (h/update :buyersphere)
-                                 (h/set set-map)
-                                 (h/where [:= :buyersphere.organization_id organization-id]
-                                          [:= :buyersphere.id buyersphere-id])
-                                 (merge (apply h/returning (keys set-map))))
+                         (h/set set-map)
+                         (h/where [:= :buyersphere.organization_id organization-id]
+                                  [:= :buyersphere.id buyersphere-id])
+                        ;;  always include name for buyer tracking
+                         (merge (apply h/returning (concat (keys set-map) [:buyer]))))
         updated (->> update-query
                      (db/->>execute db)
                      first)]

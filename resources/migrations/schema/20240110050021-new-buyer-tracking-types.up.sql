@@ -8,7 +8,7 @@ alter table buyer_tracking add constraint buyer_tracking_activity
     'resolve-activity',
     'unresolve-activity',
     'delete-activity',
-    'edit-constraints'
+    'edit-constraints',
     'edit-success-criteria',
     'edit-features',
     'edit-objectives',

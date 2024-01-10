@@ -42,7 +42,7 @@
       cached-member
       (when-let [member (stytch/authenticate-session stytch-config session-token)]
         (cache-stytch-login db session-token member)
-        (tracking/if-user-is-buyer-track-login db member)
+        (tracking/if-user-is-buyer-track-login-coordinator db member)
         member)))
   (write-session
     [_ _ value]

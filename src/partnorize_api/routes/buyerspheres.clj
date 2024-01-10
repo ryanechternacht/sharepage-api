@@ -38,7 +38,23 @@
 (def PATCH-buyersphere
   (cpj/PATCH "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/can-user-see-buyersphere db organization id user)
-      (response/ok (d-buyerspheres/update-buyersphere db (:id organization) id body))
+      (let [{:keys [buyer] :as updated-buyersphere}
+            (d-buyerspheres/update-buyersphere db
+                                               (:id organization)
+                                               id
+                                               body)]
+        (when-let [activity-type (cond
+                                   (:features-answer body) "edit-features"
+                                   (:constraints-answer body) "edit-constraints"
+                                   (:objectives-answer body) "edit-objectives"
+                                   (:success-criteria-answer body) "edit-success-criteria")]
+          (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+           db
+           (:id user)
+           activity-type
+           {:id id
+            :buyer buyer}))
+        (response/ok updated-buyersphere))
       (response/unauthorized))))
 
 (def GET-buyersphere-conversations
