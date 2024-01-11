@@ -12,11 +12,11 @@ alter table buyer_tracking add constraint buyer_tracking_activity
     'edit-success-criteria',
     'edit-features',
     'edit-objectives',
-    'opened-asset',
-    'clicked-share',
-    'deal-hold',
-    'deal-reactivate',
-    'invited-user',
-    'accepted-invite',
-    'removed-user'
+    'open-asset',
+    'click-share',
+    'hold-deal',
+    'reactivate-deal',
+    'invite-user',
+    'accept-invite',
+    'remove-user'
   ));

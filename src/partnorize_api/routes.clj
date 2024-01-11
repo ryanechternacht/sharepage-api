@@ -47,6 +47,7 @@
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
   #'buyer-activity/GET-buyer-activity
+  #'buyer-activity/POST-activity
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere
   #'buyerspheres/POST-buyersphere
