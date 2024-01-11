@@ -46,3 +46,22 @@
   (add-user-to-buyersphere db/local-db 1 1 "seller" 8)
   ;
   )
+
+(defn edit-user-in-buyersphere
+  [db organization-id user-id {:keys [first-name last-name display-role]}]
+  (let [query (-> (h/update :user_account)
+                  (h/set {:first_name first-name
+                          :last_name last-name
+                          :display_role display-role})
+                  (h/where [:= :organization_id organization-id]
+                           [:= :id user-id])
+                  ;; for buyer tracking
+                  (h/returning :email))]
+    (db/execute db query)))
+
+(comment
+  (edit-user-in-buyersphere db/local-db 1 6 {:first-name "minisa"
+                                             :last-name "tully"
+                                             :display-role "of house whent"})
+  ;
+  )

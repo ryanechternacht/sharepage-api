@@ -197,6 +197,11 @@
                                           organization
                                           "buyer"
                                           body)]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "invite-user"
+         {:user (:email new-user)})
         (d-teams/add-user-to-buyersphere db
                                          (:id organization)
                                          id
@@ -205,6 +210,26 @@
         (response/ok (:buyer-team (d-teams/get-by-buyersphere db
                                                               (:id organization)
                                                               id))))
+      (response/unauthorized))))
+
+(def PATCH-edit-buyer-in-buyersphere
+  (cpj/PATCH "/v0.1/buyerspheres/:b-id/teams/buyer/:u-id"
+    [b-id :<< coerce/as-int u-id :<< coerce/as-int
+     :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+      (let [edited-user (d-teams/edit-user-in-buyersphere db
+                                                          (:id organization)
+                                                          u-id
+                                                          body)]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "edit-user"
+         {:user (:email edited-user)})
+
+        (response/ok (:buyer-team (d-teams/get-by-buyersphere db
+                                                              (:id organization)
+                                                              b-id))))
       (response/unauthorized))))
 
 (def POST-add-seller-to-buyersphere

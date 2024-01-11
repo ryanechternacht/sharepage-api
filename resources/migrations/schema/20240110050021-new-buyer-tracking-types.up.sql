@@ -17,6 +17,7 @@ alter table buyer_tracking add constraint buyer_tracking_activity
     'hold-deal',
     'reactivate-deal',
     'invite-user',
+    'edit-user',
     'accept-invite',
     'remove-user'
   ));
