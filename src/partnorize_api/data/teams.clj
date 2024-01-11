@@ -57,7 +57,8 @@
                            [:= :id user-id])
                   ;; for buyer tracking
                   (h/returning :email))]
-    (db/execute db query)))
+    (->> (db/execute db query)
+         first)))
 
 (comment
   (edit-user-in-buyersphere db/local-db 1 6 {:first-name "minisa"
