@@ -217,16 +217,36 @@
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
      :as {:keys [db user organization body]}]
     (if (d-permission/can-user-see-buyersphere db organization b-id user)
-      (let [edited-user (d-teams/edit-user-in-buyersphere db
-                                                          (:id organization)
-                                                          u-id
-                                                          body)]
+      (do
+        (d-teams/edit-user-in-buyersphere db
+                                          (:id organization)
+                                          u-id
+                                          body)
         (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
          db
          (:id user)
          "edit-user"
-         {:user (:email edited-user)})
+         {:user (:email body)})
+        (response/ok (:buyer-team (d-teams/get-by-buyersphere db
+                                                              (:id organization)
+                                                              b-id))))
+      (response/unauthorized))))
 
+(def DELETE-remove-buyer-from-buyersphere
+  (cpj/DELETE "/v0.1/buyerspheres/:b-id/teams/buyer/:u-id"
+    [b-id :<< coerce/as-int u-id :<< coerce/as-int
+     :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+      (let [deleted-user
+            (d-teams/remove-user-from-buyersphere-coordinator db
+                                                              (:id organization)
+                                                              b-id
+                                                              u-id)]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "remove-user"
+         {:user (:email deleted-user)})
         (response/ok (:buyer-team (d-teams/get-by-buyersphere db
                                                               (:id organization)
                                                               b-id))))

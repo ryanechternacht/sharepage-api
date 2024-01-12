@@ -1,6 +1,7 @@
 (ns partnorize-api.data.teams
   (:require  [honey.sql.helpers :as h]
              [partnorize-api.db :as db]
+             [partnorize-api.data.users :as users]
              [partnorize-api.data.utilities :as u]))
 
 (defn- base-team-query [organization-id buyersphere-id]
@@ -43,7 +44,7 @@
 
 (comment
   (get-by-buyersphere db/local-db 1 1)
-  (add-user-to-buyersphere db/local-db 1 1 "seller" 8)
+  (add-user-to-buyersphere db/local-db 1 1 "buyer" 19)
   ;
   )
 
@@ -54,9 +55,7 @@
                           :last_name last-name
                           :display_role display-role})
                   (h/where [:= :organization_id organization-id]
-                           [:= :id user-id])
-                  ;; for buyer tracking
-                  (h/returning :email))]
+                           [:= :id user-id]))]
     (->> (db/execute db query)
          first)))
 
@@ -64,5 +63,21 @@
   (edit-user-in-buyersphere db/local-db 1 6 {:first-name "minisa"
                                              :last-name "tully"
                                              :display-role "of house whent"})
+  ;
+  )
+
+(defn remove-user-from-buyersphere-coordinator
+  [db organization-id buyersphere-id user-id]
+  (let [user (users/get-by-id db organization-id user-id)
+        query (-> (h/delete-from :buyersphere_user_account)
+                  (h/where [:= :organization_id organization-id]
+                           [:= :buyersphere_id buyersphere-id]
+                           [:= :user_account_id user-id])
+                  (h/returning :user_account_id))]
+    (db/execute db query)
+    user))
+
+(comment
+  (remove-user-from-buyersphere-coordinator db/local-db 1 1 16)
   ;
   )

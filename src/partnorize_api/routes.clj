@@ -64,6 +64,7 @@
   #'buyerspheres/DELETE-buyersphere-resource
   #'buyerspheres/POST-add-buyer-to-buyersphere
   #'buyerspheres/PATCH-edit-buyer-in-buyersphere
+  #'buyerspheres/DELETE-remove-buyer-from-buyersphere
   #'buyerspheres/POST-add-seller-to-buyersphere
   #'buyerspheres/GET-buyersphere-buyer-activity
   #'conversation-templates/GET-conversation-template
