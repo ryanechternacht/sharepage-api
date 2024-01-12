@@ -21,7 +21,8 @@
    :buyersphere.decided_on :buyersphere.adopted_on
    :buyersphere.show_pricing :buyersphere.deal_amount
    :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
-   :buyersphere.objectives_answer :buyersphere.constraints_answer])
+   :buyersphere.objectives_answer :buyersphere.constraints_answer
+   :buyersphere.subname])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -146,7 +147,8 @@
                                           :buyer-logo
                                           :show-pricing
                                           :deal-amount
-                                          :crm-opportunity-id])
+                                          :crm-opportunity-id
+                                          :subname])
                  features-answer (assoc :features-answer [:lift features-answer])
                  success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
                  objectives-answer (assoc :objectives-answer [:lift objectives-answer])
@@ -186,16 +188,18 @@
         (db/->execute db))))
 
 (defn- create-buyersphere-record [db organization-id
-                                  {:keys [buyer buyer-logo deal-amount crm-opportunity-id]}]
+                                  {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id]}]
   (-> (h/insert-into :buyersphere)
       (h/columns :organization_id
                  :buyer
+                 :subname
                  :buyer_logo
                  :show_pricing
                  :deal_amount
                  :crm_opportunity_id)
       (h/values [[organization-id
                   buyer
+                  subname
                   buyer-logo
                   true
                   deal-amount
