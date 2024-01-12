@@ -96,7 +96,7 @@
                                                  c-id
                                                  body)
             activity-type (cond
-                            (not (contains? body :resolved)) "edit-activity"
+                            (> (count (keys body)) 1) "edit-activity"
                             (:resolved body) "resolve-activity"
                             :else "unresolve-activity")]
         (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
