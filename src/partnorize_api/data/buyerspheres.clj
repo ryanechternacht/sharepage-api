@@ -22,7 +22,7 @@
    :buyersphere.show_pricing :buyersphere.deal_amount
    :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
    :buyersphere.objectives_answer :buyersphere.constraints_answer
-   :buyersphere.subname])
+   :buyersphere.subname :buyersphere.is_public])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -107,7 +107,7 @@
 
 
 (comment
-  (get-by-id db/local-db 1 25)
+  (get-by-id db/local-db 1 1)
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
@@ -148,7 +148,8 @@
                                           :show-pricing
                                           :deal-amount
                                           :crm-opportunity-id
-                                          :subname])
+                                          :subname
+                                          :is-public])
                  features-answer (assoc :features-answer [:lift features-answer])
                  success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
                  objectives-answer (assoc :objectives-answer [:lift objectives-answer])
@@ -167,7 +168,7 @@
   (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
-  (update-buyersphere db/local-db 1 1 {:intro-message "howdy!"})
+  (update-buyersphere db/local-db 1 1 {:intro-message "howdy!" :is-public true})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :buyer-logo "lololol" :current-stage "adoption"})
   (update-buyersphere db/local-db 1 10 {:buyer "lol" :show-pricing false})
   (update-buyersphere db/local-db 1 10 {:qualified-on "2023-10-26T00:00:54Z"})
