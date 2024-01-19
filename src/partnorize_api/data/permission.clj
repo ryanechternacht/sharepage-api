@@ -46,6 +46,16 @@
   ;
   )
 
+(defn- is-buyersphere-public? [db {o-id :id} buyersphere-id]
+  (let [query (-> (h/select :id)
+                  (h/from :buyersphere)
+                  (h/where [:= :organization_id o-id]
+                           [:= :id buyersphere-id]
+                           [:is :is_public true]))]
+    (->> query
+         (db/->>execute db)
+         seq)))
+
 (defn- is-user-buyersphere-buyer? [db {o-id :id} buyersphere-id {u-id :id}]
   (-> (h/select :id)
       (h/from :buyersphere_user_account)
@@ -58,7 +68,8 @@
 
 (defn can-user-see-buyersphere [db organization buyersphere-id user]
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
-      (is-user-buyersphere-buyer? db organization buyersphere-id user)))
+      (is-user-buyersphere-buyer? db organization buyersphere-id user)
+      (is-buyersphere-public? db organization buyersphere-id)))
 
 (defn- is-user-buyer? [db {o-id :id} {u-id :id}]
   (-> (h/select :id)
@@ -78,9 +89,14 @@
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 4})
   (is-user-buyersphere-buyer? db/local-db {:id 3} 123 {:id 1234})
 
+  (is-buyersphere-public? db/local-db {:id 1} 1)
+  (is-buyersphere-public? db/local-db {:id 1} 2)
+
   (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 4})
   (can-user-see-buyersphere db/local-db {:id 1} 2 {:id 4})
   (can-user-see-buyersphere db/local-db {:id 3} 123 {:id 1234})
+  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 1234})
+  (can-user-see-buyersphere db/local-db {:id 1} 2 {:id 1234})
 
   ;; seller checks
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 1})
