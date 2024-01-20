@@ -5,11 +5,11 @@
             [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.conversation-templates :as conversation-templates]
-            [partnorize-api.routes.deal-timing :as deal-timing]
+            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
-            [partnorize-api.routes.personas :as personas]
+            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.pricing :as pricing]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
@@ -71,23 +71,26 @@
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
   #'conversation-templates/DELETE-conversation-template-item
-  #'deal-timing/GET-deal-timing
-  #'deal-timing/PUT-deal-timing
+  ;; #'deal-timing/GET-deal-timing
+  ;; #'deal-timing/PUT-deal-timing
   #'features/GET-features
+  #'features/GET-features-for-buyersphere
   #'features/POST-features
   #'features/PUT-features
   #'features/DELETE-features
   #'organization/GET-organization
   #'organization/PATCH-organization
   #'pain-points/GET-pain-points
+  #'pain-points/GET-pain-points-for-buyersphere
   #'pain-points/POST-pain-points
   #'pain-points/PUT-pain-points
   #'pain-points/DELETE-pain-points
-  #'personas/GET-personas
-  #'personas/POST-personas
-  #'personas/PUT-personas
-  #'personas/DELETE-personas
+  ;; #'personas/GET-personas
+  ;; #'personas/POST-personas
+  ;; #'personas/PUT-personas
+  ;; #'personas/DELETE-personas
   #'pricing/GET-pricing
+  #'pricing/GET-pricing-for-buyersphere
   #'pricing/PUT-pricing
   #'pricing/POST-pricing-tiers
   #'pricing/PUT-pricing-tiers

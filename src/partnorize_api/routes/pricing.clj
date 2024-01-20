@@ -5,10 +5,16 @@
             [partnorize-api.data.permission :as d-permission]
             [ring.util.http-response :as response]))
 
-;; TODO find a way to automate org-id and user checks
 (def GET-pricing
   (cpj/GET "/v0.1/pricing" {:keys [db user organization]}
-    (if (d-permission/can-user-see-anything? db organization user)
+    (if (d-permission/does-user-have-org-permissions? db organization user)
+      (response/ok {:pricing-tiers (d-pricing/get-pricing-tiers-by-organization-id db (:id organization))
+                    :settings (d-pricing/get-global-pricing-by-organization-id db (:id organization))})
+      (response/unauthorized))))
+
+(def GET-pricing-for-buyersphere
+  (cpj/GET "/v0.1/pricing/:id" [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/is-buyersphere-visible? db organization id user)
       (response/ok {:pricing-tiers (d-pricing/get-pricing-tiers-by-organization-id db (:id organization))
                     :settings (d-pricing/get-global-pricing-by-organization-id db (:id organization))})
       (response/unauthorized))))

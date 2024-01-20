@@ -66,10 +66,9 @@
       (db/->execute db)
       seq))
 
-(defn can-user-see-buyersphere [db organization buyersphere-id user]
+(defn can-user-edit-buyersphere? [db organization buyersphere-id user]
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
-      (is-user-buyersphere-buyer? db organization buyersphere-id user)
-      (is-buyersphere-public? db organization buyersphere-id)))
+      (is-user-buyersphere-buyer? db organization buyersphere-id user)))
 
 (defn- is-user-buyer? [db {o-id :id} {u-id :id}]
   (-> (h/select :id)
@@ -80,7 +79,12 @@
       (db/->execute db)
       seq))
 
-;; TODO we should probably merge this with can-user-see-buyersphere
+(defn is-buyersphere-visible? [db organization buyersphere-id user]
+  (or (does-user-have-org-permissions? db organization user) ;; includes global admins
+      (is-user-buyersphere-buyer? db organization buyersphere-id user)
+      (is-buyersphere-public? db organization buyersphere-id)))
+
+;; TODO remove this and make buyer tracking route public
 (defn can-user-see-anything? [db organization user]
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
       (is-user-buyer? db organization user)))
@@ -92,18 +96,27 @@
   (is-buyersphere-public? db/local-db {:id 1} 1)
   (is-buyersphere-public? db/local-db {:id 1} 2)
 
-  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 4})
-  (can-user-see-buyersphere db/local-db {:id 1} 2 {:id 4})
-  (can-user-see-buyersphere db/local-db {:id 3} 123 {:id 1234})
-  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 1234})
-  (can-user-see-buyersphere db/local-db {:id 1} 2 {:id 1234})
-
-  ;; seller checks
-  (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 1})
-  (can-user-see-buyersphere db/local-db {:id 1} 1 {:id 1})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 1 {:id 4})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 2 {:id 4})
+  (can-user-edit-buyersphere? db/local-db {:id 3} 123 {:id 1234})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 1 {:id 1234})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 2 {:id 1234})
 
   ;; admin checks
-  (is-user-buyersphere-buyer? db/local-db {:id 2} 1 {:id 16})
-  (can-user-see-buyersphere db/local-db {:id 2} 1 {:id 16})
+  (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 1})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 1 {:id 1})
+
+  ;; seller checks
+  (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 16})
+  (can-user-edit-buyersphere? db/local-db {:id 1} 1 {:id 16})
+
+  (is-buyersphere-visible? db/local-db {:id 1} 1 nil)
+  (is-buyersphere-visible? db/local-db {:id 1} 2 nil)
+  (is-buyersphere-visible? db/local-db {:id 1} 1 {:id 4})
+  (is-buyersphere-visible? db/local-db {:id 1} 2 {:id 4})
+  (is-buyersphere-visible? db/local-db {:id 3} 123 {:id 1234})
+  (is-buyersphere-visible? db/local-db {:id 1} 1 {:id 1234})
+  (is-buyersphere-visible? db/local-db {:id 1} 2 {:id 1234})
+  
   ;
   )

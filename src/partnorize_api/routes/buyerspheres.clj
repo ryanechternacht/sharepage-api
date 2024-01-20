@@ -11,7 +11,6 @@
             [partnorize-api.data.teams :as d-teams]
             [ring.util.http-response :as response]))
 
-;; TODO find a way to automate org-id and user checks
 (def GET-buyerspheres
   (cpj/GET "/v0.1/buyerspheres" [user-id stage status :as {:keys [db user organization]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
@@ -24,7 +23,7 @@
 
 (def GET-buyersphere
   (cpj/GET "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/is-buyersphere-visible? db organization id user)
       (response/ok (d-buyerspheres/get-full-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
@@ -37,7 +36,7 @@
 ;; TODO technically a buyer can update anything in a buyersphere if they craft the message correctly
 (def PATCH-buyersphere
   (cpj/PATCH "/v0.1/buyerspheres/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [buyer] :as updated-buyersphere}
             (d-buyerspheres/update-buyersphere db
                                                (:id organization)
@@ -59,13 +58,13 @@
 
 (def GET-buyersphere-conversations
   (cpj/GET "/v0.1/buyerspheres/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/is-buyersphere-visible? db organization id user)
       (response/ok (d-conversations/get-by-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
 (def POST-buyersphere-conversations
   (cpj/POST "/v0.1/buyerspheres/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [id message] :as new-conversation}
             (d-conversations/create-conversation db
                                                  (:id organization)
@@ -88,7 +87,7 @@
 (def PATCH-buyersphere-conversation
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/conversations/:c-id"
     [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [message] :as updated-conversation}
             (d-conversations/update-conversation db
                                                  (:id organization)
@@ -111,7 +110,7 @@
 (def DELETE-buyersphere-conversation
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/conversations/:c-id"
     [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [message] :as deleted-conversation}
             (d-conversations/delete-conversation db
                                                  (:id organization)
@@ -129,7 +128,7 @@
 (def POST-buyersphere-resource
   (cpj/POST "/v0.1/buyerspheres/:b-id/resources"
     [b-id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-res/create-buyersphere-resource db
                                                             (:id organization)
                                                             b-id
@@ -139,7 +138,7 @@
 (def PATCH-buyersphere-resource
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/resources/:r-id"
     [b-id :<< coerce/as-int r-id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-res/update-buyersphere-resource db
                                                             (:id organization)
                                                             b-id
@@ -150,7 +149,7 @@
 (def DELETE-buyersphere-resource
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/resources/:r-id"
     [b-id :<< coerce/as-int r-id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-res/delete-buyersphere-resource db
                                                             (:id organization)
                                                             b-id
@@ -160,7 +159,7 @@
 (def POST-buyersphere-note
   (cpj/POST "/v0.1/buyerspheres/:b-id/notes"
     [b-id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-notes/create-buyersphere-note db
                                                           (:id organization)
                                                           b-id
@@ -170,7 +169,7 @@
 (def PATCH-buyersphere-note
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/notes/:n-id"
     [b-id :<< coerce/as-int n-id :<< coerce/as-int :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-notes/update-buyersphere-note db
                                                           (:id organization)
                                                           b-id
@@ -181,7 +180,7 @@
 (def DELETE-buyersphere-note
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/notes/:n-id"
     [b-id :<< coerce/as-int n-id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (response/ok (d-buyer-notes/delete-buyersphere-note db
                                                           (:id organization)
                                                           b-id
@@ -191,7 +190,7 @@
 (def POST-add-buyer-to-buyersphere
   (cpj/POST "/v0.1/buyerspheres/:id/teams/buyer"
     [id :<< coerce/as-int :as {:keys [config db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [new-user (d-users/create-user config
                                           db
                                           organization
@@ -216,7 +215,7 @@
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/teams/buyer/:u-id"
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
      :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (do
         (d-teams/edit-user-in-buyersphere db
                                           (:id organization)
@@ -236,7 +235,7 @@
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/teams/buyer/:u-id"
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
      :as {:keys [db user organization body]}]
-    (if (d-permission/can-user-see-buyersphere db organization b-id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [deleted-user
             (d-teams/remove-user-from-buyersphere-coordinator db
                                                               (:id organization)
@@ -269,6 +268,6 @@
 
 (def GET-buyersphere-buyer-activity
   (cpj/GET "/v0.1/buyerspheres/:id/buyer-activity" [id :<< coerce/as-int :as {:keys [db user organization]}]
-    (if (d-permission/can-user-see-buyersphere db organization id user)
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (response/ok (d-buyer-tracking/get-tracking-for-buyersphere db (:id organization) id))
       (response/unauthorized))))
