@@ -38,12 +38,13 @@
     ;; Check if a valid cached version exists in the db. if not, validate with stytch and
     ;; update what we have in the db
     ;; TODO Not sure how this should interact with write-session, but I bet it should
-    (if-let [cached-member (check-db-for-cached-session db session-token)]
-      cached-member
-      (when-let [member (stytch/authenticate-session stytch-config session-token)]
-        (cache-stytch-login db session-token member)
-        (tracking/if-user-is-buyer-track-login-coordinator db member)
-        member)))
+    (when session-token
+      (if-let [cached-member (check-db-for-cached-session db session-token)]
+        cached-member
+        (when-let [member (stytch/authenticate-session stytch-config session-token)]
+          (cache-stytch-login db session-token member)
+          (tracking/if-user-is-buyer-track-login-coordinator db member)
+          member))))
   (write-session
     [_ _ value]
     value)
