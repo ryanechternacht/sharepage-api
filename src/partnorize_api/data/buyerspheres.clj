@@ -181,12 +181,12 @@
   )
 
 (defn- add-default-resources [db organization-id buyersphere-id]
-  (let [resources (d-res/get-resources-by-organization-id db organization-id)
-        build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
-    (-> (h/insert-into :buyersphere_resource)
-        (h/columns :organization_id :buyersphere_id :title :link)
-        (h/values (map build-values resources))
-        (db/->execute db))))
+  (when-let [resources (d-res/get-resources-by-organization-id db organization-id)]
+    (let [build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
+      (-> (h/insert-into :buyersphere_resource)
+          (h/columns :organization_id :buyersphere_id :title :link)
+          (h/values (map build-values resources))
+          (db/->execute db)))))
 
 (defn- create-buyersphere-record [db organization-id
                                   {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id]}]
@@ -210,22 +210,23 @@
       first))
 
 (defn- add-default-activities [db organization-id buyersphere-id user-id]
-  (let [insert-query (-> (h/insert-into :buyersphere_conversation
-                                        [:organization_id
-                                         :buyersphere_id
-                                         :author
-                                         :message
-                                         :due_date
-                                         :assigned_team
-                                         :collaboration_type]
-                                        (-> (h/select organization-id
-                                                      buyersphere-id
-                                                      user-id
-                                                      :template.message
-                                                      [[:raw (str "CURRENT_DATE + concat(template.due_date_days, 'DAYS')::interval")]]
-                                                      :template.assigned_team
-                                                      :template.collaboration_type)
-                                            (h/from [(d-conv-templ/base-conversation-template-query organization-id) :template]))))]
+  (let [insert-query (-> (h/insert-into
+                          :buyersphere_conversation
+                          [:organization_id
+                           :buyersphere_id
+                           :author
+                           :message
+                           :due_date
+                           :assigned_team
+                           :collaboration_type]
+                          (-> (h/select organization-id
+                                        buyersphere-id
+                                        user-id
+                                        :template.message
+                                        [[:raw (str "CURRENT_DATE + concat(template.due_date_days, 'DAYS')::interval")]]
+                                        :template.assigned_team
+                                        :template.collaboration_type)
+                              (h/from [(d-conv-templ/base-conversation-template-query organization-id) :template]))))]
     (db/execute db insert-query)))
 
 (defn create-buyersphere-coordinator [db organization-id user-id buyersphere-params]
