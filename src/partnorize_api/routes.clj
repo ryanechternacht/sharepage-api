@@ -52,6 +52,13 @@
   #'buyerspheres/GET-buyersphere
   #'buyerspheres/POST-buyersphere
   #'buyerspheres/PATCH-buyersphere
+  #'buyerspheres/GET-buyersphere-milestones
+  #'buyerspheres/POST-buyersphere-milestones
+  #'buyerspheres/PATCH-buyersphere-milestone
+  #'buyerspheres/GET-buyersphere-activities
+  #'buyerspheres/POST-buyersphere-activities
+  #'buyerspheres/PATCH-buyersphere-activity
+  #'buyerspheres/DELETE-buyersphere-activity
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations
   #'buyerspheres/PATCH-buyersphere-conversation

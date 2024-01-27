@@ -87,7 +87,7 @@
        (db/->>execute db)
        (map reformat-conversation)))
 
-(defn get-by-organization 
+(defn get-by-organization
   ([db organization-id] (get-by-organization db organization-id {}))
   ([db organization-id {:keys [user-id]}]
   (let [query (cond-> (base-conversation-query organization-id)
