@@ -199,7 +199,8 @@
                                  :display_role display_role})))))
 
 (defn update-activity-coordinator [db organization-id buyersphere-id id activity]
-  (let [fields (-> (select-keys activity [:activity-type
+  (let [fields (-> (select-keys activity [:milestone-id
+                                          :activity-type
                                           :title
                                           :assigned-to-id
                                           :assigned-team
@@ -243,7 +244,8 @@
   (update-activity-coordinator db/local-db 1 1 2
                                {:activity-type "action"
                                 :assigned-to-id 3
-                                :due-date "2024-12-12"})
+                                :due-date "2024-12-12"
+                                :milestone-id 2})
   
   (delete-activity db/local-db 1 1 1)
   ;
