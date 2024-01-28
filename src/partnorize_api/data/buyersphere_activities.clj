@@ -34,7 +34,7 @@
          first)))
 
 (defn update-milestone [db organization-id buyersphere-id id milestone]
-  (let [fields (-> (select-keys milestone [:title]))
+  (let [fields (-> (select-keys milestone [:title :resolved]))
         update-query (-> (h/update :buyersphere_milestone)
                          (h/set fields)
                          (h/where [:= :organization_id organization-id]
@@ -165,6 +165,7 @@
                        {:keys [activity-type title assigned-to-id
                                assigned-team due-date resolved]}]
   (let [due-date-inst (when due-date (u/read-date-string due-date))
+        resolved (if (nil? resolved) false resolved)
         query (-> (h/insert-into :buyersphere_activity)
                   (h/columns :organization_id :buyersphere_id :milestone_id
                              :creator_id :activity_type :title
@@ -240,11 +241,10 @@
                     :assigned-to-id 1
                     :assigned-team "seller"})
   
-  (update-activity-coordinator db/local-db 1 1 2
+  (update-activity-coordinator db/local-db 1 1 1
                                {:activity-type "action"
                                 :assigned-to-id 3
-                                :due-date "2024-12-12"
-                                :milestone-id 2})
+                                :due-date "2024-12-12"})
   
   (delete-activity db/local-db 1 1 1)
   ;
@@ -256,7 +256,8 @@
   ([db organization-id] (get-activities-for-organization db organization-id {}))
   ([db organization-id {:keys [user-id]}]
    (let [query (cond-> (-> (base-activities-query organization-id)
-                           (h/where [:<= :buyersphere_activity.due_date [[:raw "CURRENT_DATE + interval '30 days'"]]]))
+                           (h/where [:<= :buyersphere_activity.due_date [[:raw "CURRENT_DATE + interval '30 days'"]]]
+                                    [:is :buyersphere_activity.resolved false]))
                  user-id (-> (h/join :buyersphere_user_account
                                      [:and
                                       [:=
