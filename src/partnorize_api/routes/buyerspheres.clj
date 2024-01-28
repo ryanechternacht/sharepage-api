@@ -101,6 +101,24 @@
         (response/ok updated-milestone))
       (response/unauthorized))))
 
+(def DELETE-buyersphere-milestone
+  (cpj/DELETE "/v0.1/buyersphere/:b-id/milestone/:m-id"
+    [b-id :<< coerce/as-int m-id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
+      (let [{:keys [title] :as deleted-conversation}
+            (d-buyer-activities/delete-milestone db
+                                                 (:id organization)
+                                                 b-id
+                                                 m-id)]
+        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+         db
+         (:id user)
+         "delete-milestone"
+         {:id m-id
+          :title title})
+        (response/ok deleted-conversation))
+      (response/unauthorized))))
+
 (def GET-buyersphere-activities
   (cpj/GET "/v0.1/buyersphere/:id/milestones/activities" [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/is-buyersphere-visible? db organization id user)

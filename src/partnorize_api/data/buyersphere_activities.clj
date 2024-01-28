@@ -47,12 +47,25 @@
          (db/->>execute db)
          first)))
 
+(defn delete-milestone [db organization-id buyersphere-id id]
+  (let [query (-> (h/delete-from :buyersphere_milestone)
+                  (h/where [:= :organization_id organization-id]
+                           [:= :buyersphere_id buyersphere-id]
+                           [:= :id id])
+                  ;;  always include :title for tracking (gross)
+                  (h/returning :id :title))]
+    (->> query
+         (db/->>execute db)
+         first)))
+
 (comment
   (get-milestones-for-buyersphere db/local-db 1 1)
 
   (create-milestone db/local-db 1 1 {:title "hello, world 2"})
 
   (update-milestone db/local-db 1 1 3 {:title "df"})
+
+  (delete-milestone db/local-db 1 1 3)
   ;
   )
 
