@@ -1,6 +1,5 @@
 (ns partnorize-api.data.buyersphere-activities
-  (:require [clojure.core :as c]
-            [honey.sql.helpers :as h]
+  (:require [honey.sql.helpers :as h]
             [partnorize-api.data.users :as users]
             [partnorize-api.db :as db]
             [partnorize-api.data.utilities :as u]))
