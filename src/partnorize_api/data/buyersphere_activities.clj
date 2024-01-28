@@ -60,7 +60,7 @@
 (comment
   (get-milestones-for-buyersphere db/local-db 1 1)
 
-  (create-milestone db/local-db 1 1 {:title "hello, world 2"})
+  (create-milestone db/local-db 1 1 {:title "hello, world"})
 
   (update-milestone db/local-db 1 1 3 {:title "df"})
 
@@ -95,10 +95,9 @@
                 [:user_account_assigned_to.display_role :assigned_to_display_role]
                 [:user_account_assigned_to.buyersphere_role :assigned_to_buyersphere_role])
       (h/from :buyersphere_activity)
+      ;; Don't filter on org id so super admin created activities still show
       (h/join [:user_account :user_account_creator]
-              [:and
-               [:= :buyersphere_activity.creator_id :user_account_creator.id]
-               [:= :buyersphere_activity.organization_id :user_account_creator.organization_id]])
+              [:= :buyersphere_activity.creator_id :user_account_creator.id])
       (h/join :buyersphere
               [:and
                [:= :buyersphere_activity.buyersphere_id :buyersphere.id]
@@ -107,6 +106,7 @@
                    [:and
                     [:= :buyersphere_activity.assigned_to_id :user_account_assigned_to.id]
                     [:= :buyersphere_activity.organization_id :user_account_assigned_to.organization_id]])
+      (h/where [:= :buyersphere_activity.organization_id organization-id])
       (h/order-by [:buyersphere_activity.due_date :asc-nulls-last]
                   :buyersphere_activity.title)))
 
@@ -232,7 +232,7 @@
          first)))
 
 (comment
-  (get-activities-for-buyersphere db/local-db 1 1)
+  (get-activities-for-buyersphere db/local-db 2 5)
 
   (create-activity db/local-db 1 1 1 1
                    {:activity-type "question"
@@ -248,4 +248,31 @@
   
   (delete-activity db/local-db 1 1 1)
   ;
+  )
+
+[[:raw (str "CURRENT_DATE + concat(template.due_date_days, 'DAYS')::interval")]]
+
+(defn get-activities-for-organization 
+  ([db organization-id] (get-activities-for-organization db organization-id {}))
+  ([db organization-id {:keys [user-id]}]
+   (let [query (cond-> (-> (base-activities-query organization-id)
+                           (h/where [:<= :buyersphere_activity.due_date [[:raw "CURRENT_DATE + interval '30 days'"]]]))
+                 user-id (-> (h/join :buyersphere_user_account
+                                     [:and
+                                      [:=
+                                       :buyersphere_activity.organization_id
+                                       :buyersphere_user_account.organization_id]
+                                      [:=
+                                       :buyersphere_activity.buyersphere_id
+                                       :buyersphere_user_account.buyersphere_id]
+                                      [:=
+                                       :buyersphere_user_account.user_account_id
+                                       user-id]])))]
+     (->> query
+          (db/->>execute db)
+          (map reformat-activity)))))
+
+(comment
+  (get-activities-for-organization db/local-db 1)
+  (get-activities-for-organization db/local-db 1 {:user-id 2})
   )

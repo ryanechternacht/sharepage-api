@@ -43,6 +43,7 @@
 (cpj/defroutes routes
   #'GET-root-healthz
   #'activities/GET-activities
+  #'activities/GET-activities-2
   #'auth/GET-login
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
