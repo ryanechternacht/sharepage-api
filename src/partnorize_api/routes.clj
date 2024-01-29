@@ -5,14 +5,15 @@
             [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.conversation-templates :as conversation-templates]
-            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
+            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
-            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.pricing :as pricing]
+            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
+            [partnorize-api.routes.templates :as templates]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
 
@@ -109,6 +110,14 @@
   #'resources/PUT-resources
   #'resources/DELETE-resources
   #'salesforce/GET-opportunities
+  #'templates/GET-template-milestones
+  #'templates/POST-template-milestones
+  #'templates/PATCH-template-milestone
+  #'templates/DELETE-template-milestone
+  #'templates/GET-template-activities
+  #'templates/POST-template-activities
+  #'templates/PATCH-template-activity
+  #'templates/DELETE-template-activity
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres

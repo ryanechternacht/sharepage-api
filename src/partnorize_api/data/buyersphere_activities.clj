@@ -169,8 +169,8 @@
         query (-> (h/insert-into :buyersphere_activity)
                   (h/columns :organization_id :buyersphere_id :milestone_id
                              :creator_id :activity_type :title
-                             :assigned_to_id :assigned-team
-                             :due-date :resolved)
+                             :assigned_to_id :assigned_team
+                             :due_date :resolved)
                   (h/values [[organization-id buyersphere-id milestone-id
                               creator-id activity-type title
                               assigned-to-id assigned-team
