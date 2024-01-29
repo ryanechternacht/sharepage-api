@@ -49,11 +49,13 @@
       (response/unauthorized))))
 
 (def POST-template-activities
-  (cpj/POST "/v0.1/templates/activities" {:keys [db user organization body]}
+  (cpj/POST "/v0.1/templates/milestone/:id/activities"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-templates/create-activity-template
                     db
                     (:id organization)
+                    id
                     body))
       (response/unauthorized))))
 
