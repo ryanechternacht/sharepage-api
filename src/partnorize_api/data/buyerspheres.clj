@@ -6,6 +6,7 @@
             [partnorize-api.data.conversation-templates :as d-conv-templ]
             [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
+            [partnorize-api.data.buyersphere-activity-templates :as d-act-temp]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
@@ -48,13 +49,13 @@
   ([db organization-id {:keys [user-id stage status]}]
    (let [query (cond-> (base-buyersphere-query organization-id)
                  (u/is-provided? user-id) (h/where [:in :buyersphere.id
-                                                       (-> (h/select :buyersphere_id)
-                                                           (h/from :buyersphere_user_account)
-                                                           (h/where [:= :user_account_id user-id]))])
+                                                    (-> (h/select :buyersphere_id)
+                                                        (h/from :buyersphere_user_account)
+                                                        (h/where [:= :user_account_id user-id]))])
                  (u/is-provided? stage) (h/where [:= :buyersphere.current_stage stage])
                  (u/is-provided? status) (cond->
-                                             (= status "not-active") (h/where [:<> :buyersphere.status "active"])
-                                             (not= status "not-active") (h/where [:= :buyersphere.status status]))
+                                          (= status "not-active") (h/where [:<> :buyersphere.status "active"])
+                                          (not= status "not-active") (h/where [:= :buyersphere.status status]))
 
                 ;;  is-overdue (h/where [:or
                 ;;                       [:and
@@ -229,10 +230,49 @@
                               (h/from [(d-conv-templ/base-conversation-template-query organization-id) :template]))))]
     (db/execute db insert-query)))
 
+(defn- add-default-milestones-coordiantor
+  "returns a map of the milestone template ids mapped to the newly created
+   milestone ids so that the newly created activities can be properly
+   mapped upon creation"
+  [db organization-id buyersphere-id]
+  (let [milestone-templates (d-act-temp/get-milestone-templates db organization-id)
+        to-insert (map (fn [mt]
+                         (-> mt
+                             (select-keys [:organization_id :title :ordering])
+                             (assoc :buyersphere_id buyersphere-id)))
+                       milestone-templates)
+        insert-query (-> (h/insert-into :buyersphere_milestone)
+                         (h/values to-insert)
+                         (h/returning :id))
+        new-ids (->> insert-query
+                     (db/->>execute db)
+                     (map :id))
+        old-ids (map :id milestone-templates)]
+    (zipmap old-ids new-ids)))
+
+(defn- add-default-activities-coordinator
+  [db organization-id buyersphere-id user-id mt-id->m-id]
+  (let [activity-templates (d-act-temp/get-activity-templates db organization-id)
+        to-insert (map (fn [{:keys [milestone_template_id] :as at}]
+                         (-> at
+                             (select-keys [:organization_id :title
+                                           :activity_type :assigned_team])
+                             (assoc :buyersphere_id buyersphere-id)
+                             (assoc :creator_id user-id)
+                             (assoc :milestone_id (mt-id->m-id milestone_template_id))))
+                       activity-templates)
+        insert-query (-> (h/insert-into :buyersphere_activity)
+                         (h/values to-insert)
+                         (h/returning :id))]
+    (db/execute db insert-query)))
+
 (defn create-buyersphere-coordinator [db organization-id user-id buyersphere-params]
-  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)]
+  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
+        mt-id->m-id (add-default-milestones db organization-id new-id)]
+    (add-default-activities-coordinator
+     db organization-id new-id user-id mt-id->m-id) ;; new
     (add-default-resources db organization-id new-id)
-    (add-default-activities db organization-id new-id user-id)
+    (add-default-activities db organization-id new-id user-id) ;; old
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
     {:new-id new-id}))
 
