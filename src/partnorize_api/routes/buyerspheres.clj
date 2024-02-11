@@ -6,6 +6,7 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversations :as d-conversations]
+            [partnorize-api.data.buyersphere-pages :as d-pages]
             [partnorize-api.data.permission :as d-permission]
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.teams :as d-teams]
@@ -270,4 +271,41 @@
   (cpj/GET "/v0.1/buyerspheres/:id/buyer-activity" [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (response/ok (d-buyer-tracking/get-tracking-for-buyersphere db (:id organization) id))
+      (response/unauthorized))))
+
+(def GET-buyersphere-pages
+  (cpj/GET "/v0.1/buyerspheres/:id/pages" [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/is-buyersphere-visible? db organization id user)
+      (response/ok (d-pages/get-buyersphere-pages db (:id organization) id))
+      (response/unauthorized))))
+
+(def POST-buyersphere-pages
+  (cpj/POST "/v0.1/buyerspheres/:id/pages"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
+      (response/ok (d-pages/create-buyersphere-page db
+                                                        (:id organization)
+                                                        id
+                                                        body))
+      (response/unauthorized))))
+
+(def PATCH-buyersphere-page
+  (cpj/PATCH "/v0.1/buyerspheres/:b-id/page/:p-id"
+    [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
+      (response/ok (d-pages/update-buyersphere-page db
+                                                    (:id organization)
+                                                    b-id
+                                                    p-id
+                                                    body))
+      (response/unauthorized))))
+
+(def DELETE-buyersphere-page
+  (cpj/DELETE "/v0.1/buyerspheres/:b-id/page/:p-id"
+    [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
+      (response/ok (d-pages/delete-buyersphere-page db
+                                                    (:id organization)
+                                                    b-id
+                                                    p-id))
       (response/unauthorized))))

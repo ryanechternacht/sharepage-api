@@ -45,3 +45,16 @@
                               :join? false}))
 
 #_(-main)
+
+;; TRY THIS: https://clojurians.slack.com/archives/C03S1KBA2/p1706551970190269?thread_ts=1706543519.076899&cid=C03S1KBA2
+;; (defonce web-server (atom nil))
+
+;; (defn boot []
+;;   (swap! web-server
+;;          (fn [s]
+;;            (when s (.stop s))
+;;            (run-jetty #'app {:join? false :port 8080}))))
+
+;; (comment
+
+;;   (boot))

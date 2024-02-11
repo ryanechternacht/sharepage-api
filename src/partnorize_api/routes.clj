@@ -67,6 +67,10 @@
   #'buyerspheres/DELETE-remove-buyer-from-buyersphere
   #'buyerspheres/POST-add-seller-to-buyersphere
   #'buyerspheres/GET-buyersphere-buyer-activity
+  #'buyerspheres/GET-buyersphere-pages
+  #'buyerspheres/POST-buyersphere-pages
+  #'buyerspheres/PATCH-buyersphere-page
+  #'buyerspheres/DELETE-buyersphere-page
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
