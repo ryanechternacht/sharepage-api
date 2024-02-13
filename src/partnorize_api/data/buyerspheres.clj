@@ -2,6 +2,7 @@
   (:require [honey.sql.helpers :as h]
             [clojure.instant :as inst]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
+            [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversation-templates :as d-conv-templ]
             [partnorize-api.data.resources :as d-res]
@@ -234,6 +235,7 @@
     (add-default-resources db organization-id new-id)
     (add-default-activities db organization-id new-id user-id)
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
+    (d-buyer-pages/create-buyersphere-page db organization-id new-id {:title "New Page"})
     {:new-id new-id}))
 
 (comment
