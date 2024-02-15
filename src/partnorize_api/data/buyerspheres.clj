@@ -269,7 +269,7 @@
 
 (defn create-buyersphere-coordinator [db organization-id user-id buyersphere-params]
   (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
-        mt-id->m-id (add-default-milestones db organization-id new-id)]
+        mt-id->m-id (add-default-milestones-coordiantor db organization-id new-id)]
     (add-default-activities-coordinator
      db organization-id new-id user-id mt-id->m-id) ;; new
     (add-default-resources db organization-id new-id)
