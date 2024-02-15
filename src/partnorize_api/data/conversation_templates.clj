@@ -1,6 +1,5 @@
 (ns partnorize-api.data.conversation-templates
-  (:require [clojure.core :as c]
-            [honey.sql.helpers :as h]
+  (:require [honey.sql.helpers :as h]
             [partnorize-api.db :as db]))
 
 (defn base-conversation-template-query [organization-id]

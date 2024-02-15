@@ -5,14 +5,15 @@
             [partnorize-api.routes.buyer-activity :as buyer-activity]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.conversation-templates :as conversation-templates]
-            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.features :as features]
+            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
-            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.pricing :as pricing]
+            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
+            [partnorize-api.routes.templates :as templates]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
 
@@ -43,6 +44,7 @@
 (cpj/defroutes routes
   #'GET-root-healthz
   #'activities/GET-activities
+  #'activities/GET-activities-2
   #'auth/GET-login
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
@@ -52,6 +54,14 @@
   #'buyerspheres/GET-buyersphere
   #'buyerspheres/POST-buyersphere
   #'buyerspheres/PATCH-buyersphere
+  #'buyerspheres/GET-buyersphere-milestones
+  #'buyerspheres/POST-buyersphere-milestones
+  #'buyerspheres/PATCH-buyersphere-milestone
+  #'buyerspheres/DELETE-buyersphere-milestone
+  #'buyerspheres/GET-buyersphere-activities
+  #'buyerspheres/POST-buyersphere-activities
+  #'buyerspheres/PATCH-buyersphere-activity
+  #'buyerspheres/DELETE-buyersphere-activity
   #'buyerspheres/GET-buyersphere-conversations
   #'buyerspheres/POST-buyersphere-conversations
   #'buyerspheres/PATCH-buyersphere-conversation
@@ -104,6 +114,14 @@
   #'resources/PUT-resources
   #'resources/DELETE-resources
   #'salesforce/GET-opportunities
+  #'templates/GET-template-milestones
+  #'templates/POST-template-milestones
+  #'templates/PATCH-template-milestone
+  #'templates/DELETE-template-milestone
+  #'templates/GET-template-activities
+  #'templates/POST-template-activities
+  #'templates/PATCH-template-activity
+  #'templates/DELETE-template-activity
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres

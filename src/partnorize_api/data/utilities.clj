@@ -201,3 +201,30 @@
   (get-domain "stark.api.google.com")
   ;
   )
+
+(defn update-if-exists
+  "similar to core update, but if the key doesn't exist, won't call the
+   supplied fn"
+  [m k f & args]
+  (if (contains? m k)
+    (apply update m k f args)
+    m))
+
+(defn update-if-not-nil
+  "similar to core update, but if the key is nil (or doesn't exit), 
+   won't call the supplied fn"
+  [m k f & args]
+  (if (m k)
+    (apply update m k f args)
+    m))
+
+(comment
+  (update-if-exists {:a 1} :a inc)
+  (update-if-exists {:a 1} :b inc)
+  (update-if-exists {:a nil} :a inc) ;; should error!
+
+  (update-if-not-nil {:a 1} :a inc)
+  (update-if-not-nil {:a 1} :b inc)
+  (update-if-not-nil {:a nil} :a inc)
+  ;
+  )
