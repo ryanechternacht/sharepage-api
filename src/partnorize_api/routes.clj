@@ -122,6 +122,10 @@
   #'templates/POST-template-activities
   #'templates/PATCH-template-activity
   #'templates/DELETE-template-activity
+  #'templates/GET-template-pages
+  #'templates/POST-template-pages
+  #'templates/PATCH-template-page
+  #'templates/DELETE-template-page
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
