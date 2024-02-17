@@ -414,10 +414,10 @@
   (cpj/POST "/v0.1/buyerspheres/:id/pages"
     [id :<< coerce/as-int :as {:keys [db user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
-      (response/ok (d-pages/create-buyersphere-page db
-                                                        (:id organization)
-                                                        id
-                                                        body))
+      (response/ok (d-pages/create-buyersphere-page-coordinator db
+                                                                (:id organization)
+                                                                id
+                                                                body))
       (response/unauthorized))))
 
 (def PATCH-buyersphere-page

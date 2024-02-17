@@ -275,11 +275,10 @@
     (add-default-resources db organization-id new-id)
     (add-default-activities db organization-id new-id user-id) ;; old
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
-    (d-buyer-pages/create-buyersphere-page db organization-id new-id {:title "New Page"})
+    (d-buyer-pages/create-buyersphere-page-coordinator db organization-id new-id {:title "New Page"})
     {:new-id new-id}))
 
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
                                                    :deal-amount 1234 :crm-opportunity-id "abc123"})
-  ;
-  )
+  ,)

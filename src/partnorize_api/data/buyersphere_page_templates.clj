@@ -17,6 +17,13 @@
     (->> query
          (db/->>execute db))))
 
+(defn get-buyersphere-page-template [db organization-id id]
+  (let [query (-> (base-buyersphere-page-template-query organization-id)
+                  (h/where [:= :id id]))]
+    (->> query
+         (db/->>execute db)
+         first)))
+
 (defn create-buyersphere-page-template [db organization-id {:keys [title]}]
   (let [query (-> (h/insert-into :buyersphere_page_template)
                   (h/columns :organization_id :title :ordering)
@@ -53,11 +60,12 @@
 (comment
   (get-buyersphere-page-templates db/local-db 1)
 
+  (get-buyersphere-page-template db/local-db 1 2)
+
   (create-buyersphere-page-template db/local-db 1 {:title "hello, world 4"})
 
   (update-buyersphere-page-template db/local-db 1 1 {:body {:hello "world"}
                                                      :title "asdf"})
   
   (delete-buyersphere-page-template db/local-db 1 1)
-  ;
-  )
+  ,)
