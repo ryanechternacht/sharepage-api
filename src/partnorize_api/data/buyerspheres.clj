@@ -281,4 +281,5 @@
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
                                                    :deal-amount 1234 :crm-opportunity-id "abc123"})
-  ,)
+  ;
+  )

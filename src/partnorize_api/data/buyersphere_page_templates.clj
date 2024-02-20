@@ -68,4 +68,5 @@
                                                      :title "asdf"})
   
   (delete-buyersphere-page-template db/local-db 1 1)
-  ,)
+  ;
+  )
