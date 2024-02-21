@@ -84,11 +84,6 @@
       (is-user-buyersphere-buyer? db organization buyersphere-id user)
       (is-buyersphere-public? db organization buyersphere-id)))
 
-;; TODO remove this and make buyer tracking route public
-(defn can-user-see-anything? [db organization user]
-  (or (does-user-have-org-permissions? db organization user) ;; includes global admins
-      (is-user-buyer? db organization user)))
-
 (comment
   (is-user-buyersphere-buyer? db/local-db {:id 1} 1 {:id 4})
   (is-user-buyersphere-buyer? db/local-db {:id 3} 123 {:id 1234})

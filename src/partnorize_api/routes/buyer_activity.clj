@@ -12,14 +12,12 @@
 
 (def POST-activity
   (cpj/POST "/v0.1/buyer-activity" {:keys [db user organization body anonymous-user] :as req}
-    (if (d-permission/can-user-see-anything? db organization user)
-      (response/ok (d-buyer-tracking/track-activity-if-buyer-coordinator
-                    db
-                    (:id organization)
-                    (:buyersphere-id body)
+    (response/ok (d-buyer-tracking/track-activity-if-buyer-coordinator
+                  db
+                  (:id organization)
+                  (:buyersphere-id body)
                     ;; (:id user)
-                    nil ;; TODO replace this
-                    anonymous-user
-                    (:activity body)
-                    (:activity-data body)))
-      (response/unauthorized))))
+                  nil ;; TODO replace this
+                  anonymous-user
+                  (:activity body)
+                  (:activity-data body)))))
