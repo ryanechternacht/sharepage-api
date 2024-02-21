@@ -2,7 +2,13 @@
   (:require [partnorize-api.data.users :as d-users]
             [partnorize-api.data.utilities :as u]))
 
-;; TODO do something more useful with the session info (like link it to whatever info we have saved)
+;; airplane coding
+;; (defn- wrap-user-impl [handler {:keys [session db organization] :as request}]
+;;   (handler (assoc request :user (d-users/get-by-email db
+;;                                                       (:id organization)
+;;                                                       "ryan@echternacht.org"))))
+
+;; ;; TODO do something more useful with the session info (like link it to whatever info we have saved)
 (defn- wrap-user-impl [handler {:keys [session db organization] :as request}]
   (if (:email_address session)
     (let [user (u/kebab-case

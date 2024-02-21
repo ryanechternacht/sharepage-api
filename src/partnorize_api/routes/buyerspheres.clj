@@ -37,7 +37,8 @@
 
 ;; TODO technically a buyer can update anything in a buyersphere if they craft the message correctly
 (def PATCH-buyersphere
-  (cpj/PATCH "/v0.1/buyersphere/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+  (cpj/PATCH "/v0.1/buyersphere/:id" 
+    [id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [buyer] :as updated-buyersphere}
             (d-buyerspheres/update-buyersphere db
@@ -49,9 +50,12 @@
                                    (:constraints-answer body) "edit-constraints"
                                    (:objectives-answer body) "edit-objectives"
                                    (:success-criteria-answer body) "edit-success-criteria")]
-          (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+          (d-buyer-tracking/track-activity-if-buyer-coordinator
            db
+           (:id organization)
+           id
            (:id user)
+           anonymous-user
            activity-type
            {:id id
             :buyer buyer}))
@@ -66,16 +70,19 @@
 
 (def POST-buyersphere-milestones
   (cpj/POST "/v0.1/buyersphere/:id/milestones"
-    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    [id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [id title] :as new-activity}
             (d-buyer-activities/create-milestone db
                                                 (:id organization)
                                                 id
                                                 body)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         id
          (:id user)
+         anonymous-user
          "create-milestone"
          {:id id
           :title title})
@@ -85,7 +92,7 @@
 (def PATCH-buyersphere-milestone
   (cpj/PATCH "/v0.1/buyersphere/:b-id/milestone/:m-id"
     [b-id :<< coerce/as-int m-id :<< coerce/as-int
-     :as {:keys [db user organization body]}]
+     :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [id title] :as updated-milestone}
             (d-buyer-activities/update-milestone db
@@ -93,9 +100,12 @@
                                                  b-id
                                                  m-id
                                                  body)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "edit-milestone"
          {:id m-id
           :title title})
@@ -104,16 +114,19 @@
 
 (def DELETE-buyersphere-milestone
   (cpj/DELETE "/v0.1/buyersphere/:b-id/milestone/:m-id"
-    [b-id :<< coerce/as-int m-id :<< coerce/as-int :as {:keys [db user organization]}]
+    [b-id :<< coerce/as-int m-id :<< coerce/as-int :as {:keys [db user anonymous-user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [title] :as deleted-conversation}
             (d-buyer-activities/delete-milestone db
                                                  (:id organization)
                                                  b-id
                                                  m-id)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "delete-milestone"
          {:id m-id
           :title title})
@@ -128,7 +141,7 @@
 
 (def POST-buyersphere-activities
   (cpj/POST "/v0.1/buyersphere/:b-id/milestone/:m-id/activities"
-    [b-id :<< coerce/as-int m-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    [b-id :<< coerce/as-int m-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [id title] :as new-activity}
             (d-buyer-activities/create-activity db
@@ -137,9 +150,12 @@
                                                 m-id
                                                 (:id user)
                                                 body)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "create-activity"
          {:id id
           :title title})
@@ -149,7 +165,7 @@
 (def PATCH-buyersphere-activity
   (cpj/PATCH "/v0.1/buyersphere/:b-id/activity/:a-id"
     [b-id :<< coerce/as-int a-id :<< coerce/as-int
-     :as {:keys [db user organization body]}]
+     :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [id title] :as updated-activity}
             (d-buyer-activities/update-activity-coordinator db
@@ -161,9 +177,12 @@
                             (> (count (keys body)) 1) "edit-activity"
                             (:resolved body) "resolve-activity"
                             :else "unresolve-activity")]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          activity-type
          {:id a-id
           :title title})
@@ -172,16 +191,19 @@
 
 (def DELETE-buyersphere-activity
   (cpj/DELETE "/v0.1/buyersphere/:b-id/activity/:a-id"
-    [b-id :<< coerce/as-int a-id :<< coerce/as-int :as {:keys [db user organization]}]
+    [b-id :<< coerce/as-int a-id :<< coerce/as-int :as {:keys [db user anonymous-user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [title] :as deleted-conversation}
             (d-buyer-activities/delete-activity db
                                                 (:id organization)
                                                 b-id
                                                 a-id)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "delete-activity"
          {:id a-id
           :title title})
@@ -195,7 +217,8 @@
       (response/unauthorized))))
 
 (def POST-buyersphere-conversations
-  (cpj/POST "/v0.1/buyersphere/:id/conversations" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+  (cpj/POST "/v0.1/buyersphere/:id/conversations" 
+    [id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [id message] :as new-conversation}
             (d-conversations/create-conversation db
@@ -207,9 +230,12 @@
                                                  (:assigned-to body)
                                                  (:assigned-team body)
                                                  (:collaboration-type body))]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         id
          (:id user)
+         anonymous-user
          "create-activity"
          {:id id
           :message message})
@@ -218,7 +244,7 @@
 
 (def PATCH-buyersphere-conversation
   (cpj/PATCH "/v0.1/buyersphere/:b-id/conversation/:c-id"
-    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [message] :as updated-conversation}
             (d-conversations/update-conversation db
@@ -230,9 +256,12 @@
                             (> (count (keys body)) 1) "edit-activity"
                             (:resolved body) "resolve-activity"
                             :else "unresolve-activity")]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          activity-type
          {:id c-id
           :message message})
@@ -241,16 +270,19 @@
 
 (def DELETE-buyersphere-conversation
   (cpj/DELETE "/v0.1/buyersphere/:b-id/conversation/:c-id"
-    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user organization]}]
+    [b-id :<< coerce/as-int c-id :<< coerce/as-int :as {:keys [db user anonymous-user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [{:keys [message] :as deleted-conversation}
             (d-conversations/delete-conversation db
                                                  (:id organization)
                                                  b-id
                                                  c-id)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "delete-activity"
          {:id c-id
           :message message})
@@ -321,16 +353,19 @@
 
 (def POST-add-buyer-to-buyersphere
   (cpj/POST "/v0.1/buyersphere/:id/team/buyer"
-    [id :<< coerce/as-int :as {:keys [config db user organization body]}]
+    [id :<< coerce/as-int :as {:keys [config db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [new-user (d-users/create-user config
                                           db
                                           organization
                                           "buyer"
                                           body)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         id
          (:id user)
+         anonymous-user
          "invite-user"
          {:user (:email new-user)})
         (d-teams/add-user-to-buyersphere db
@@ -346,16 +381,19 @@
 (def PATCH-edit-buyer-in-buyersphere
   (cpj/PATCH "/v0.1/buyersphere/:b-id/team/buyer/:u-id"
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
-     :as {:keys [db user organization body]}]
+     :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (do
         (d-teams/edit-user-in-buyersphere db
                                           (:id organization)
                                           u-id
                                           body)
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "edit-user"
          {:user (:email body)})
         (response/ok (:buyer-team (d-teams/get-by-buyersphere db
@@ -366,16 +404,19 @@
 (def DELETE-remove-buyer-from-buyersphere
   (cpj/DELETE "/v0.1/buyersphere/:b-id/team/buyer/:u-id"
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
-     :as {:keys [db user organization body]}]
+     :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [deleted-user
             (d-teams/remove-user-from-buyersphere-coordinator db
                                                               (:id organization)
                                                               b-id
                                                               u-id)]
-        (d-buyer-tracking/if-user-is-buyer-track-activity-coordinator
+        (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
+         (:id organization)
+         b-id
          (:id user)
+         anonymous-user
          "remove-user"
          {:user (:email deleted-user)})
         (response/ok (:buyer-team (d-teams/get-by-buyersphere db

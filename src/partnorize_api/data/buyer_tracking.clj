@@ -38,7 +38,8 @@
                         (assoc :activity-data [:lift activity-data]))]
      (-> (h/insert-into :buyer_tracking)
          (h/values [insert-col])
-         (db/->execute db)))))
+         (db/->execute db))
+     nil)))
 
 (defn track-activity-if-buyer-coordinator
   "If the user is a buyer or anonymous, track the activity for the 
