@@ -1,1 +1,1 @@
--- these columsn can stay, and removing them would just lose data
+-- these columns can stay, and removing them would just lose data
