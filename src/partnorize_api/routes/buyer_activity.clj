@@ -16,8 +16,7 @@
                   db
                   (:id organization)
                   (:buyersphere-id body)
-                    ;; (:id user)
-                  nil ;; TODO replace this
+                  (:id user)
                   anonymous-user
                   (:activity body)
                   (:activity-data body)))))
