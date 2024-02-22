@@ -195,7 +195,7 @@
                     (map reformat-event-tracking))
         activity-query (base-site-activity-query organization-id buyersphere-id)
         activity (->> activity-query
-                        (db/->>execute db/local-db)
+                        (db/->>execute db)
                         (map reformat-site-activity))]
     {:events events
      :activity activity}))
@@ -207,7 +207,7 @@
                     (map reformat-event-tracking))
         activity-query (base-site-activity-query organization-id)
         activity (->> activity-query
-                      (db/->>execute db/local-db)
+                      (db/->>execute db)
                       (map reformat-site-activity))]
     {:events events
      :activity activity}))
