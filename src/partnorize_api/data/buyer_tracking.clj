@@ -83,7 +83,7 @@
   ;
   )
 
-(def ^:private base-tracking-columns
+(def ^:private base-event-tracking-columns
   (concat users/user-columns
           [:user_account.id :user_account_id]
           buyersphere/base-buyersphere-cols
@@ -91,12 +91,11 @@
           [:buyer_tracking.activity
            :buyer_tracking.activity_data
            :buyer_tracking.created_at
-           :buyer_tracking.buyersphere_id
            :buyer_tracking.linked_name
            :buyer_tracking.entered_name]))
 
-(defn base-tracking-query [organization-id]
-  (-> (apply h/select base-tracking-columns)
+(defn base-event-tracking-query [organization-id]
+  (-> (apply h/select base-event-tracking-columns)
       (h/from :buyer_tracking)
       (h/left-join :user_account [:=
                              :buyer_tracking.user_account_id
@@ -104,15 +103,16 @@
       (h/join :buyersphere [:=
                             :buyer_tracking.buyersphere_id
                             :buyersphere.id])
-      (h/where [:= :buyer_tracking.organization_id organization-id])
+      (h/where [:= :buyer_tracking.organization_id organization-id]
+               [:!= :activity "site-activity"])
       (h/order-by [:created_at :desc])
       (h/limit 100)))
 
-(defn get-tracking-for-buyersphere-query [organization-id buyersphere-id]
-  (-> (base-tracking-query organization-id)
+(defn get-event-tracking-for-buyersphere-query [organization-id buyersphere-id]
+  (-> (base-event-tracking-query organization-id)
       (h/where [:= :buyer_tracking.buyersphere_id buyersphere-id])))
 
-(defn reformat-tracking [{:keys [user_account_id email buyersphere_id display_role
+(defn reformat-event-tracking [{:keys [user_account_id email buyersphere_id display_role
                                  first_name last_name image buyer
                                  buyer_logo activity activity_data 
                                  created_at linked_name entered_name]}]
@@ -131,46 +131,112 @@
                                   :last_name last_name
                                   :image image})))
 
+(def ^:private base-site-activity-columns
+  (concat users/user-columns
+          [:user_account.id :user_account_id]
+          buyersphere/base-buyersphere-cols
+          [:buyersphere.id :buyersphere_id]
+          [:buyer_tracking.last_activity
+           :buyer_tracking.num_minutes
+           :buyer_tracking.linked_name
+           :buyer_tracking.entered_name]))
+
+(defn base-site-activity-query
+  ([organization-id] (base-site-activity-query organization-id nil))
+  ([organization-id buyersphere-id]
+   (-> (apply h/select base-site-activity-columns)
+       (h/from [(-> (h/select :organization_id :buyersphere_id :user_account_id
+                              :linked_name :entered_name
+                              [:%count.* :num_minutes]
+                              [:%max.created_at :last_activity])
+                    (h/from :buyer_tracking)
+                    (h/where [:= :activity "site-activity"]
+                             [:= :organization_id organization-id]
+                             (when buyersphere-id
+                               [:= :buyersphere_id buyersphere-id]))
+                    (h/group-by :organization_id :buyersphere_id
+                                :user_account_id
+                                :linked_name :entered_name))
+                :buyer_tracking])
+       (h/join :buyersphere [:=
+                             :buyer_tracking.buyersphere_id
+                             :buyersphere.id])
+       (h/left-join :user_account [:=
+                                   :buyer_tracking.user_account_id
+                                   :user_account.id])
+       (h/order-by [:buyer_tracking.last_activity :desc])
+       (h/limit 100))))
+
+(defn reformat-site-activity [{:keys [user_account_id email buyersphere_id display_role
+                                      first_name last_name image buyer
+                                      buyer_logo last_activity num_minutes
+                                      linked_name entered_name]}]
+  (cond-> {:last_activity last_activity
+           :num_minutes num_minutes
+           :anonymous-user {:linked_name linked_name
+                            :entered_name entered_name}
+           :buyersphere {:id buyersphere_id
+                         :buyer buyer
+                         :buyer_logo buyer_logo}}
+    user_account_id (assoc :user {:id user_account_id
+                                  :email email
+                                  :display_role display_role
+                                  :first_name first_name
+                                  :last_name last_name
+                                  :image image})))
+
 (defn get-tracking-for-buyersphere [db organization-id buyersphere-id]
-  (let [query (get-tracking-for-buyersphere-query organization-id buyersphere-id)]
-    (->> query
-         (db/->>execute db)
-         (map reformat-tracking))))
+  (let [event-query (get-event-tracking-for-buyersphere-query organization-id buyersphere-id)
+        events (->> event-query
+                    (db/->>execute db)
+                    (map reformat-event-tracking))
+        activity-query (base-site-activity-query organization-id buyersphere-id)
+        activity (->> activity-query
+                        (db/->>execute db/local-db)
+                        (map reformat-site-activity))]
+    {:events events
+     :activity activity}))
 
 (defn get-tracking-for-organization [db organization-id]
-  (let [query (base-tracking-query organization-id)]
-    (->> query
-         (db/->>execute db)
-         (map reformat-tracking))))
+  (let [event-query (base-event-tracking-query organization-id)
+        events (->> event-query
+                    (db/->>execute db)
+                    (map reformat-event-tracking))
+        activity-query (base-site-activity-query organization-id)
+        activity (->> activity-query
+                      (db/->>execute db/local-db)
+                      (map reformat-site-activity))]
+    {:events events
+     :activity activity}))
 
 (comment
-  (get-tracking-for-buyersphere-query 1 1)
-  (reformat-tracking {:email "holster@tully.com",
-                      :user_account_id 4
-                      :first_name "Holster",
-                      :last_name "Tully",
-                      :is_admin false,
-                      :display_role "Lord of Riverrun",
-                      :buyersphere_role "buyer",
-                      :image "person.gif"
-                      :organization_id 1,
-                      :activity "site-activity"
-                      :buyersphere_id 1
-                      :buyer "nike",
-                      :buyer_logo "nike.com/image",
-                      :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
-                      :entered_name "entered-name"
-                      :linked_name "linked-name"})
-    (reformat-tracking {:email "holster@tully.com",
-                      :organization_id 1,
-                      :activity "site-activity"
-                      :buyersphere_id 1
-                      :buyer "nike",
-                      :buyer_logo "nike.com/image",
-                      :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
-                      :entered_name "entered-name"
-                      :linked_name "linked-name"})
-  (get-tracking-for-buyersphere db/local-db 1 1)
+  (get-event-tracking-for-buyersphere-query 1 1)
+  (reformat-event-tracking {:email "holster@tully.com",
+                            :user_account_id 4
+                            :first_name "Holster",
+                            :last_name "Tully",
+                            :is_admin false,
+                            :display_role "Lord of Riverrun",
+                            :buyersphere_role "buyer",
+                            :image "person.gif"
+                            :organization_id 1,
+                            :activity "site-activity"
+                            :buyersphere_id 1
+                            :buyer "nike",
+                            :buyer_logo "nike.com/image",
+                            :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
+                            :entered_name "entered-name"
+                            :linked_name "linked-name"})
+    (reformat-event-tracking {:email "holster@tully.com",
+                              :organization_id 1,
+                              :activity "site-activity"
+                              :buyersphere_id 1
+                              :buyer "nike",
+                              :buyer_logo "nike.com/image",
+                              :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
+                              :entered_name "entered-name"
+                              :linked_name "linked-name"})
+  (get-tracking-for-buyersphere db/local-db 1 39)
   (get-tracking-for-organization db/local-db 1)
   ;
   )
