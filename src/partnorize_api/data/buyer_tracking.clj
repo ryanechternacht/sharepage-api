@@ -74,8 +74,8 @@
   
   (track-activity-if-buyer-coordinator db/local-db
                                        1
-                                       1
-                                       1
+                                       39
+                                       4
                                        {:linked-name "hello"
                                         :entered-name "world"}
                                        "site-activity"
@@ -171,8 +171,11 @@
                                       first_name last_name image buyer
                                       buyer_logo last_activity num_minutes
                                       linked_name entered_name]}]
-  (cond-> {:last_activity last_activity
-           :num_minutes num_minutes
+  (cond-> {:last-activity last_activity
+           :num-minutes num_minutes
+           :activity "site-activity"
+           :activity-data {:last-activity last_activity
+                           :num-minutes num_minutes}
            :anonymous-user {:linked_name linked_name
                             :entered_name entered_name}
            :buyersphere {:id buyersphere_id
