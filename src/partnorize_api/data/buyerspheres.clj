@@ -267,7 +267,8 @@
                          (h/returning :id))]
     (db/execute db insert-query)))
 
-(defn create-buyersphere-coordinator [db organization-id user-id buyersphere-params]
+(defn create-buyersphere-coordinator [db organization-id user-id 
+                                      {:keys [page-template-id page-title] :as buyersphere-params}]
   (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
         mt-id->m-id (add-default-milestones-coordiantor db organization-id new-id)]
     (add-default-activities-coordinator
@@ -275,8 +276,12 @@
     (add-default-resources db organization-id new-id)
     (add-default-activities db organization-id new-id user-id) ;; old
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
-    (d-buyer-pages/create-buyersphere-page-coordinator db organization-id new-id {:title "New Page"})
-    {:new-id new-id}))
+    (d-buyer-pages/create-buyersphere-page-coordinator db
+                                                       organization-id
+                                                       new-id
+                                                       {:title page-title
+                                                        :page-template-id page-template-id})
+    {:id new-id}))
 
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
