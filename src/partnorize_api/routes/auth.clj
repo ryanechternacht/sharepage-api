@@ -92,3 +92,24 @@
                 email))
         (response/ok "Email sent")
         (response/bad-request "Email could not be sent")))))
+
+(def POST-signup
+  (cpj/POST "/v0.1/signup" {:keys [db organization config body subdomain]}
+    (let [email (:user-email body)
+          user (d-users/get-by-email db (:id organization) email)]
+      (cond
+        user (do
+               (stytch/send-magic-link-email
+                (:stytch config)
+                (:stytch-organization-id organization)
+                email)
+               (response/bad-request "User already exists. Login email sent."))
+        (= subdomain "app") (response/bad-request "Can only register on a real org")
+
+        (d-users/create-user
+         config
+         db
+         organization
+         "buyer"
+         body)
+        (response/ok "Signup successful. Check email for login link.")))))

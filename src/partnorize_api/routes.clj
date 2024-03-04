@@ -48,6 +48,7 @@
   #'auth/GET-login
   #'auth/GET-auth-salesforce
   #'auth/POST-send-magic-link-login-email
+  #'auth/POST-signup
   #'buyer-activity/GET-buyer-activity
   #'buyer-activity/POST-activity
   #'buyerspheres/GET-buyerspheres
