@@ -5,6 +5,7 @@
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.data.salesforce-access :as d-sf]
+            [partnorize-api.data.teams :as d-teams]
             [partnorize-api.external-api.salesforce :as sf]
             [partnorize-api.external-api.stytch :as stytch]
             [ring.util.http-response :as response]))
@@ -96,6 +97,7 @@
 (def POST-signup
   (cpj/POST "/v0.1/signup" {:keys [db organization config body subdomain]}
     (let [email (:user-email body)
+          swaypage-id (parse-long (:swaypage-id body))
           user (d-users/get-by-email db (:id organization) email)]
       (cond
         user (do
@@ -106,10 +108,18 @@
                (response/bad-request "User already exists. Login email sent."))
         (= subdomain "app") (response/bad-request "Can only register on a real org")
 
-        (d-users/create-user
-         config
-         db
-         organization
-         "buyer"
-         body)
-        (response/ok "Signup successful. Check email for login link.")))))
+        :else
+        (do
+          (let [new-user (d-users/create-user
+                          config
+                          db
+                          organization
+                          "buyer"
+                          body)]
+            (when swaypage-id
+              (d-teams/add-user-to-buyersphere db
+                                               (:id organization)
+                                               swaypage-id
+                                               "buyer"
+                                               (:id new-user)))
+            (response/ok "Signup successful. Check email for login link.")))))))
