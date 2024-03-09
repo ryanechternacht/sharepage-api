@@ -25,8 +25,8 @@
   (let [people (->> (base-team-query organization-id buyersphere-id)
                     (db/->>execute db)
                     (group-by :team))]
-    {:buyer-team (people "buyer")
-     :seller-team (people "seller")}))
+    {:buyer-team (or (people "buyer") [])
+     :seller-team (or (people "seller") [])}))
 
 (defn add-user-to-buyersphere
   "Team should be either 'buyer' or 'seller'."
@@ -43,7 +43,7 @@
       (db/->execute db)))
 
 (comment
-  (get-by-buyersphere db/local-db 1 1)
+  (get-by-buyersphere db/local-db 1 60)
   (add-user-to-buyersphere db/local-db 1 1 "buyer" 19)
   ;
   )
