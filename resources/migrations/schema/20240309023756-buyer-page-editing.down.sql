@@ -1,0 +1,1 @@
+alter table buyersphere_page drop column can_buyer_edit;

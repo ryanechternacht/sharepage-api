@@ -5,7 +5,8 @@
             [partnorize-api.data.utilities :as u]))
 
 (def ^:private base-buyersphere-page-cols
-  [:id :organization_id :buyersphere_id :title :body :is_public :ordering])
+  [:id :organization_id :buyersphere_id :title :body :is_public :ordering
+   :can_buyer_edit])
 
 (defn- base-buyersphere-page-query [organization-id buyersphere-id]
   (-> (apply h/select base-buyersphere-page-cols)
@@ -42,7 +43,7 @@
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
                                {:keys [body] :as page}]
-  (let [fields (cond-> (select-keys page [:is_public :title])
+  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit])
                  body (assoc :body [:lift body]))
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
@@ -69,9 +70,10 @@
   (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4"})
   (create-buyersphere-page-coordinator db/local-db 1 1
                                        {:title "hello, world 4" :page-template-id 2})
-  
-  (update-buyersphere-page db/local-db 1 1 3 {:body {:hello "world"}
-                                              :title "asdf"})
+
+  (update-buyersphere-page db/local-db 1 62 57 {:body {:hello "world"}
+                                                :title "asdf"
+                                                :can-buyer-edit true})
 
   (delete-buyersphere-page db/local-db 1 1 3)
   ;
