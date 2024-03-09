@@ -464,25 +464,30 @@
 (def PATCH-buyersphere-page
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/page/:p-id"
     [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
-    (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
-      (let [{new-body :body :as updated-page}
-            (d-pages/update-buyersphere-page db
-                                             (:id organization)
-                                             b-id
-                                             p-id
-                                             body)]
-        (d-buyer-tracking/track-activity-if-buyer-coordinator
-         db
-         (:id organization)
-         b-id
-         (:id user)
-         anonymous-user
-         "edit-page"
-         {:buyersphere-id b-id
-          :id p-id
-          :body new-body})
-        (response/ok updated-page))
-      (response/unauthorized))))
+    (let [{:keys [can-buyer-edit]} (d-pages/get-buyersphere-page db
+                                                                 (:id organization)
+                                                                 b-id
+                                                                 p-id)]
+      (if (or can-buyer-edit
+              (d-permission/can-user-edit-buyersphere? db organization b-id user))
+        (let [{new-body :body :as updated-page}
+              (d-pages/update-buyersphere-page db
+                                               (:id organization)
+                                               b-id
+                                               p-id
+                                               body)]
+          (d-buyer-tracking/track-activity-if-buyer-coordinator
+           db
+           (:id organization)
+           b-id
+           (:id user)
+           anonymous-user
+           "edit-page"
+           {:buyersphere-id b-id
+            :id p-id
+            :body new-body})
+          (response/ok updated-page))
+        (response/unauthorized)))))
 
 (def DELETE-buyersphere-page
   (cpj/DELETE "/v0.1/buyerspheres/:b-id/page/:p-id"

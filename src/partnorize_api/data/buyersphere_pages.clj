@@ -20,6 +20,13 @@
     (->> query
          (db/->>execute db))))
 
+(defn get-buyersphere-page [db organization-id buyersphere-id page-id]
+  (let [query (-> (base-buyersphere-page-query organization-id buyersphere-id)
+                  (h/where [:= :id page-id]))]
+    (->> query
+         (db/->>execute db)
+         first)))
+
 ;; this sorta sucks, but generating the column list differently 
 ;; also feels like it sucks
 (def ^:private default-body {:sections []})
@@ -66,6 +73,7 @@
 
 (comment
   (get-buyersphere-pages db/local-db 1 1)
+  (get-buyersphere-page db/local-db 1 62 57)
 
   (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4"})
   (create-buyersphere-page-coordinator db/local-db 1 1
