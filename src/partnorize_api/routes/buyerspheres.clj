@@ -464,11 +464,11 @@
 (def PATCH-buyersphere-page
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/page/:p-id"
     [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
-    (let [{:keys [can-buyer-edit]} (d-pages/get-buyersphere-page db
+    (let [{:keys [can_buyer_edit] :as bp} (d-pages/get-buyersphere-page db
                                                                  (:id organization)
                                                                  b-id
                                                                  p-id)]
-      (if (or can-buyer-edit
+      (if (or can_buyer_edit
               (d-permission/can-user-edit-buyersphere? db organization b-id user))
         (let [{new-body :body :as updated-page}
               (d-pages/update-buyersphere-page db
