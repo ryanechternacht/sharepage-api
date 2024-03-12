@@ -470,7 +470,7 @@
                                                                  p-id)]
       (if (or can_buyer_edit
               (d-permission/can-user-edit-buyersphere? db organization b-id user))
-        (let [{new-body :body :as updated-page}
+        (let [{new-body :body new-title :title :as updated-page}
               (d-pages/update-buyersphere-page db
                                                (:id organization)
                                                b-id
@@ -485,7 +485,8 @@
            "edit-page"
            {:buyersphere-id b-id
             :id p-id
-            :body new-body})
+            :body new-body
+            :title new-title})
           (response/ok updated-page))
         (response/unauthorized)))))
 
