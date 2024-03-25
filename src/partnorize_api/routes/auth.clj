@@ -96,8 +96,8 @@
 
 (def POST-signup
   (cpj/POST "/v0.1/signup" {:keys [db organization config body subdomain]}
-    (let [email (:user-email body)
-          swaypage-id (parse-long (:swaypage-id body))
+    (let [email (:email body)
+          swaypage-id (u/try-parse-long (:swaypage-id body))
           user (d-users/get-by-email db (:id organization) email)]
       (cond
         user (do

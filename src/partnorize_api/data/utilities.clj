@@ -228,3 +228,19 @@
   (update-if-not-nil {:a nil} :a inc)
   ;
   )
+
+(defn try-parse-long [s]
+  "wraps `parse-long` to swallow exceptions from `parse-long` and return
+   nil when an exception occurs."
+  (try
+    (parse-long s)
+    (catch Exception _ nil)))
+
+(comment
+  (try-parse-long "123")
+  (try-parse-long "abc")
+  (try-parse-long "123abc")
+  (try-parse-long nil)
+  (try-parse-long [])
+  ;
+  )
