@@ -33,7 +33,7 @@
 (defn get-by-email [db organization-id email]
   (let [user-in-org-query (-> (base-user-query organization-id)
                               (h/where [:= :user_account.email email])
-                              (select-keys [:select :from :where]))
+                              (dissoc :order-by))
         global-admin-query (-> (apply h/select user-columns)
                                (h/from :user_account)
                                (h/where [:= :user_account.email email]
@@ -53,10 +53,20 @@
          (db/->>execute db)
          (map format-user))))
 
+;; TODO I don't love how global admin stuff has to pollute this 
+;; to work correctly
 (defn get-by-id [db organization-id id]
-  (let [query (-> (base-user-query organization-id)
-                  (h/where [:= :user_account.id id]))]
-    (->> query
+  (let [user-in-org-query (-> (base-user-query organization-id)
+                              (h/where [:= :user_account.id id])
+                              (dissoc :order-by))
+        global-admin-query (-> (apply h/select user-columns)
+                               (h/from :user_account)
+                               (h/where [:= :user_account.id id]
+                                        [:is :user_account.is_admin :true]))
+        full-query (-> (h/union user-in-org-query
+                                global-admin-query)
+                       (h/order-by [:is_admin :desc]))]
+    (->> full-query
          (db/->>execute db)
          (map format-user)
          first)))
@@ -129,6 +139,8 @@
   (get-by-email db/local-db 1 "ryan@echternacht.org")
   (get-by-email db/local-db 2 "admin@buyersphere.com")
   (get-by-id db/local-db 1 1)
+  (get-by-id db/local-db 1 27)
+
   (get-by-organization db/local-db 1) ;; is_admin check
   (get-by-organization db/local-db 2)
   (get-by-email-global db/local-db "ryan@echternacht.org")
