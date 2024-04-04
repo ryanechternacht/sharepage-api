@@ -5,6 +5,7 @@
   (handler (assoc req
                   :anonymous-user
                   {:linked-name (get-in cookies ["linked-name" :value])
-                   :entered-name (get-in cookies ["entered-name" :value])})))
+                   :entered-name (get-in cookies ["entered-name" :value])
+                   :anonymous-id (get-in cookies ["anonymous-id" :value])})))
 
 (defn wrap-anonymous-user [h] (partial #'wrap-anonymous-user-impl h))

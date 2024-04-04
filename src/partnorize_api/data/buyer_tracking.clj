@@ -17,7 +17,7 @@
 (defn- should-track-user-coordinator?
   "if the user is a buyer or anonymous, returns user 5-tuples
    for the buyersphere. If the user is a seller, returns nil"
-  [db organization-id buyersphere-id user-id {:keys [linked-name entered-name]}]
+  [db organization-id buyersphere-id user-id {:keys [linked-name entered-name anonymous-id]}]
   (let [{:keys [id buyersphere_role]}
         (users/get-by-id db organization-id user-id)]
     (if (= buyersphere_role "admin")
@@ -26,7 +26,8 @@
        :buyersphere_id buyersphere-id
        :user_account_id id
        :linked_name linked-name
-       :entered_name entered-name})))
+       :entered_name entered-name
+       :anonymous_id anonymous-id})))
 
 (defn- track-buyer-activity
   "Tracks activity for the user"
@@ -65,10 +66,11 @@
                                   1
                                   4
                                   {:linked-name "hello"
-                                   :entered-name "world"})
+                                   :entered-name "world"
+                                   :anonymous-id "1234"})
   
   (track-buyer-activity db/local-db 
-                        {:organization_id 1, :buyersphere_id 1, :user_account_id nil, :linked_name "hello", :entered_name "world"}
+                        {:organization_id 1, :buyersphere_id 1, :user_account_id nil, :linked_name "hello", :entered_name "world" :anonymous_id "abc123"}
                         "site-activity"
                         {:hello "world"})
   
@@ -77,7 +79,8 @@
                                        39
                                        4
                                        {:linked-name "hello"
-                                        :entered-name "world"}
+                                        :entered-name "world"
+                                        :anonymous-id "abc123"}
                                        "site-activity"
                                        {:hello "world"})
   ;
@@ -92,7 +95,8 @@
            :buyer_tracking.activity_data
            :buyer_tracking.created_at
            :buyer_tracking.linked_name
-           :buyer_tracking.entered_name]))
+           :buyer_tracking.entered_name
+           :buyer_tracking.anonymous_id]))
 
 (defn base-event-tracking-query [organization-id]
   (-> (apply h/select base-event-tracking-columns)
@@ -115,12 +119,14 @@
 (defn reformat-event-tracking [{:keys [user_account_id email buyersphere_id display_role
                                  first_name last_name image buyer
                                  buyer_logo activity activity_data 
-                                 created_at linked_name entered_name]}]
+                                 created_at linked_name entered_name
+                                 anonymous_id]}]
   (cond-> {:activity activity
            :activity-data activity_data
            :created_at created_at
            :anonymous-user {:linked_name linked_name
-                            :entered_name entered_name}
+                            :entered_name entered_name
+                            :anonymous_id anonymous_id}
            :buyersphere {:id buyersphere_id
                          :buyer buyer
                          :buyer_logo buyer_logo}}
@@ -139,14 +145,15 @@
           [:buyer_tracking.last_activity
            :buyer_tracking.num_minutes
            :buyer_tracking.linked_name
-           :buyer_tracking.entered_name]))
+           :buyer_tracking.entered_name
+           :buyer_tracking.anonymous_id]))
 
 (defn base-site-activity-query
   ([organization-id] (base-site-activity-query organization-id nil))
   ([organization-id buyersphere-id]
    (-> (apply h/select base-site-activity-columns)
        (h/from [(-> (h/select :organization_id :buyersphere_id :user_account_id
-                              :linked_name :entered_name
+                              :linked_name :entered_name :anonymous_id
                               [:%count.* :num_minutes]
                               [:%max.created_at :last_activity])
                     (h/from :buyer_tracking)
@@ -156,7 +163,8 @@
                                [:= :buyersphere_id buyersphere-id]))
                     (h/group-by :organization_id :buyersphere_id
                                 :user_account_id
-                                :linked_name :entered_name))
+                                :linked_name :entered_name
+                                :anonymous_id))
                 :buyer_tracking])
        (h/join :buyersphere [:=
                              :buyer_tracking.buyersphere_id
@@ -170,14 +178,15 @@
 (defn reformat-site-activity [{:keys [user_account_id email buyersphere_id display_role
                                       first_name last_name image buyer
                                       buyer_logo last_activity num_minutes
-                                      linked_name entered_name]}]
+                                      linked_name entered_name anonymous_id]}]
   (cond-> {:last-activity last_activity
            :num-minutes num_minutes
            :activity "site-activity"
            :activity-data {:last-activity last_activity
                            :num-minutes num_minutes}
            :anonymous-user {:linked_name linked_name
-                            :entered_name entered_name}
+                            :entered_name entered_name
+                            :anonymous_id anonymous_id}
            :buyersphere {:id buyersphere_id
                          :buyer buyer
                          :buyer_logo buyer_logo}}
@@ -229,7 +238,8 @@
                             :buyer_logo "nike.com/image",
                             :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
                             :entered_name "entered-name"
-                            :linked_name "linked-name"})
+                            :linked_name "linked-name"
+                            :anonymous_id "abc123"})
     (reformat-event-tracking {:email "holster@tully.com",
                               :organization_id 1,
                               :activity "site-activity"
@@ -238,7 +248,8 @@
                               :buyer_logo "nike.com/image",
                               :created_at #inst "2023-12-20T06:01:44.926274000-00:00"
                               :entered_name "entered-name"
-                              :linked_name "linked-name"})
+                              :linked_name "linked-name"
+                              :anonymous_id "abc123"})
   (get-tracking-for-buyersphere db/local-db 1 39)
   (get-tracking-for-organization db/local-db 1)
   ;
