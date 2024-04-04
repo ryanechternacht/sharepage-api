@@ -152,8 +152,12 @@
   ([organization-id] (base-site-activity-query organization-id nil))
   ([organization-id buyersphere-id]
    (-> (apply h/select base-site-activity-columns)
-       (h/from [(-> (h/select :organization_id :buyersphere_id :user_account_id
-                              :linked_name :entered_name :anonymous_id
+       (h/from [(-> (h/select :organization_id 
+                              :buyersphere_id
+                              :user_account_id
+                              [:%max.linked_name :linked_name] 
+                              [:%max.entered_name :entered_name] 
+                              :anonymous_id
                               [:%count.* :num_minutes]
                               [:%max.created_at :last_activity])
                     (h/from :buyer_tracking)
@@ -163,7 +167,6 @@
                                [:= :buyersphere_id buyersphere-id]))
                     (h/group-by :organization_id :buyersphere_id
                                 :user_account_id
-                                :linked_name :entered_name
                                 :anonymous_id))
                 :buyer_tracking])
        (h/join :buyersphere [:=
@@ -220,6 +223,9 @@
                       (map reformat-site-activity))]
     {:events events
      :activity activity}))
+
+(-> (base-site-activity-query 1)
+    db/->format)
 
 (comment
   (get-event-tracking-for-buyersphere-query 1 1)
