@@ -211,70 +211,52 @@
       (db/->execute db)
       first))
 
-(defn- add-default-activities [db organization-id buyersphere-id user-id]
-  (let [insert-query (-> (h/insert-into
-                          :buyersphere_conversation
-                          [:organization_id
-                           :buyersphere_id
-                           :author
-                           :message
-                           :due_date
-                           :assigned_team
-                           :collaboration_type]
-                          (-> (h/select organization-id
-                                        buyersphere-id
-                                        user-id
-                                        :template.message
-                                        [[:raw (str "CURRENT_DATE + concat(template.due_date_days, 'DAYS')::interval")]]
-                                        :template.assigned_team
-                                        :template.collaboration_type)
-                              (h/from [(d-conv-templ/base-conversation-template-query organization-id) :template]))))]
-    (db/execute db insert-query)))
-
-(defn- add-default-milestones-coordiantor
+(defn- add-default-milestones-coordinator
   "returns a map of the milestone template ids mapped to the newly created
    milestone ids so that the newly created activities can be properly
    mapped upon creation"
   [db organization-id buyersphere-id]
-  (let [milestone-templates (d-act-temp/get-milestone-templates db organization-id)
-        to-insert (map (fn [mt]
-                         (-> mt
-                             (select-keys [:organization_id :title :ordering])
-                             (assoc :buyersphere_id buyersphere-id)))
-                       milestone-templates)
-        insert-query (-> (h/insert-into :buyersphere_milestone)
-                         (h/values to-insert)
-                         (h/returning :id))
-        new-ids (->> insert-query
-                     (db/->>execute db)
-                     (map :id))
-        old-ids (map :id milestone-templates)]
-    (zipmap old-ids new-ids)))
+  (let [milestone-templates (d-act-temp/get-milestone-templates db organization-id)]
+    (when (seq milestone-templates)
+      (let [to-insert (map (fn [mt]
+                             (-> mt
+                                 (select-keys [:organization_id :title :ordering])
+                                 (assoc :buyersphere_id buyersphere-id)))
+                           milestone-templates)
+            insert-query (-> (h/insert-into :buyersphere_milestone)
+                             (h/values to-insert)
+                             (h/returning :id))
+            new-ids (->> insert-query
+                         (db/->>execute db)
+                         (map :id))
+            old-ids (map :id milestone-templates)]
+        (zipmap old-ids new-ids)))))
 
 (defn- add-default-activities-coordinator
   [db organization-id buyersphere-id user-id mt-id->m-id]
-  (let [activity-templates (d-act-temp/get-activity-templates db organization-id)
-        to-insert (map (fn [{:keys [milestone_template_id] :as at}]
-                         (-> at
-                             (select-keys [:organization_id :title
-                                           :activity_type :assigned_team])
-                             (assoc :buyersphere_id buyersphere-id)
-                             (assoc :creator_id user-id)
-                             (assoc :milestone_id (mt-id->m-id milestone_template_id))))
-                       activity-templates)
-        insert-query (-> (h/insert-into :buyersphere_activity)
-                         (h/values to-insert)
-                         (h/returning :id))]
-    (db/execute db insert-query)))
+  (let [activity-templates (d-act-temp/get-activity-templates db organization-id)]
+    (when (seq activity-templates)
+      (let [to-insert (map (fn [{:keys [milestone_template_id] :as at}]
+                             (-> at
+                                 (select-keys [:organization_id :title
+                                               :activity_type :assigned_team])
+                                 (assoc :buyersphere_id buyersphere-id)
+                                 (assoc :creator_id user-id)
+                                 (assoc :milestone_id (mt-id->m-id milestone_template_id))))
+                           activity-templates)
+            insert-query (-> (h/insert-into :buyersphere_activity)
+                             (h/values to-insert)
+                             (h/returning :id))]
+        (db/execute db insert-query)))))
 
 (defn create-buyersphere-coordinator [db organization-id user-id 
                                       {:keys [page-template-id page-title] :as buyersphere-params}]
   (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
-        mt-id->m-id (add-default-milestones-coordiantor db organization-id new-id)]
-    (add-default-activities-coordinator
-     db organization-id new-id user-id mt-id->m-id) ;; new
+        mt-id->m-id (add-default-milestones-coordinator db organization-id new-id)]
+    (when (seq mt-id->m-id)
+      (add-default-activities-coordinator
+       db organization-id new-id user-id mt-id->m-id))
     (add-default-resources db organization-id new-id)
-    (add-default-activities db organization-id new-id user-id) ;; old
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
     (d-buyer-pages/create-buyersphere-page-coordinator db
                                                        organization-id
@@ -285,6 +267,7 @@
 
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
-                                                   :deal-amount 1234 :crm-opportunity-id "abc123"})
+                                                   :deal-amount 1234 :crm-opportunity-id "abc123"
+                                                   :page-title "asdf" :page-template-id 2})
   ;
   )
