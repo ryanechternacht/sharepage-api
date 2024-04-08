@@ -1,6 +1,7 @@
 (ns partnorize-api.data.buyerspheres
-  (:require [honey.sql.helpers :as h]
-            [clojure.instant :as inst]
+  (:require [clojure.instant :as inst]
+            [honey.sql.helpers :as h]
+            [nano-id.core :as nano]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
@@ -107,6 +108,15 @@
                [:in :crm_opportunity_id opportunity-ids])
       (db/->execute db)))
 
+(defn get-by-shortcode
+  "shortcodes should be unique across orgs but we'll still use the
+   org id for some extra security"
+  [db organization-id shortcode]
+  (let [query (-> (base-buyersphere-query organization-id)
+                  (h/where [:= :buyersphere.shortcode shortcode]))]
+    (->> query
+        (db/->>execute db)
+         first)))
 
 (comment
   (get-by-id db/local-db 1 1)
@@ -116,6 +126,9 @@
   (get-full-buyersphere db/local-db 1 38)
   (get-by-user db/local-db 1 1)
   (get-by-opportunity-ids db/local-db 1 ["006Hs00001H8xaUIAR" "abc123"])
+  (get-by-shortcode db/local-db 1 "abc123")
+  (get-by-shortcode db/local-db 2 "abc123")
+  (get-by-shortcode db/local-db 1 "abc124")
   ;
   )
 
@@ -190,26 +203,55 @@
           (h/values (map build-values resources))
           (db/->execute db)))))
 
+;; 0-9 a-z A-Z
+(def ^:private nano-alphabet "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+(def ^:private nano-id-gen (nano/custom nano-alphabet 6))
+
+(defn- is-valid-shortcode? [db shortcode]
+  (let [query (-> (h/select :id)
+                  (h/from :buyersphere)
+                  (h/where [:= :shortcode shortcode]))]
+    (->> query
+         (db/->>execute db)
+         seq)))
+
+(defn- find-valid-shortcode [db]
+  (loop [shortcode (nano-id-gen)]
+    (if is-valid-shortcode?
+      shortcode
+      (recur (nano-id-gen)))))
+
+(comment
+  (is-valid-shortcode? db/local-db "abc123")
+  (is-valid-shortcode? db/local-db "abc124")
+  (find-valid-shortcode db/local-db)
+  ;
+  )
+
 (defn- create-buyersphere-record [db organization-id
                                   {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id]}]
-  (-> (h/insert-into :buyersphere)
-      (h/columns :organization_id
-                 :buyer
-                 :subname
-                 :buyer_logo
-                 :show_pricing
-                 :deal_amount
-                 :crm_opportunity_id)
-      (h/values [[organization-id
-                  buyer
-                  subname
-                  buyer-logo
-                  true
-                  deal-amount
-                  crm-opportunity-id]])
-      (merge (apply h/returning base-buyersphere-cols))
-      (db/->execute db)
-      first))
+  (let [shortcode (find-valid-shortcode db)
+        query (-> (h/insert-into :buyersphere)
+                  (h/columns :organization_id
+                             :buyer
+                             :subname
+                             :buyer_logo
+                             :show_pricing
+                             :deal_amount
+                             :crm_opportunity_id
+                             :shortcode)
+                  (h/values [[organization-id
+                              buyer
+                              subname
+                              buyer-logo
+                              true
+                              deal-amount
+                              crm-opportunity-id
+                              shortcode]])
+                  (merge (apply h/returning base-buyersphere-cols)))]
+    (->> query
+         (db/->>execute db)
+         first)))
 
 (defn- add-default-activities [db organization-id buyersphere-id user-id]
   (let [insert-query (-> (h/insert-into
@@ -267,7 +309,7 @@
                          (h/returning :id))]
     (db/execute db insert-query)))
 
-(defn create-buyersphere-coordinator [db organization-id user-id 
+(defn create-buyersphere-coordinator [db organization-id user-id
                                       {:keys [page-template-id page-title] :as buyersphere-params}]
   (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
         mt-id->m-id (add-default-milestones-coordiantor db organization-id new-id)]
@@ -284,7 +326,8 @@
     {:id new-id}))
 
 (comment
-  (create-buyersphere-coordinator db/local-db 1 1 {:buyer "nike" :buyer-logo "https://nike.com"
-                                                   :deal-amount 1234 :crm-opportunity-id "abc123"})
+  (create-buyersphere-coordinator db/local-db 1 1 {:buyer "adidas" :buyer-logo "https://nike.com"
+                                                   :deal-amount 1234 :crm-opportunity-id "abc123"
+                                                   :page-template-id 2 :page-title "asdf"})
   ;
   )
