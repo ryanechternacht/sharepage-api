@@ -53,6 +53,7 @@
   #'buyer-activity/POST-activity
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere
+  #'buyerspheres/GET-buyersphere-by-shortcode
   #'buyerspheres/POST-buyersphere
   #'buyerspheres/PATCH-buyersphere
   #'buyerspheres/GET-buyersphere-milestones

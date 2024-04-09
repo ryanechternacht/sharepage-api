@@ -25,7 +25,8 @@
    :buyersphere.show_pricing :buyersphere.deal_amount
    :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
    :buyersphere.objectives_answer :buyersphere.constraints_answer
-   :buyersphere.subname :buyersphere.is_public])
+   :buyersphere.subname :buyersphere.is_public
+   :buyersphere.shortcode])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
