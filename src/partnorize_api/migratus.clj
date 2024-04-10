@@ -9,7 +9,7 @@
 
 ;; TODO get rid of /migrations/schema folder
 (def migratus-config {:store                :database
-                      :migration-dir        "migrations/schema/"
+                      :migration-dir        "migrations/"
                       :migration-table-name "migratus"
                       :db db})
 

@@ -29,6 +29,13 @@
       (response/ok (d-buyerspheres/get-full-buyersphere db (:id organization) id))
       (response/unauthorized))))
 
+(def GET-buyersphere-by-shortcode
+  (cpj/GET "/v0.1/buyersphere/shortcode/:shortcode" [shortcode :as {:keys [db user organization] :as req}]
+    (let [bs (d-buyerspheres/get-by-shortcode db (:id organization) shortcode)]
+      (if bs
+        (response/ok bs)
+        (response/not-found)))))
+
 (def POST-buyersphere
   (cpj/POST "/v0.1/buyerspheres" {:keys [db user organization body]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
@@ -464,7 +471,7 @@
 (def PATCH-buyersphere-page
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/page/:p-id"
     [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
-    (let [{:keys [can_buyer_edit] :as bp} (d-pages/get-buyersphere-page db
+    (let [{:keys [can_buyer_edit]} (d-pages/get-buyersphere-page db
                                                                  (:id organization)
                                                                  b-id
                                                                  p-id)]
