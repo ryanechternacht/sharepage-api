@@ -6,7 +6,7 @@
 
 (def ^:private base-buyersphere-page-cols
   [:id :organization_id :buyersphere_id :title :body :is_public :ordering
-   :can_buyer_edit])
+   :can_buyer_edit :page_type])
 
 (defn- base-buyersphere-page-query [organization-id buyersphere-id]
   (-> (apply h/select base-buyersphere-page-cols)
@@ -31,14 +31,14 @@
 ;; also feels like it sucks
 (def ^:private default-body {:sections []})
 
-(defn create-buyersphere-page-coordinator [db organization-id buyersphere-id 
-                               {:keys [title page-template-id]}]
+(defn create-buyersphere-page-coordinator
+  [db organization-id buyersphere-id {:keys [title page-type page-template-id]}]
   (let [body (if (and page-template-id (> page-template-id 0))
                (:body (bpt/get-buyersphere-page-template db organization-id page-template-id))
                default-body)
         query (-> (h/insert-into :buyersphere_page)
-                  (h/columns :organization_id :buyersphere_id :title :body :ordering)
-                  (h/values [[organization-id buyersphere-id title [:lift body]
+                  (h/columns :organization_id :buyersphere_id :title :page_type :body :ordering)
+                  (h/values [[organization-id buyersphere-id title page-type [:lift body]
                               (u/get-next-ordering-query
                                :buyersphere_page
                                organization-id
@@ -50,7 +50,7 @@
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
                                {:keys [body] :as page}]
-  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit])
+  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit :page-type])
                  body (assoc :body [:lift body]))
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
@@ -75,13 +75,14 @@
   (get-buyersphere-pages db/local-db 1 1)
   (get-buyersphere-page db/local-db 1 62 57)
 
-  (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4"})
+  (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4" :page-type "discussion"})
   (create-buyersphere-page-coordinator db/local-db 1 1
                                        {:title "hello, world 4" :page-template-id 2})
 
   (update-buyersphere-page db/local-db 1 62 57 {:body {:hello "world"}
                                                 :title "asdf"
-                                                :can-buyer-edit true})
+                                                :can-buyer-edit true
+                                                :page-type "notes"})
 
   (delete-buyersphere-page db/local-db 1 1 3)
   ;
