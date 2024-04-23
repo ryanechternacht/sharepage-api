@@ -305,7 +305,8 @@
                                                        organization-id
                                                        new-id
                                                        {:title page-title
-                                                        :page-template-id page-template-id})
+                                                        :page-template-id page-template-id
+                                                        :page-type "general"})
     {:id new-id}))
 
 (comment
