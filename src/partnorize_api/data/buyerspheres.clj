@@ -214,11 +214,12 @@
                   (h/where [:= :shortcode shortcode]))]
     (->> query
          (db/->>execute db)
-         seq)))
+         seq
+         not)))
 
 (defn- find-valid-shortcode [db]
   (loop [shortcode (nano-id-gen)]
-    (if is-valid-shortcode?
+    (if (is-valid-shortcode? db shortcode)
       shortcode
       (recur (nano-id-gen)))))
 
