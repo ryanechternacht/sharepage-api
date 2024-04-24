@@ -70,15 +70,6 @@
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
       (is-user-buyersphere-buyer? db organization buyersphere-id user)))
 
-(defn- is-user-buyer? [db {o-id :id} {u-id :id}]
-  (-> (h/select :id)
-      (h/from :buyersphere_user_account)
-      (h/where [:= :organization_id o-id]
-               [:= :user_account_id u-id]
-               [:= :team "buyer"])
-      (db/->execute db)
-      seq))
-
 (defn is-buyersphere-visible? [db organization buyersphere-id user]
   (or (does-user-have-org-permissions? db organization user) ;; includes global admins
       (is-user-buyersphere-buyer? db organization buyersphere-id user)

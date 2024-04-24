@@ -5,7 +5,6 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
-            [partnorize-api.data.conversation-templates :as d-conv-templ]
             [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.buyersphere-activity-templates :as d-act-temp]

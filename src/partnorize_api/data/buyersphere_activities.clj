@@ -68,10 +68,6 @@
   ;
   )
 
-(def ^:private base-activities-cols
-  [:id :organization_id :buyersphere_id :milestone_id :creator-id :activity_type
-   :title :assigned_to :assigned_team :due_date :resolved])
-
 (defn- base-activities-query [organization-id]
   (-> (h/select :buyersphere_activity.id
                 :buyersphere_activity.organization_id

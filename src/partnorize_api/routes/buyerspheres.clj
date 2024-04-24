@@ -30,7 +30,7 @@
       (response/unauthorized))))
 
 (def GET-buyersphere-by-shortcode
-  (cpj/GET "/v0.1/buyersphere/shortcode/:shortcode" [shortcode :as {:keys [db user organization] :as req}]
+  (cpj/GET "/v0.1/buyersphere/shortcode/:shortcode" [shortcode :as {:keys [db organization]}]
     (let [bs (d-buyerspheres/get-by-shortcode db (:id organization) shortcode)]
       (if bs
         (response/ok bs)
@@ -101,7 +101,7 @@
     [b-id :<< coerce/as-int m-id :<< coerce/as-int
      :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
-      (let [{:keys [id title] :as updated-milestone}
+      (let [{:keys [title] :as updated-milestone}
             (d-buyer-activities/update-milestone db
                                                  (:id organization)
                                                  b-id
@@ -174,7 +174,7 @@
     [b-id :<< coerce/as-int a-id :<< coerce/as-int
      :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
-      (let [{:keys [id title] :as updated-activity}
+      (let [{:keys [title] :as updated-activity}
             (d-buyer-activities/update-activity-coordinator db
                                                             (:id organization)
                                                             b-id
@@ -411,7 +411,7 @@
 (def DELETE-remove-buyer-from-buyersphere
   (cpj/DELETE "/v0.1/buyersphere/:b-id/team/buyer/:u-id"
     [b-id :<< coerce/as-int u-id :<< coerce/as-int
-     :as {:keys [db user anonymous-user organization body]}]
+     :as {:keys [db user anonymous-user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization b-id user)
       (let [deleted-user
             (d-teams/remove-user-from-buyersphere-coordinator db

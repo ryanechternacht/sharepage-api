@@ -109,17 +109,16 @@
         (= subdomain "app") (response/bad-request "Can only register on a real org")
 
         :else
-        (do
-          (let [new-user (d-users/create-user
-                          config
-                          db
-                          organization
-                          "buyer"
-                          body)]
-            (when swaypage-id
-              (d-teams/add-user-to-buyersphere db
-                                               (:id organization)
-                                               swaypage-id
-                                               "buyer"
-                                               (:id new-user)))
-            (response/ok "Signup successful. Check email for login link.")))))))
+        (let [new-user (d-users/create-user
+                        config
+                        db
+                        organization
+                        "buyer"
+                        body)]
+          (when swaypage-id
+            (d-teams/add-user-to-buyersphere db
+                                             (:id organization)
+                                             swaypage-id
+                                             "buyer"
+                                             (:id new-user)))
+          (response/ok "Signup successful. Check email for login link."))))))

@@ -11,7 +11,7 @@
       (response/unauthorized))))
 
 (def POST-activity
-  (cpj/POST "/v0.1/buyer-activity" {:keys [db user organization body anonymous-user] :as req}
+  (cpj/POST "/v0.1/buyer-activity" {:keys [db user organization body anonymous-user]}
     (response/ok (d-buyer-tracking/track-activity-if-buyer-coordinator
                   db
                   (:id organization)

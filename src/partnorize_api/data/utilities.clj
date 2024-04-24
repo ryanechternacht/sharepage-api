@@ -229,9 +229,10 @@
   ;
   )
 
-(defn try-parse-long [s]
+(defn try-parse-long 
   "wraps `parse-long` to swallow exceptions from `parse-long` and return
    nil when an exception occurs."
+  [s]
   (try
     (parse-long s)
     (catch Exception _ nil)))

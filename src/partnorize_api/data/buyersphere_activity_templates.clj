@@ -1,6 +1,5 @@
 (ns partnorize-api.data.buyersphere-activity-templates
   (:require [honey.sql.helpers :as h]
-            [partnorize-api.data.users :as users]
             [partnorize-api.db :as db]
             [partnorize-api.data.utilities :as u]))
 

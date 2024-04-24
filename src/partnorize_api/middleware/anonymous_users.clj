@@ -1,5 +1,4 @@
-(ns partnorize-api.middleware.anonymous-users
-  (:require [partnorize-api.data.utilities :as u]))
+(ns partnorize-api.middleware.anonymous-users)
 
 (defn- wrap-anonymous-user-impl [handler {:keys [cookies] :as req}]
   (handler (assoc req
