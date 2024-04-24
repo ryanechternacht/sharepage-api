@@ -25,7 +25,7 @@
    :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
    :buyersphere.objectives_answer :buyersphere.constraints_answer
    :buyersphere.subname :buyersphere.is_public
-   :buyersphere.shortcode])
+   :buyersphere.shortcode :buyersphere.room_type])
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
@@ -230,7 +230,7 @@
   )
 
 (defn- create-buyersphere-record [db organization-id
-                                  {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id]}]
+                                  {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id room-type]}]
   (let [shortcode (find-valid-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -240,7 +240,8 @@
                              :show_pricing
                              :deal_amount
                              :crm_opportunity_id
-                             :shortcode)
+                             :shortcode
+                             :room_type)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -248,7 +249,8 @@
                               true
                               deal-amount
                               crm-opportunity-id
-                              shortcode]])
+                              shortcode
+                              room-type]])
                   (merge (apply h/returning base-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
@@ -312,6 +314,7 @@
 (comment
   (create-buyersphere-coordinator db/local-db 1 1 {:buyer "adidas" :buyer-logo "https://nike.com"
                                                    :deal-amount 1234 :crm-opportunity-id "abc123"
-                                                   :page-template-id 2 :page-title "asdf"})
+                                                   :page-template-id 2 :page-title "asdf"
+                                                   :room-type "deal-room"})
   ;
   )
