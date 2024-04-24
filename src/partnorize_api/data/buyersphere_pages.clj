@@ -6,13 +6,14 @@
 
 (def ^:private base-buyersphere-page-cols
   [:id :organization_id :buyersphere_id :title :body :is_public :ordering
-   :can_buyer_edit :page_type])
+   :can_buyer_edit :page_type :status])
 
 (defn- base-buyersphere-page-query [organization-id buyersphere-id]
   (-> (apply h/select base-buyersphere-page-cols)
       (h/from :buyersphere_page)
       (h/where [:= :organization_id organization-id]
-               [:= :buyersphere-id buyersphere-id])
+               [:= :buyersphere-id buyersphere-id]
+               [:!= :status "deleted"])
       (h/order-by :ordering)))
 
 (defn get-buyersphere-pages [db organization-id buyersphere-id]
@@ -50,7 +51,7 @@
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
                                {:keys [body] :as page}]
-  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit :page-type])
+  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit :page-type :status])
                  body (assoc :body [:lift body]))
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
@@ -77,12 +78,14 @@
 
   (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4" :page-type "discussion"})
   (create-buyersphere-page-coordinator db/local-db 1 1
-                                       {:title "hello, world 4" :page-template-id 2})
+                                       {:title "hello, world 4" :page-template-id 2
+                                        :page-type "notes"})
 
-  (update-buyersphere-page db/local-db 1 62 57 {:body {:hello "world"}
+  (update-buyersphere-page db/local-db 1 1 117 {:body {:hello "world"}
                                                 :title "asdf"
                                                 :can-buyer-edit true
-                                                :page-type "notes"})
+                                                :page-type "notes"
+                                                :status "deleted"})
 
   (delete-buyersphere-page db/local-db 1 1 3)
   ;
