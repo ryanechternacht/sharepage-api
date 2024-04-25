@@ -468,6 +468,18 @@
                                                                 body))
       (response/unauthorized))))
 
+(def PATCH-buyersphere-pages-ordering
+  (cpj/PATCH "/v0.1/buyerspheres/:id/pages/ordering"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
+      (do
+        (d-pages/update-page-ordering db
+                                      (:id organization)
+                                      id
+                                      body)
+        (response/ok (d-pages/get-buyersphere-pages db (:id organization id) id)))
+      (response/unauthorized))))
+
 (def PATCH-buyersphere-page
   (cpj/PATCH "/v0.1/buyerspheres/:b-id/page/:p-id"
     [b-id :<< coerce/as-int p-id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]

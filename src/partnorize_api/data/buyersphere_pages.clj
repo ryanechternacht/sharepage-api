@@ -90,3 +90,19 @@
   (delete-buyersphere-page db/local-db 1 1 3)
   ;
   )
+
+(defn update-page-ordering [db organization-id buyersphere-id pages]
+  (let [newlyOrdered (map-indexed (fn [i p] [(:id p) i]) pages)]
+    (doseq [[id ordering] newlyOrdered]
+      (let [query (-> (h/update :buyersphere_page)
+                      (h/set {:ordering ordering})
+                      (h/where [:= :organization_id organization-id]
+                               [:= :buyersphere_id buyersphere-id]
+                               [:= :id id]))]
+        (db/execute db query)))))
+
+(comment
+  (get-buyersphere-pages db/local-db 1 3)
+  (update-page-ordering db/local-db 1 3 [{:id 79} {:id 39}])
+  ;
+  )

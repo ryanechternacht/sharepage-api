@@ -81,6 +81,7 @@
   #'buyerspheres/GET-buyersphere-buyer-activity
   #'buyerspheres/GET-buyersphere-pages
   #'buyerspheres/POST-buyersphere-pages
+  #'buyerspheres/PATCH-buyersphere-pages-ordering
   #'buyerspheres/PATCH-buyersphere-page
   #'buyerspheres/DELETE-buyersphere-page
   #'conversation-templates/GET-conversation-template
