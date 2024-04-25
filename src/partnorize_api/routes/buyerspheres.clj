@@ -7,6 +7,7 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.conversations :as d-conversations]
+            [partnorize-api.data.buyersphere-links :as d-links]
             [partnorize-api.data.buyersphere-pages :as d-pages]
             [partnorize-api.data.permission :as d-permission]
             [partnorize-api.data.users :as d-users]
@@ -44,7 +45,7 @@
 
 ;; TODO technically a buyer can update anything in a buyersphere if they craft the message correctly
 (def PATCH-buyersphere
-  (cpj/PATCH "/v0.1/buyersphere/:id" 
+  (cpj/PATCH "/v0.1/buyersphere/:id"
     [id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [buyer] :as updated-buyersphere}
@@ -71,9 +72,9 @@
 
 (def GET-buyersphere-milestones
   (cpj/GET "/v0.1/buyersphere/:id/milestones" [id :<< coerce/as-int :as {:keys [db user organization]}]
-   (if (d-permission/is-buyersphere-visible? db organization id user)
-     (response/ok (d-buyer-activities/get-milestones-for-buyersphere db (:id organization) id))
-     (response/unauthorized))))
+    (if (d-permission/is-buyersphere-visible? db organization id user)
+      (response/ok (d-buyer-activities/get-milestones-for-buyersphere db (:id organization) id))
+      (response/unauthorized))))
 
 (def POST-buyersphere-milestones
   (cpj/POST "/v0.1/buyersphere/:id/milestones"
@@ -81,9 +82,9 @@
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [id title] :as new-activity}
             (d-buyer-activities/create-milestone db
-                                                (:id organization)
-                                                id
-                                                body)]
+                                                 (:id organization)
+                                                 id
+                                                 body)]
         (d-buyer-tracking/track-activity-if-buyer-coordinator
          db
          (:id organization)
@@ -224,7 +225,7 @@
       (response/unauthorized))))
 
 (def POST-buyersphere-conversations
-  (cpj/POST "/v0.1/buyersphere/:id/conversations" 
+  (cpj/POST "/v0.1/buyersphere/:id/conversations"
     [id :<< coerce/as-int :as {:keys [db user anonymous-user organization body]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (let [{:keys [id message] :as new-conversation}
@@ -517,4 +518,53 @@
                                                     (:id organization)
                                                     b-id
                                                     p-id))
+      (response/unauthorized))))
+
+(def GET-buyersphere-links
+  (cpj/GET "/v0.1/buyersphers/:id/links" [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/is-buyersphere-visible? db organization id user)
+      (response/ok (d-links/get-buyersphere-links db (:id organization) id))
+      (response/unauthorized))))
+
+(def POST-buyersphere-links
+  (cpj/POST "/v0.1/buyersphere/:id/links"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
+      (response/ok (d-links/create-buyersphere-link db
+                                                    (:id organization)
+                                                    id
+                                                    body))
+      (response/unauthorized))))
+
+(def PATCH-buyersphere-links-ordering
+  (cpj/PATCH "/v0.1/buyersphere/:id/links/ordering"
+    [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
+      (do
+        (d-links/update-buyersphere-links-ordering db
+                                       (:id organization)
+                                       id
+                                       body)
+        (response/ok (d-links/get-buyersphere-links db (:id organization id) id)))
+      (response/unauthorized))))
+
+(def PATCH-buyersphere-link
+  (cpj/PATCH "/v0.1/buyersphere/:b-id/link/:l-id"
+    [b-id :<< coerce/as-int l-id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization l-id user)
+      (response/ok (d-links/update-buyersphere-link db
+                                                    (:id organization)
+                                                    b-id
+                                                    l-id
+                                                    body))
+      (response/unauthorized))))
+
+(def DELETE-buyersphere-link
+  (cpj/DELETE "/v0.1/buyersphere/:b-id/link/:l-id"
+    [b-id :<< coerce/as-int l-id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization l-id user)
+      (response/ok (d-links/delete-buyersphere-link db
+                                                    (:id organization)
+                                                    b-id
+                                                    l-id))
       (response/unauthorized))))

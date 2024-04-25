@@ -56,7 +56,7 @@
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
                          (h/where [:= :organization_id organization-id]
-                                  [:= :buyersphere-id buyersphere-id]
+                                  [:= :buyersphere_id buyersphere-id]
                                   [:= :id id])
                          (merge (apply h/returning (keys fields))))
         updated-item (->> update-query
@@ -67,7 +67,7 @@
 (defn delete-buyersphere-page [db organization-id buyersphere-id id]
   (let [query (-> (h/delete-from :buyersphere_page)
                   (h/where [:= :organization_id organization-id]
-                           [:= :buyersphere-id buyersphere-id]
+                           [:= :buyersphere_id buyersphere-id]
                            [:= :id id]))]
     (->> query
          (db/->>execute db))))

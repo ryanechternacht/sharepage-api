@@ -84,6 +84,11 @@
   #'buyerspheres/PATCH-buyersphere-pages-ordering
   #'buyerspheres/PATCH-buyersphere-page
   #'buyerspheres/DELETE-buyersphere-page
+  #'buyerspheres/GET-buyersphere-links
+  #'buyerspheres/POST-buyersphere-links
+  #'buyerspheres/PATCH-buyersphere-links-ordering
+  #'buyerspheres/PATCH-buyersphere-link
+  #'buyerspheres/DELETE-buyersphere-link
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
