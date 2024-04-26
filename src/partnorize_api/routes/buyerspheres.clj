@@ -521,7 +521,7 @@
       (response/unauthorized))))
 
 (def GET-buyersphere-links
-  (cpj/GET "/v0.1/buyersphers/:id/links" [id :<< coerce/as-int :as {:keys [db user organization]}]
+  (cpj/GET "/v0.1/buyersphere/:id/links" [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/is-buyersphere-visible? db organization id user)
       (response/ok (d-links/get-buyersphere-links db (:id organization) id))
       (response/unauthorized))))

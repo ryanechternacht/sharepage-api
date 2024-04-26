@@ -63,8 +63,8 @@
          (db/->>execute db))))
 
 (comment
-  (get-buyersphere-links db/local-db 1 1)
-  (create-buyersphere-link db/local-db 1 1 {:title "hello 3" :link-url "world 3"})
+  (get-buyersphere-links db/local-db 1 94)
+  (create-buyersphere-link db/local-db 1 94 {:title "hello 6" :link-url "world 6"})
   (update-buyersphere-link db/local-db 1 1 3 {:title "goodnight" :link-url "moon" :ordering 4})
   (update-buyersphere-links-ordering db/local-db 1 1 [{:id 5} {:id 6} {:id 4}])
   (delete-buyersphere-link db/local-db 1 1 3)
