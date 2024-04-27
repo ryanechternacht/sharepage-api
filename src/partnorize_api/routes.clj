@@ -89,6 +89,8 @@
   #'buyerspheres/PATCH-buyersphere-links-ordering
   #'buyerspheres/PATCH-buyersphere-link
   #'buyerspheres/DELETE-buyersphere-link
+  #'buyerspheres/POST-buyersphere-session
+  #'buyerspheres/POST-buyersphere-session-timing
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item

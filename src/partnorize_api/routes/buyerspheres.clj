@@ -1,6 +1,7 @@
 (ns partnorize-api.routes.buyerspheres
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
+            [partnorize-api.data.buyer-session :as d-buyer-session]
             [partnorize-api.data.buyer-tracking :as d-buyer-tracking]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
             [partnorize-api.data.buyersphere-activities :as d-buyer-activities]
@@ -568,3 +569,23 @@
                                                     b-id
                                                     l-id))
       (response/unauthorized))))
+
+(def POST-buyersphere-session
+  (cpj/POST "/v0.1/buyersphere/:id/session"
+    [id :<< coerce/as-int :as {:keys [db user organization anonymous-user]}]
+    (response/ok (d-buyer-session/start-session db
+                                                (:id organization)
+                                                id
+                                                (:id user)
+                                                anonymous-user))))
+
+(def POST-buyersphere-session-timing
+  (cpj/POST "/v0.1/buyersphere/:b-id/session/:s-id/timing"
+    [b-id :<< coerce/as-int s-id :<< coerce/as-int :as {:keys [db organization body]}]
+    (println "sesssion timing" b-id s-id body)
+    (response/ok (d-buyer-session/track-time db
+                                             (:id organization)
+                                             b-id
+                                             s-id
+                                             (:page body)
+                                             (:time-on-page body)))))
