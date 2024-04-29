@@ -543,9 +543,9 @@
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (do
         (d-links/update-buyersphere-links-ordering db
-                                       (:id organization)
-                                       id
-                                       body)
+                                                   (:id organization)
+                                                   id
+                                                   body)
         (response/ok (d-links/get-buyersphere-links db (:id organization id) id)))
       (response/unauthorized))))
 
@@ -587,5 +587,4 @@
                                              (:id organization)
                                              b-id
                                              s-id
-                                             (:page body)
-                                             (:time-on-page body)))))
+                                             body))))

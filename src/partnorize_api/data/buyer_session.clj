@@ -26,18 +26,22 @@
 
 
 
-(defn track-time [db organization-id buyersphere-id session-id page time-on-page]
-  (let [query (-> (h/insert-into :buyer_session_timing)
-                  (h/values [{:organization_id organization-id
-                              :buyersphere_id buyersphere-id
-                              :buyer_session_id session-id
-                              :page page
-                              :time_on_page time-on-page}])
-                  (h/on-conflict :buyer_session_id :page)
-                  (h/do-update-set {:time_on_page [:+ :buyer_session_timing.time_on_page :excluded.time_on_page]}))]
-    (db/execute db query)))
+(defn track-time [db organization-id buyersphere-id session-id body]
+  (doseq [{:keys [page-name time-on-page]} body]
+    (when-let [page (parse-long page-name)]
+      (let [query (-> (h/insert-into :buyer_session_timing)
+                      (h/values [{:organization_id organization-id
+                                  :buyersphere_id buyersphere-id
+                                  :buyer_session_id session-id
+                                  :page page
+                                  :time_on_page time-on-page}])
+                      (h/on-conflict :buyer_session_id :page)
+                      (h/do-update-set {:time_on_page :excluded.time_on_page}))]
+        (db/execute db query)))))
 
 (comment
-  (track-time db/local-db 1 1 1 "page3" 5)
+  (track-time db/local-db 1 1 1 [{:page-name "page3" :time-on-page 5}])
+  (track-time db/local-db 1 1 1 [{:page-name "3" :time-on-page 5}
+                                 {:page-name "4" :time-on-page 10}])
   ;
   )
