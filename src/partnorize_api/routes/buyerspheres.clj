@@ -582,9 +582,15 @@
 (def POST-buyersphere-session-timing
   (cpj/POST "/v0.1/buyersphere/:b-id/session/:s-id/timing"
     [b-id :<< coerce/as-int s-id :<< coerce/as-int :as {:keys [db organization body]}]
-    (println "sesssion timing" b-id s-id body)
     (response/ok (d-buyer-session/track-time db
                                              (:id organization)
                                              b-id
                                              s-id
                                              body))))
+
+(def GET-buyersphere-sessions
+  (cpj/GET "/v0.1/buyersphere/:id/sessions"
+    [id :<< coerce/as-int :as {:keys [db user organization]}]
+    (if (d-permission/can-user-edit-buyersphere? db organization id user)
+      (response/ok (d-buyer-session/get-time-on-buyersphere db (:id organization) id))
+      (response/unauthorized))))

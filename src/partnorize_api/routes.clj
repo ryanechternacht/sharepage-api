@@ -91,6 +91,7 @@
   #'buyerspheres/DELETE-buyersphere-link
   #'buyerspheres/POST-buyersphere-session
   #'buyerspheres/POST-buyersphere-session-timing
+  #'buyerspheres/GET-buyersphere-sessions
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
