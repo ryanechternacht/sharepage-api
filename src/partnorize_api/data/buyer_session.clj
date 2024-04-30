@@ -84,7 +84,7 @@
       (dissoc :organization_id)
       (dissoc :buyersphere_id)))
 
-(defn format-events [events]
+(defn group-and-format-events [events]
   (let [grouped (group-by :id events)]
     (reduce (fn [acc [_ es]]
               (let [{:keys [linked_name first_name last_name
@@ -101,13 +101,13 @@
             []
             grouped)))
 
-(defn get-time-on-buyersphere [db organization-id buyersphere-id]
+(defn get-swaypage-sessions [db organization-id buyersphere-id]
   (let [query (-> (time-tracking-base-query organization-id)
                   (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
         events (db/execute db query)]
-    (format-events events)))
+    (group-and-format-events events)))
 
 (comment
-  (get-time-on-buyersphere db/local-db 1 94)
+  (get-swaypage-sessions db/local-db 1 94)
   ;
   )
