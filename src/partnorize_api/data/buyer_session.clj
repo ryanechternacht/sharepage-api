@@ -54,7 +54,8 @@
                 :user_account.email
                 :user_account.first_name
                 :user_account.last_name
-                :buyersphere_page.title)
+                :buyersphere_page.title
+                :buyersphere_page.page_type)
       (h/from :buyer_session)
       (h/join :buyer_session_timing
               [:and
@@ -73,19 +74,38 @@
       (h/where [:= :buyer_session.organization_id organization-id])
       (h/order-by [:buyer_session.created_at :desc])))
 
-(defn format-timings [timings]
-  (let [grouped (group-by :id timings)]
-    (reduce (fn [acc [_ ts]]
-              (conj acc {:linked-name (-> ts first :linked_name)
-                         :timings ts}))
+(defn format-event [event]
+  (-> event
+      (dissoc :anonymous_id)
+      (dissoc :first_name)
+      (dissoc :last_name)
+      (dissoc :email)
+      (dissoc :linked_name)
+      (dissoc :organization_id)
+      (dissoc :buyersphere_id)))
+
+(defn format-events [events]
+  (let [grouped (group-by :id events)]
+    (reduce (fn [acc [_ es]]
+              (let [{:keys [linked_name first_name last_name
+                            email anonymous_id buyersphere_id
+                            organization_id]} (first es)]
+                (conj acc {:linked-name linked_name
+                           :first-name first_name
+                           :last-name last_name
+                           :email email
+                           :anonymous-id anonymous_id
+                           :buyersphere-id buyersphere_id
+                           :organization-id organization_id
+                           :events (map format-event es)})))
             []
             grouped)))
 
 (defn get-time-on-buyersphere [db organization-id buyersphere-id]
   (let [query (-> (time-tracking-base-query organization-id)
                   (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
-        timings (db/execute db query)]
-    (format-timings timings)))
+        events (db/execute db query)]
+    (format-events events)))
 
 (comment
   (get-time-on-buyersphere db/local-db 1 94)
