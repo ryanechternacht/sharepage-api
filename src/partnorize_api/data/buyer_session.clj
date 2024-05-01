@@ -30,7 +30,7 @@
                                   :buyersphere_id buyersphere-id
                                   :buyer_session_id session-id
                                   :page page
-                                  :time_on_page time-on-page}])
+                                  :time_on_page (-> time-on-page Math/ceil long)}])
                       (h/on-conflict :buyer_session_id :page)
                       (h/do-update-set {:time_on_page :excluded.time_on_page}))]
         (db/execute db query)))))
@@ -82,14 +82,15 @@
       (dissoc :email)
       (dissoc :linked_name)
       (dissoc :organization_id)
-      (dissoc :buyersphere_id)))
+      (dissoc :buyersphere_id)
+      (dissoc :created_at)))
 
-(defn group-and-format-events [events]
-  (let [grouped (group-by :id events)]
+(defn group-and-format-data [timings]
+  (let [grouped (group-by :id timings)]
     (reduce (fn [acc [_ es]]
               (let [{:keys [linked_name first_name last_name
                             email anonymous_id buyersphere_id
-                            organization_id]} (first es)]
+                            organization_id created_at]} (first es)]
                 (conj acc {:linked-name linked_name
                            :first-name first_name
                            :last-name last_name
@@ -97,15 +98,16 @@
                            :anonymous-id anonymous_id
                            :buyersphere-id buyersphere_id
                            :organization-id organization_id
-                           :events (map format-event es)})))
+                           :created-at created_at
+                           :timings (map format-event es)})))
             []
             grouped)))
 
 (defn get-swaypage-sessions [db organization-id buyersphere-id]
   (let [query (-> (time-tracking-base-query organization-id)
                   (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
-        events (db/execute db query)]
-    (group-and-format-events events)))
+        timings (db/execute db query)]
+    (group-and-format-data timings)))
 
 (comment
   (get-swaypage-sessions db/local-db 1 94)
