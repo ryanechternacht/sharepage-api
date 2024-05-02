@@ -89,7 +89,9 @@
                [:= :buyer_session_timing.organization_id :buyersphere_page.organization_id]
                [:= :buyer_session_timing.buyersphere_id :buyersphere_page.buyersphere_id]
                [:= [:cast :buyer_session_timing.page :int] :buyersphere_page.id]])
-      (h/where [:= :buyer_session.organization_id organization-id])
+      (h/where [:= :buyer_session.organization_id organization-id]
+              ;;  remove really short sessions
+               [:>= :buyer_session_timing.time_on_page 2])
       (h/order-by [:buyer_session.created_at :desc])))
 
 (defn- get-event-tracking-base-query [organization-id]
