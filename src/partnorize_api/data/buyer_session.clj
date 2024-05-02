@@ -157,7 +157,9 @@
                                             (get grouped-events id))})))
                 []
                 grouped-timings)]
-    (sort-by :created_at grouped)))
+    (->> grouped
+         (sort-by :created-at)
+         reverse)))
 
 (defn get-swaypage-sessions [db organization-id buyersphere-id]
   (let [timings-query (-> (get-time-tracking-base-query organization-id)
