@@ -138,24 +138,26 @@
 
 (defn group-and-format-data [timings events]
   (let [grouped-timings (group-by :id timings)
-        grouped-events (group-by :id events)]
-    (reduce (fn [acc [id es]]
-              (let [{:keys [linked_name first_name last_name
-                            email anonymous_id buyersphere_id
-                            organization_id created_at]} (first es)]
-                (conj acc {:linked-name linked_name
-                           :first-name first_name
-                           :last-name last_name
-                           :email email
-                           :anonymous-id anonymous_id
-                           :buyersphere-id buyersphere_id
-                           :organization-id organization_id
-                           :created-at created_at
-                           :timings (map format-entry es)
-                           :events (map format-entry
-                                    (get grouped-events id))})))
-            []
-            grouped-timings)))
+        grouped-events (group-by :id events)
+        grouped
+        (reduce (fn [acc [id es]]
+                  (let [{:keys [linked_name first_name last_name
+                                email anonymous_id buyersphere_id
+                                organization_id created_at]} (first es)]
+                    (conj acc {:linked-name linked_name
+                               :first-name first_name
+                               :last-name last_name
+                               :email email
+                               :anonymous-id anonymous_id
+                               :buyersphere-id buyersphere_id
+                               :organization-id organization_id
+                               :created-at created_at
+                               :timings (map format-entry es)
+                               :events (map format-entry
+                                            (get grouped-events id))})))
+                []
+                grouped-timings)]
+    (sort-by :created_at grouped)))
 
 (defn get-swaypage-sessions [db organization-id buyersphere-id]
   (let [timings-query (-> (get-time-tracking-base-query organization-id)
