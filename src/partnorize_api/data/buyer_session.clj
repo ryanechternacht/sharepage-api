@@ -23,26 +23,44 @@
   )
 
 (defn track-time [db organization-id buyersphere-id session-id body]
-  (doseq [{:keys [page-name time-on-page]} body]
-    (when-let [page (parse-long page-name)]
-      (let [query (-> (h/insert-into :buyer_session_timing)
-                      (h/values [{:organization_id organization-id
-                                  :buyersphere_id buyersphere-id
-                                  :buyer_session_id session-id
-                                  :page page
-                                  :time_on_page (-> time-on-page Math/ceil long)}])
-                      (h/on-conflict :buyer_session_id :page)
-                      (h/do-update-set {:time_on_page :excluded.time_on_page}))]
-        (db/execute db query)))))
+  (let [insert-vals (->> body
+                         (filter #(-> % :page-name parse-long))
+                         (map (fn [{:keys [page-name time-on-page]}]
+                                {:organization_id organization-id
+                                 :buyersphere_id buyersphere-id
+                                 :buyer_session_id session-id
+                                 :page (parse-long page-name)
+                                 :time_on_page (-> time-on-page Math/ceil long)})))
+        query (-> (h/insert-into :buyer_session_timing)
+                  (h/values insert-vals)
+                  (h/on-conflict :buyer_session_id :page)
+                  (h/do-update-set {:time_on_page :excluded.time_on_page}))]
+    (db/execute db query)))
+
+(defn track-event [db organization-id buyersphere-id session-id page-name {:keys [event-type event-data]}]
+  (when-let [page (parse-long page-name)]
+    (let [query (-> (h/insert-into :buyer_session_event)
+                    (h/values [{:organization_id organization-id
+                                :buyersphere_id buyersphere-id
+                                :buyer_session_id session-id
+                                :page page
+                                :event_type event-type
+                                :event_data [:lift event-data]}]))]
+      (db/execute db query))))
 
 (comment
   (track-time db/local-db 1 1 1 [{:page-name "page3" :time-on-page 5}])
-  (track-time db/local-db 1 1 1 [{:page-name "3" :time-on-page 5}
-                                 {:page-name "4" :time-on-page 10}])
+  (track-time db/local-db 1 1 157 [{:page-name "5" :time-on-page 6}
+                                   {:page-name "6" :time-on-page 16}
+                                   {:page-name "asdf" :time-on-page 15}])
+  
+  (track-event db/local-db 1 94 123 "149" {:event-type "click-link" 
+                                           :event-data {:link-text "i clicked it!"}})
   ;
   )
 
-(defn- time-tracking-base-query [organization-id]
+;; TODO redo these queries for paging (based on session)
+(defn- get-time-tracking-base-query [organization-id]
   (-> (h/select :buyer_session.organization_id
                 :buyer_session.buyersphere_id
                 :buyer_session.id
@@ -74,7 +92,40 @@
       (h/where [:= :buyer_session.organization_id organization-id])
       (h/order-by [:buyer_session.created_at :desc])))
 
-(defn format-event [event]
+(defn- get-event-tracking-base-query [organization-id]
+  (-> (h/select :buyer_session.organization_id
+                :buyer_session.buyersphere_id
+                :buyer_session.id 
+                :buyer_session.linked_name
+                :buyer_session.anonymous_id
+                :buyer_session.created_at
+                :buyer_session_event.page
+                :buyer_session_event.event_type
+                :buyer_session_event.event_data
+                :user_account.email
+                :user_account.first_name
+                :user_account.last_name
+                :buyersphere_page.title
+                :buyersphere_page.page_type)
+      (h/from :buyer_session)
+      (h/join :buyer_session_event
+              [:and
+               [:= :buyer_session.organization_id :buyer_session_event.organization_id]
+               [:= :buyer_session.buyersphere_id :buyer_session_event.buyersphere_id]
+               [:= :buyer_session.id :buyer_session_event.buyer_session_id]])
+      (h/left-join :user_account
+                   [:and
+                    [:= :buyer_session.organization_id :user_account.organization_id]
+                    [:= :buyer_session.user_account_id :user_account.id]])
+      (h/join :buyersphere_page
+              [:and
+               [:= :buyer_session_event.organization_id :buyersphere_page.organization_id]
+               [:= :buyer_session_event.buyersphere_id :buyersphere_page.buyersphere_id]
+               [:= [:cast :buyer_session_event.page :int] :buyersphere_page.id]])
+      (h/where [:= :buyer_session.organization_id organization-id])
+      (h/order-by [:buyer_session.created_at :desc])))
+
+(defn format-entry [event]
   (-> event
       (dissoc :anonymous_id)
       (dissoc :first_name)
@@ -85,9 +136,10 @@
       (dissoc :buyersphere_id)
       (dissoc :created_at)))
 
-(defn group-and-format-data [timings]
-  (let [grouped (group-by :id timings)]
-    (reduce (fn [acc [_ es]]
+(defn group-and-format-data [timings events]
+  (let [grouped-timings (group-by :id timings)
+        grouped-events (group-by :id events)]
+    (reduce (fn [acc [id es]]
               (let [{:keys [linked_name first_name last_name
                             email anonymous_id buyersphere_id
                             organization_id created_at]} (first es)]
@@ -99,15 +151,20 @@
                            :buyersphere-id buyersphere_id
                            :organization-id organization_id
                            :created-at created_at
-                           :timings (map format-event es)})))
+                           :timings (map format-entry es)
+                           :events (map format-entry
+                                    (get grouped-events id))})))
             []
-            grouped)))
+            grouped-timings)))
 
 (defn get-swaypage-sessions [db organization-id buyersphere-id]
-  (let [query (-> (time-tracking-base-query organization-id)
+  (let [timings-query (-> (get-time-tracking-base-query organization-id)
                   (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
-        timings (db/execute db query)]
-    (group-and-format-data timings)))
+        timings (db/execute db timings-query)
+        events-query (-> (get-event-tracking-base-query organization-id)
+                        (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
+        events (db/execute db events-query)]
+    (group-and-format-data timings events)))
 
 (comment
   (get-swaypage-sessions db/local-db 1 94)

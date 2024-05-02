@@ -588,6 +588,16 @@
                                              s-id
                                              body))))
 
+(def POST-buyersphere-session-event
+  (cpj/POST "/v0.1/buyersphere/:b-id/session/:s-id/:page/event"
+    [b-id :<< coerce/as-int s-id :<< coerce/as-int page :as {:keys [db organization body]}]
+    (response/ok (d-buyer-session/track-event db
+                                              (:id organization)
+                                              b-id
+                                              s-id
+                                              page
+                                              body))))
+
 (def GET-buyersphere-sessions
   (cpj/GET "/v0.1/buyersphere/:id/sessions"
     [id :<< coerce/as-int :as {:keys [db user organization]}]
