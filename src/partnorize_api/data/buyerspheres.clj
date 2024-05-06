@@ -11,7 +11,7 @@
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
-(def base-buyersphere-cols
+(def only-buyersphere-cols 
   [:buyersphere.id :buyersphere.organization_id :buyersphere.buyer
    :buyersphere.buyer_logo :buyersphere.intro_message
    :buyersphere.features_answer
@@ -25,12 +25,31 @@
    :buyersphere.crm_opportunity_id :buyersphere.success_criteria_answer
    :buyersphere.objectives_answer :buyersphere.constraints_answer
    :buyersphere.subname :buyersphere.is_public
-   :buyersphere.shortcode :buyersphere.room_type])
+   :buyersphere.shortcode :buyersphere.room_type
+   :buyersphere.priority])
+
+(def base-buyersphere-cols
+  (vec (concat only-buyersphere-cols
+               [:user_account.id :owner_id] [:user_account.first_name :owner_first_name]
+               [:user_account.last_name :owner_last_name] [:user_account.image :owner_image])))
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
       (h/from :buyersphere)
+      (h/left-join :user_account [:= :buyersphere.owner_id :user_account.id])
       (h/where [:= :buyersphere.organization_id organization-id])))
+
+(defn- format-buyersphere-owner
+  [{:keys [owner_id owner_first_name owner_last_name owner_image] :as buyersphere}]
+  (-> buyersphere
+      (dissoc :owner_id)
+      (dissoc :owner_first_name)
+      (dissoc :owner_last_name)
+      (dissoc :owner_image)
+      (cond-> owner_id (assoc :owner {:id owner_id
+                                      :first_name owner_first_name
+                                      :last_name owner_last_name
+                                      :image owner_image}))))
 
 (defn get-by-ids [db organization-id ids]
   (let [buyerspheres (-> (base-buyersphere-query organization-id)
@@ -39,7 +58,8 @@
     (->> buyerspheres
          (map #(update % :qualification_date u/to-date-string))
          (map #(update % :evaluation_date u/to-date-string))
-         (map #(update % :decision_date u/to-date-string)))))
+         (map #(update % :decision_date u/to-date-string))
+         (map format-buyersphere-owner))))
 
 (defn get-by-id [db organization-id id]
   (first (get-by-ids db organization-id [id])))
@@ -71,7 +91,9 @@
                 ;;                        [:< :decision_date [[:now]]]]])
                  true (h/order-by :buyersphere.buyer))]
       ;; TODO what to order on?
-     (db/->execute query db))))
+     (->> query 
+          (db/->>execute db)
+          (map format-buyersphere-owner)))))
 
 ;; TODO is this how I want this to work?
 (defn get-full-buyersphere [db organization-id id]
@@ -86,7 +108,8 @@
         (assoc :seller_team seller-team)
         (update :qualification_date u/to-date-string)
         (update :evaluation_date u/to-date-string)
-        (update :decision_date u/to-date-string))))
+        (update :decision_date u/to-date-string)
+        format-buyersphere-owner)))
 
 (defn get-by-user
   "This is intended for buyers to check which buyerspheres they 
@@ -229,7 +252,7 @@
   ;
   )
 
-(defn- create-buyersphere-record [db organization-id
+(defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id room-type]}]
   (let [shortcode (find-valid-shortcode db)
         query (-> (h/insert-into :buyersphere)
@@ -241,7 +264,8 @@
                              :deal_amount
                              :crm_opportunity_id
                              :shortcode
-                             :room_type)
+                             :room_type
+                             :owner_id)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -250,8 +274,9 @@
                               deal-amount
                               crm-opportunity-id
                               shortcode
-                              room-type]])
-                  (merge (apply h/returning base-buyersphere-cols)))]
+                              room-type
+                              user-id]])
+                  (merge (apply h/returning only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
          first)))
@@ -282,7 +307,7 @@
   (let [activity-templates (d-act-temp/get-activity-templates db organization-id)]
     (when (seq activity-templates)
       (let [to-insert (map (fn [{:keys [milestone_template_id] :as at}]
-                             (-> at
+                             (-> at 
                                  (select-keys [:organization_id :title
                                                :activity_type :assigned_team])
                                  (assoc :buyersphere_id buyersphere-id)
@@ -296,7 +321,7 @@
 
 (defn create-buyersphere-coordinator [db organization-id user-id
                                       {:keys [page-template-id page-title] :as buyersphere-params}]
-  (let [{new-id :id} (create-buyersphere-record db organization-id buyersphere-params)
+  (let [{new-id :id} (create-buyersphere-record db organization-id user-id buyersphere-params)
         mt-id->m-id (add-default-milestones-coordinator db organization-id new-id)]
     (when (seq mt-id->m-id)
       (add-default-activities-coordinator
