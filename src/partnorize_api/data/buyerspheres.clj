@@ -26,12 +26,12 @@
    :buyersphere.objectives_answer :buyersphere.constraints_answer
    :buyersphere.subname :buyersphere.is_public
    :buyersphere.shortcode :buyersphere.room_type
-   :buyersphere.priority])
+   :buyersphere.priority :buyersphere.updated_at])
 
 (def base-buyersphere-cols
   (vec (concat only-buyersphere-cols
-               [:user_account.id :owner_id] [:user_account.first_name :owner_first_name]
-               [:user_account.last_name :owner_last_name] [:user_account.image :owner_image])))
+               [[:user_account.id :owner_id] [:user_account.first_name :owner_first_name]
+                [:user_account.last_name :owner_last_name] [:user_account.image :owner_image]])))
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
