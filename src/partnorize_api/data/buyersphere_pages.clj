@@ -81,13 +81,13 @@
                                        {:title "hello, world 4" :page-template-id 2
                                         :page-type "notes"})
 
-  (update-buyersphere-page db/local-db 1 1 117 {:body {:hello "world"}
+  (update-buyersphere-page db/local-db 1 1 156 {:body {:hello "world"}
                                                 :title "asdf"
                                                 :can-buyer-edit true
                                                 :page-type "notes"
                                                 :status "deleted"})
 
-  (delete-buyersphere-page db/local-db 1 1 3)
+  (delete-buyersphere-page db/local-db 1 1 156)
   ;
   )
 
