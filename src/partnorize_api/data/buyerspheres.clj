@@ -31,13 +31,23 @@
 (def base-buyersphere-cols
   (vec (concat only-buyersphere-cols
                [[:user_account.id :owner_id] [:user_account.first_name :owner_first_name]
-                [:user_account.last_name :owner_last_name] [:user_account.image :owner_image]])))
+                [:user_account.last_name :owner_last_name] [:user_account.image :owner_image]
+                [:buyer_session.created_at :most_recent_buyer_activity]])))
 
 (defn- base-buyersphere-query [organization-id]
   (-> (apply h/select base-buyersphere-cols)
       (h/from :buyersphere)
-      (h/left-join :user_account [:= :buyersphere.owner_id :user_account.id])
-      (h/where [:= :buyersphere.organization_id organization-id])))
+      (h/left-join :user_account [:and
+                                  [:= :buyersphere.organization_id :user_account.organization_id]
+                                  [:= :buyersphere.owner_id :user_account.id]])
+      (h/left-join [(-> (h/select :organization_id :buyersphere_id [:%max.created_at :created_at] )
+                        (h/from :buyer_session)
+                        (h/group-by :organization_id :buyersphere_id)) :buyer_session]
+                   [:and
+                    [:= :buyersphere.organization_id :buyer_session.organization_id]
+                    [:= :buyersphere.id :buyer_session.buyersphere_id]])
+      (h/where [:= :buyersphere.organization_id organization-id])
+      (h/order-by [:updated_at :desc])))
 
 (defn- format-buyersphere-owner
   [{:keys [owner_id owner_first_name owner_last_name owner_image] :as buyersphere}]
