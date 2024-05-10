@@ -3,6 +3,7 @@
             [partnorize-api.routes.activities :as activities]
             [partnorize-api.routes.auth :as auth]
             [partnorize-api.routes.buyer-activity :as buyer-activity]
+            [partnorize-api.routes.buyer-sessions :as buyer-sessions]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.conversation-templates :as conversation-templates]
             [partnorize-api.routes.features :as features]
@@ -51,6 +52,7 @@
   #'auth/POST-signup
   #'buyer-activity/GET-buyer-activity
   #'buyer-activity/POST-activity
+  #'buyer-sessions/GET-buyer-sessions
   #'buyerspheres/GET-buyerspheres
   #'buyerspheres/GET-buyersphere
   #'buyerspheres/GET-buyersphere-by-shortcode

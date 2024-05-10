@@ -602,5 +602,5 @@
   (cpj/GET "/v0.1/buyersphere/:id/sessions"
     [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
-      (response/ok (d-buyer-session/get-swaypage-sessions db (:id organization) id))
+      (response/ok (d-buyer-session/get-swaypage-sessions-for-swaypage db (:id organization) id))
       (response/unauthorized))))

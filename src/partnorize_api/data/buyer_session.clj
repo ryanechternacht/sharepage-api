@@ -72,9 +72,16 @@
                 :user_account.email
                 :user_account.first_name
                 :user_account.last_name
+                :buyersphere.buyer
+                :buyersphere.buyer_logo
+                :buyersphere.priority
                 :buyersphere_page.title
                 :buyersphere_page.page_type)
       (h/from :buyer_session)
+      (h/join :buyersphere
+              [:and
+               [:= :buyer_session.organization_id :buyersphere.organization_id]
+               [:= :buyer_session.buyersphere_id :buyersphere.id]])
       (h/join :buyer_session_timing
               [:and
                [:= :buyer_session.organization_id :buyer_session_timing.organization_id]
@@ -104,12 +111,19 @@
                 :buyer_session_event.page
                 :buyer_session_event.event_type
                 :buyer_session_event.event_data
+                :buyersphere.buyer
+                :buyersphere.buyer_logo
+                :buyersphere.priority
                 :user_account.email
                 :user_account.first_name
                 :user_account.last_name
                 :buyersphere_page.title
                 :buyersphere_page.page_type)
       (h/from :buyer_session)
+      (h/join :buyersphere
+              [:and
+               [:= :buyer_session.organization_id :buyersphere.organization_id]
+               [:= :buyer_session.buyersphere_id :buyersphere.id]])
       (h/join :buyer_session_event
               [:and
                [:= :buyer_session.organization_id :buyer_session_event.organization_id]
@@ -136,6 +150,9 @@
       (dissoc :linked_name)
       (dissoc :organization_id)
       (dissoc :buyersphere_id)
+      (dissoc :buyer)
+      (dissoc :buyer_logo)
+      (dissoc :priority)
       (dissoc :created_at)))
 
 (defn group-and-format-data [timings events]
@@ -145,13 +162,18 @@
         (reduce (fn [acc [id es]]
                   (let [{:keys [linked_name first_name last_name
                                 email anonymous_id buyersphere_id
-                                organization_id created_at]} (first es)]
+                                organization_id created_at buyer 
+                                buyer_logo priority]}
+                        (first es)]
                     (conj acc {:linked-name linked_name
                                :first-name first_name
                                :last-name last_name
                                :email email
                                :anonymous-id anonymous_id
-                               :buyersphere-id buyersphere_id
+                               :buyersphere {:id buyersphere_id
+                                             :buyer buyer
+                                             :buyer-logo buyer_logo
+                                             :priority priority}
                                :organization-id organization_id
                                :created-at created_at
                                :timings (map format-entry es)
@@ -163,7 +185,12 @@
          (sort-by :created-at)
          reverse)))
 
-(defn get-swaypage-sessions [db organization-id buyersphere-id]
+(defn get-swaypage-sessions [db organization-id]
+  (let [timings (db/execute db (get-time-tracking-base-query organization-id))
+        events (db/execute db (get-event-tracking-base-query organization-id))]
+    (group-and-format-data timings events)))
+
+(defn get-swaypage-sessions-for-swaypage [db organization-id buyersphere-id]
   (let [timings-query (-> (get-time-tracking-base-query organization-id)
                   (h/where [:= :buyer_session.buyersphere_id buyersphere-id]))
         timings (db/execute db timings-query)
@@ -173,6 +200,7 @@
     (group-and-format-data timings events)))
 
 (comment
-  (get-swaypage-sessions db/local-db 1 94)
+  (get-swaypage-sessions db/local-db 1)
+  (get-swaypage-sessions-for-swaypage db/local-db 1 94)
   ;
   )
