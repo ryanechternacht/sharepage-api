@@ -54,13 +54,13 @@
          (db/->>execute db)
          first)))
 
-(defn create-swaypage-from-template [db organization-id template-id user-id data]
-  (let [bs (create-buyersphere-record db organization-id user-id data)
+(defn create-swaypage-from-template [db organization-id template-id user-id {:keys [template-data] :as body}]
+  (let [bs (create-buyersphere-record db organization-id user-id body)
         pages (map u/kebab-case (pages/get-buyersphere-active-pages db/local-db organization-id template-id))]
     (doseq [page pages]
       (let [rendered-page (update-in page
                                      [:body :sections]
-                                     (fn [x] (map #(render-section data %) x)))]
+                                     (fn [x] (map #(render-section template-data %) x)))]
         (create-buyersphere-page db organization-id (:id bs) rendered-page)))
     bs))
 
@@ -71,8 +71,8 @@
               :data-1 "some data"
               :data-2 "other data"
               :data-3 "more data"}]
-    (create-swaypage-from-template db/local-db 1 3 1 (assoc data
-                                                            :buyer "adidas"
-                                                            :buyer-logo "https://nike.com")))
+    (create-swaypage-from-template db/local-db 1 3 1 {:template-data data
+                                                      :buyer "adidas"
+                                                      :buyer-logo "https://nike.com"}))
   ;
   )
