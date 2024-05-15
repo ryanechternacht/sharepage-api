@@ -4,7 +4,7 @@
             [partnorize-api.data.buyersphere-page-templates :as bpt]
             [partnorize-api.data.utilities :as u]))
 
-(def ^:private base-buyersphere-page-cols
+(def base-buyersphere-page-cols
   [:id :organization_id :buyersphere_id :title :body :is_public :ordering
    :can_buyer_edit :page_type :status])
 
@@ -18,6 +18,12 @@
 
 (defn get-buyersphere-pages [db organization-id buyersphere-id]
   (let [query (base-buyersphere-page-query organization-id buyersphere-id)]
+    (->> query
+         (db/->>execute db))))
+
+(defn get-buyersphere-active-pages [db organization-id buyersphere-id]
+  (let [query (-> (base-buyersphere-page-query organization-id buyersphere-id)
+                  (h/where [:= :status "active"]))]
     (->> query
          (db/->>execute db))))
 
@@ -74,7 +80,7 @@
 
 (comment
   (get-buyersphere-pages db/local-db 1 1)
-  (get-buyersphere-page db/local-db 1 62 57)
+  (get-buyersphere-page db/local-db 1 3 79)
 
   (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4" :page-type "discussion"})
   (create-buyersphere-page-coordinator db/local-db 1 1

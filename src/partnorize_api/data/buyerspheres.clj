@@ -165,7 +165,6 @@
   ;
   )
 
-
 (defn- update-buyersphere-field [db organization-id buyersphere-id set-map]
   (let [update-query (-> (h/update :buyersphere)
                          (h/set set-map)
@@ -249,7 +248,7 @@
          seq
          not)))
 
-(defn- find-valid-shortcode [db]
+(defn find-valid-shortcode [db]
   (loop [shortcode (nano-id-gen)]
     (if (is-valid-shortcode? db shortcode)
       shortcode

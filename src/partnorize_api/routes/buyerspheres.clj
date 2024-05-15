@@ -10,6 +10,7 @@
             [partnorize-api.data.conversations :as d-conversations]
             [partnorize-api.data.buyersphere-links :as d-links]
             [partnorize-api.data.buyersphere-pages :as d-pages]
+            [partnorize-api.data.buyersphere-templates :as d-buyer-templates]
             [partnorize-api.data.permission :as d-permission]
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.teams :as d-teams]
@@ -603,4 +604,10 @@
     [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
       (response/ok (d-buyer-session/get-swaypage-sessions-for-swaypage db (:id organization) id))
+      (response/unauthorized))))
+
+(def POST-buyerspheres-template
+  (cpj/POST "/v0.1/buyerspheres/template/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+    (if (d-permission/does-user-have-org-permissions? db organization user)
+      (response/ok (d-buyer-templates/create-swaypage-from-template db (:id organization) id (:id user) body))
       (response/unauthorized))))

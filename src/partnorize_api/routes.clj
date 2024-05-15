@@ -95,6 +95,7 @@
   #'buyerspheres/POST-buyersphere-session-timing
   #'buyerspheres/POST-buyersphere-session-event
   #'buyerspheres/GET-buyersphere-sessions
+  #'buyerspheres/POST-buyerspheres-template
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
