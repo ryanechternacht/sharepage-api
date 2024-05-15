@@ -196,7 +196,8 @@
                                           :deal-amount
                                           :crm-opportunity-id
                                           :subname
-                                          :is-public])
+                                          :is-public
+                                          :room-type])
                  features-answer (assoc :features-answer [:lift features-answer])
                  success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
                  objectives-answer (assoc :objectives-answer [:lift objectives-answer])
