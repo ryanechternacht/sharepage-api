@@ -56,7 +56,7 @@
 
 (defn create-swaypage-from-template [db organization-id template-id user-id {:keys [template-data] :as body}]
   (let [bs (create-buyersphere-record db organization-id user-id body)
-        pages (map u/kebab-case (pages/get-buyersphere-active-pages db/local-db organization-id template-id))]
+        pages (map u/kebab-case (pages/get-buyersphere-active-pages db organization-id template-id))]
     (doseq [page pages]
       (let [rendered-page (update-in page
                                      [:body :sections]
