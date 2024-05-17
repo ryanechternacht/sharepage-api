@@ -607,7 +607,7 @@
       (response/unauthorized))))
 
 (def POST-buyerspheres-template
-  (cpj/POST "/v0.1/buyerspheres/template/:id" [id :<< coerce/as-int :as {:keys [db user organization body]}]
+  (cpj/POST "/v0.1/buyerspheres/template/:id" [id :<< coerce/as-int :as {:keys [db config user organization body]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-buyer-templates/create-swaypage-from-template db (:id organization) id (:id user) body))
+      (response/ok (d-buyer-templates/create-swaypage-from-template config db (:id organization) id (:id user) body))
       (response/unauthorized))))

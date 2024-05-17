@@ -4,18 +4,27 @@
             [partnorize-api.data.buyerspheres :as buyerspheres]
             [partnorize-api.data.buyersphere-pages :as pages]
             [partnorize-api.db :as db]
-            [partnorize-api.data.utilities :as u]))
+            [partnorize-api.data.utilities :as u]
+            [partnorize-api.external-api.open-ai :as open-ai]
+            [partnorize-api.middleware.config :as config]))
 
-(defmulti render-section (fn [data section] (:type section)))
+(defmulti render-section (fn [config data section] (:type section)))
 
-(defmethod render-section "text" [data section]
+(defmethod render-section "text" [config data section]
   (update section :text stache/render data))
 
-(defmethod render-section "header" [data section]
+(defmethod render-section "header" [config data section]
   (update section :text stache/render data))
 
-(defmethod render-section "asset" [data section]
+(defmethod render-section "asset" [config data section]
   (update section :link stache/render data))
+
+;; TODO use injected config!!!!
+(defmethod render-section "ai-prompt" [config data section]
+  (let [prompt (stache/render (:prompt section) data)]
+    (-> section
+        (assoc :type "text")
+        (assoc :text (open-ai/generate-message (:open-ai config) prompt)))))
 
 (defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo]}]
@@ -54,13 +63,13 @@
          (db/->>execute db)
          first)))
 
-(defn create-swaypage-from-template [db organization-id template-id user-id {:keys [template-data] :as body}]
+(defn create-swaypage-from-template [config db organization-id template-id user-id {:keys [template-data] :as body}]
   (let [bs (create-buyersphere-record db organization-id user-id body)
         pages (map u/kebab-case (pages/get-buyersphere-active-pages db organization-id template-id))]
     (doseq [page pages]
       (let [rendered-page (update-in page
                                      [:body :sections]
-                                     (fn [x] (map #(render-section template-data %) x)))]
+                                     (fn [x] (map #(render-section config template-data %) x)))]
         (create-buyersphere-page db organization-id (:id bs) rendered-page)))
     bs))
 
@@ -71,7 +80,7 @@
               :data-1 "some data"
               :data-2 "other data"
               :data-3 "more data"}]
-    (create-swaypage-from-template db/local-db 1 3 1 {:template-data data
+    (create-swaypage-from-template db/local-db config/config 1 3 1 {:template-data data
                                                       :buyer "adidas"
                                                       :buyer-logo "https://nike.com"}))
   ;
