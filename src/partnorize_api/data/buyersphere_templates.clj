@@ -3,8 +3,9 @@
             [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as buyerspheres]
             [partnorize-api.data.buyersphere-pages :as pages]
-            [partnorize-api.db :as db]
+            [partnorize-api.data.buyersphere-links :as links]
             [partnorize-api.data.utilities :as u]
+            [partnorize-api.db :as db]
             [partnorize-api.external-api.open-ai :as open-ai]
             [partnorize-api.middleware.config :as config]))
 
@@ -63,15 +64,17 @@
          (db/->>execute db)
          first)))
 
-(defn create-swaypage-from-template [config db organization-id template-id user-id {:keys [template-data] :as body}]
-  (let [bs (create-buyersphere-record db organization-id user-id body)
-        pages (map u/kebab-case (pages/get-buyersphere-active-pages db organization-id template-id))]
+(defn create-swaypage-from-template-coordinator [config db organization-id template-id user-id {:keys [template-data] :as body}]
+  (let [swaypage (create-buyersphere-record db organization-id user-id body)
+        pages (map u/kebab-case (pages/get-buyersphere-active-pages db organization-id template-id))
+        links (map u/kebab-case (links/get-buyersphere-links db organization-id template-id))]
     (doseq [page pages]
       (let [rendered-page (update-in page
                                      [:body :sections]
                                      (fn [x] (map #(render-section config template-data %) x)))]
-        (create-buyersphere-page db organization-id (:id bs) rendered-page)))
-    bs))
+        (create-buyersphere-page db organization-id (:id swaypage) rendered-page)))
+    (links/create-buyersphere-links db organization-id (:id swaypage) links)
+    swaypage))
 
 (comment
   (let [data {:first-name "ryan 2"
@@ -80,8 +83,13 @@
               :data-1 "some data"
               :data-2 "other data"
               :data-3 "more data"}]
-    (create-swaypage-from-template db/local-db config/config 1 3 1 {:template-data data
-                                                      :buyer "adidas"
-                                                      :buyer-logo "https://nike.com"}))
+    (create-swaypage-from-template-coordinator config/config
+                                               db/local-db
+                                               1
+                                               3
+                                               1
+                                               {:template-data data
+                                                :buyer "adidas"
+                                                :buyer-logo "https://nike.com"}))
   ;
   )

@@ -23,10 +23,34 @@
                        [:and [:= :organization_id organization-id]]
                        other-wheres)))))
 
+(defn get-next-ordering-value
+  "Similar to `get-next-ordering-query`, but returns the actual next id. This is
+   more useful when you're adding multiple items at once and will set the values yourself"
+  ([db table organization-id]
+   (let [query (-> (h/select [[:raw "COALESCE(MAX(ordering), 0) + 1"] :ordering])
+                   (h/from table)
+                   (h/where [:= :organization_id organization-id]))]
+     (->> query
+          (db/execute db)
+          first
+          :ordering)))
+  ([db table organization-id & other-wheres]
+   (let [query (-> (h/select [[:raw "COALESCE(MAX(ordering), 0) + 1"] :ordering])
+                   (h/from table)
+                   (h/where (apply conj
+                                   [:and [:= :organization_id organization-id]]
+                                   other-wheres)))]
+     (->> query
+          (db/execute db)
+          first
+          :ordering))))
+
 (comment
   (db/->format (get-next-ordering-query :persona 1))
   (db/->format (get-next-ordering-query :buyersphere_user_account 1 [:= :buyersphere-id 1] [:= :team "seller"]))
   (db/->>execute db/local-db (get-next-ordering-query :buyersphere_user_account -1))
+  
+  (get-next-ordering-value db/local-db :buyersphere_link 1 [:= :buyersphere_id 3])
   ;
   )
 
