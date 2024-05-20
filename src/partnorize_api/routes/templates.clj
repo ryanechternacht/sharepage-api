@@ -4,6 +4,7 @@
             [partnorize-api.data.buyersphere-activity-templates :as d-act-templ]
             [partnorize-api.data.buyersphere-page-templates :as d-page-templ]
             [partnorize-api.data.permission :as d-permission]
+            [partnorize-api.external-api.open-ai :as open-ai]
             [ring.util.http-response :as response]))
 
 (def GET-template-milestones
@@ -114,4 +115,10 @@
                     db
                     (:id organization)
                     id))
+      (response/unauthorized))))
+
+(def POST-templates-generate-text
+  (cpj/POST "/v0.1/templates/generate-text" {:keys [db organization user config body]}
+    (if (d-permission/does-user-have-org-permissions? db organization user)
+      (response/ok {:text (open-ai/generate-message (:open-ai config) (:prompt body))})
       (response/unauthorized))))

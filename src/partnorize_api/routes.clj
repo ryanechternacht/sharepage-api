@@ -141,6 +141,7 @@
   #'templates/POST-template-pages
   #'templates/PATCH-template-page
   #'templates/DELETE-template-page
+  #'templates/POST-templates-generate-text
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
