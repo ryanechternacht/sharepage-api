@@ -20,8 +20,7 @@
 (defmethod render-section "asset" [config data section]
   (update section :link stache/render data))
 
-;; TODO use injected config!!!!
-(defmethod render-section "ai-prompt" [config data section]
+(defmethod render-section "ai-prompt-template" [config data section]
   (let [prompt (stache/render (:prompt section) data)]
     (-> section
         (assoc :type "text")
