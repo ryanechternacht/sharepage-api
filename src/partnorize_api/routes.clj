@@ -130,6 +130,7 @@
   #'resources/PUT-resources
   #'resources/DELETE-resources
   #'salesforce/GET-opportunities
+  #'swaypages/GET-swaypages
   #'swaypages/GET-swaypage
   #'templates/GET-template-milestones
   #'templates/POST-template-milestones

@@ -17,13 +17,21 @@
             [partnorize-api.middleware.prework :as prework]
             [ring.util.http-response :as response]))
 
+(def GET-swaypages
+  (cpj/GET "/v0.1/swaypages" original-req
+    (let [{:keys [prework-errors db organization] :as req}
+          (prework/do-prework original-req 
+                              (prework/ensure-is-org-member))]
+      (if (seq prework-errors)
+        (prework/generate-error-response req prework-errors)
+        (response/ok (d-buyerspheres/get-by-organization db (:id organization)))))))
+
 (def GET-swaypage
   (cpj/GET "/v0.1/swaypage/:id" [id :<< coerce/as-int :as original-req]
     (let [{:keys [prework-errors swaypage] :as req}
           (prework/do-prework original-req
                               (prework/ensure-can-see-swaypage id)
                               (prework/ensure-and-get-swaypage id))]
-      (println "swaypage" swaypage)
       (if (seq prework-errors)
         (prework/generate-error-response req prework-errors)
         (response/ok swaypage)))))

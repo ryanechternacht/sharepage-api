@@ -70,6 +70,41 @@
   ;
   )
 
+(defn ensure-is-org-member []
+  (fn [{:keys [db organization user] :as req}]
+    (if (permission/does-user-have-org-permissions? db organization user)
+      req
+      (update req :prework-errors conj {:code 401}))))
+
+(comment
+  ;; success
+  ((ensure-is-org-member)
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}
+
+    :user {:email "ryan@echternacht.org",
+           :first_name "ryan",
+           :organization_id 1,
+           :is_admin true,
+           :team "seller",
+           :id 1,
+           :last_name "echternacht",
+           :display_role "Narrator3",
+           :image "https://lh3.googleusercontent.com/a/ACg8ocLb7wmHRVHusvY_yEvlkfatANDCukY8EzHewNKiFbyzgt4=s96-c",
+           :buyersphere_role "admin"}})
+
+  ;; failure (no user and swaypage doesn't exist)
+  ((ensure-is-org-member) {:db partnorize-api.db/local-db
+                                :organization nil
+                                :user nil})
+  ;
+  )
+
 (defn ensure-and-get-swaypage [swaypage-id]
   (fn [{:keys [db organization] :as req}]
     (try
