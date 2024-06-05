@@ -35,3 +35,19 @@
       (if (seq prework-errors)
         (prework/generate-error-response req prework-errors)
         (response/ok swaypage)))))
+
+(def GET-swaypage-by-shortcode
+  (cpj/GET "/v0.1/swaypage/shortcode/:shortcode" [shortcode :as original-req]
+    (let [{:keys [prework-errors swaypage] :as req}
+          (prework/do-prework original-req
+                              (prework/ensure-can-see-swaypage-by-shortcode shortcode)
+                              (prework/ensure-and-get-swaypage-by-shortcode shortcode))]
+      (if (seq prework-errors)
+        (prework/generate-error-response req prework-errors)
+        (response/ok swaypage)))))
+
+;; users
+;; chapters (pages)
+;; links
+;; sessions
+;; template

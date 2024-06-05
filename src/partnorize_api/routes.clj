@@ -132,6 +132,7 @@
   #'salesforce/GET-opportunities
   #'swaypages/GET-swaypages
   #'swaypages/GET-swaypage
+  #'swaypages/GET-swaypage-by-shortcode
   #'templates/GET-template-milestones
   #'templates/POST-template-milestones
   #'templates/PATCH-template-milestone
