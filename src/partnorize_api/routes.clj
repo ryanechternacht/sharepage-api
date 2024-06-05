@@ -14,6 +14,7 @@
             ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
+            [partnorize-api.routes.swaypages :as swaypages]
             [partnorize-api.routes.templates :as templates]
             [partnorize-api.routes.users :as users]
             [ring.util.http-response :as response]))
@@ -129,6 +130,7 @@
   #'resources/PUT-resources
   #'resources/DELETE-resources
   #'salesforce/GET-opportunities
+  #'swaypages/GET-swaypage
   #'templates/GET-template-milestones
   #'templates/POST-template-milestones
   #'templates/PATCH-template-milestone
