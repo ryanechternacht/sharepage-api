@@ -133,6 +133,7 @@
   #'swaypages/GET-swaypages
   #'swaypages/GET-swaypage
   #'swaypages/GET-swaypage-by-shortcode
+  #'swaypages/PATCH-swaypage
   #'templates/GET-template-milestones
   #'templates/POST-template-milestones
   #'templates/PATCH-template-milestone

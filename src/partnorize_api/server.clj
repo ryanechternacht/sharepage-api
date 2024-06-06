@@ -5,6 +5,7 @@
             ;; [partnorize-api.middleware.debug :as m-debug]
             [partnorize-api.middleware.anonymous-users :as m-anon-users]
             [partnorize-api.middleware.organization :as m-org]
+            [partnorize-api.middleware.postwork :as m-postwork]
             [partnorize-api.middleware.stytch-store :as m-stytch]
             [partnorize-api.middleware.users :as m-users]
             [partnorize-api.routes :as r]
@@ -21,6 +22,7 @@
 
 (def handler
   (-> r/routes
+      m-postwork/wrap-postwork
       (m-json/wrap-json-body {:key-fn csk/->kebab-case-keyword})
       m-users/wrap-user
       m-anon-users/wrap-anonymous-user

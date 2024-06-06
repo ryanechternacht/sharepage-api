@@ -46,6 +46,16 @@
         (prework/generate-error-response req prework-errors)
         (response/ok swaypage)))))
 
+(def PATCH-swaypage
+  (cpj/PATCH "/v0.1/swaypage/:id" [id :<< coerce/as-int :as original-req]
+    (let [{:keys [prework-errors body] :as req}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-swaypage id))]
+      (if (seq prework-errors)
+        (prework/generate-error-response req prework-errors)
+        (update (response/ok) :postwork conj [[:swaypage :update id] body])))))
+
 ;; users
 ;; chapters (pages)
 ;; links
