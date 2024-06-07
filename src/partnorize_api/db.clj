@@ -47,6 +47,11 @@
   now
   (sql/call "STATEMENT_TIMESTAMP"))
 
+(defn lift 
+  "wraps a value in a [:lift] statement for honeysql handling of jsonb"
+  [x]
+  [:lift x])
+
 ;; Everything below handles converting clj maps to/from jsonb fields in postgres
 ;; It was all ripped shamelessly from the docs below:
 ;; https://cljdoc.org/d/seancorfield/next.jdbc/1.1.646/doc/getting-started/tips-tricks
