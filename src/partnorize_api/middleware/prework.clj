@@ -1,5 +1,7 @@
 (ns partnorize-api.middleware.prework
-  (:require [partnorize-api.data.permission :as permission]
+  (:require [clojure.data.csv :as csv]
+            [clojure.java.io :as io]
+            [partnorize-api.data.permission :as permission]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
             [partnorize-api.db :as db]
             [ring.util.http-response :as response]))
@@ -16,7 +18,7 @@
           req
           preworks))
 
-(defn generate-error-response [req prework-errors]
+(defn generate-error-response [prework-errors]
   (cond
     (some #(= (:code %) 401) prework-errors)
     (response/unauthorized)
@@ -221,5 +223,27 @@
                    :subdomain "stark",
                    :domain "https://www.house-stark.com",
                    :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;
+  )
+
+;; TODO this does all reading right away. this probably isn't ideal long term
+(defn read-csv-file []
+  (fn [req]
+    (try
+      (with-open [file-data (-> req
+                                :params
+                                :file
+                                :tempfile
+                                io/reader)]
+        (assoc req :csv-data (mapv identity (csv/read-csv file-data))))
+      (catch Exception _
+        (update req :prework-errors conj {:code 400})))))
+
+(comment
+  ((read-csv-file)
+   {:file {:tempfile "resources/test-csv.csv"}})
+
+  ((read-csv-file)
+   {:file {:tempfile "resources/test-csv2.csv"}})
   ;
   )

@@ -6,12 +6,11 @@
             [partnorize-api.routes.buyer-sessions :as buyer-sessions]
             [partnorize-api.routes.buyerspheres :as buyerspheres]
             [partnorize-api.routes.conversation-templates :as conversation-templates]
+            [partnorize-api.routes.csv-upload :as csv]
             [partnorize-api.routes.features :as features]
-            ;; [partnorize-api.routes.deal-timing :as deal-timing]
             [partnorize-api.routes.organization :as organization]
             [partnorize-api.routes.pain-points :as pain-points]
             [partnorize-api.routes.pricing :as pricing]
-            ;; [partnorize-api.routes.personas :as personas]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
             [partnorize-api.routes.swaypages :as swaypages]
@@ -103,6 +102,7 @@
   #'conversation-templates/DELETE-conversation-template-item
   ;; #'deal-timing/GET-deal-timing
   ;; #'deal-timing/PUT-deal-timing
+  #'csv/POST-csv
   #'features/GET-features
   #'features/GET-features-for-buyersphere
   #'features/POST-features

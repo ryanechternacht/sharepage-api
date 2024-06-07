@@ -6,7 +6,8 @@
             [honey.sql.helpers :as h]
             [java-time.api :as jt]
             [lambdaisland.uri :as uri]
-            [partnorize-api.db :as db]))
+            [partnorize-api.db :as db])
+    (:import com.fasterxml.uuid.Generators))
 
 (defn get-next-ordering-query
   "generates a query designed to be used as a subquery in an `insert into`
@@ -267,5 +268,26 @@
   (try-parse-long "123abc")
   (try-parse-long nil)
   (try-parse-long [])
+  ;
+  )
+
+
+(def ^:private gen (Generators/timeBasedEpochGenerator))
+
+(defn uuid-v7
+  "Constructs a uuid-v7, which is a uuid that uses epoch timestamps to make
+   the uuids sortable for db performance (and just it's nice to sort them). 
+   A timestamp (as a java.util.Timestamp) can be supplied or the current 
+   time will be used"
+  ([]
+   (.generate gen))
+  ([timestamp]
+  ;;  TODO support more input types?
+   (.construct gen (.getTime timestamp))))
+
+(comment
+  (uuid-v7)
+
+  (uuid-v7 (java.sql.Timestamp/valueOf "2015-07-24 09:45:44.000"))
   ;
   )
