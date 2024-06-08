@@ -7,24 +7,28 @@
             [partnorize-api.middleware.prework :as prework]
             [partnorize-api.data.utilities :as u]))
 
-(defn- build-csv-postwork [organization-id csv-uuid csv-data]
-  {[:csv-upload :create csv-uuid]
-   {:organization-id 1
-    :uuid csv-uuid}
-   [:csv-upload-rows :create csv-uuid]
-   (map-indexed (fn [i row]
-                  {:organization-id organization-id
-                   :csv-upload-uuid csv-uuid
-                   :row-number (inc i)
-                   :row-data row})
-                (drop 1 csv-data))})
+;; This is partly defensive, and partly because i'm just sticking
+;; csv data into jsonb columns. We should eventually store the files in
+;; s3 and process from their (and then we can up our limits)
+(def csv-row-limit 1000)
+
+(defn- build-csv-postwork [organization-id uuid csv-data]
+  {[:csv-upload :create uuid]
+   {:organization-id organization-id
+    :uuid uuid
+    :header-row (first csv-data)
+    :data-rows (->> csv-data (drop 1) (take csv-row-limit) vec)
+    :sample-rows (->> csv-data (drop 1) (take 4) vec)}})
 
 (comment
   (build-csv-postwork 1
                       (u/uuid-v7)
                       [["header1" "header2" "header3"]
                        ["a" "b" "c"]
-                       ["d" "e" "f"]])
+                       ["d" "e" "f"]
+                       ["g" "h" "i"]
+                       ["j" "k" "l"]
+                       ["m" "n" "o"]])
   ;
   )
 
@@ -41,7 +45,7 @@
         (prework/generate-error-response prework-errors)
         (let [uuid (u/uuid-v7)
               sample-data (->> csv-data (drop 1) (take 4))]
-          (-> {:uuid uuid 
+          (-> {:uuid uuid
                :sample-data sample-data
                :organization-id (:id organization)}
               response/ok

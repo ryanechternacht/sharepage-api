@@ -26,14 +26,12 @@
 
 (defmethod handle-postwork [:csv-upload :create]
   [{:keys [db]} [[_ _ _] row]]
-  (let [query (-> (h/insert-into :csv_upload)
-                  (h/values [row]))]
-    (db/execute db query)))
-
-(defmethod handle-postwork [:csv-upload-rows :create]
-  [{:keys [db]} [[_ _ _] rows]]
-  (let [query (-> (h/insert-into :csv_upload_row)
-                  (h/values (map #(update % :row-data db/lift) rows)))]
+  (let [formatted-row (-> row
+                          (update :header-row db/lift)
+                          (update :data-rows db/lift)
+                          (update :sample-rows db/lift))
+        query (-> (h/insert-into :csv_upload)
+                  (h/values [formatted-row]))]
     (db/execute db query)))
 
 (comment
