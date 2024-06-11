@@ -6,6 +6,7 @@ create table campaign (
   swaypage_template_id int references buyersphere(id),
   columns_approved boolean default false,
   ai_prompts_approved boolean default false,
+  is_published boolean default false,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null
 );

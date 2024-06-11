@@ -97,6 +97,7 @@
   #'buyerspheres/GET-buyersphere-sessions
   #'buyerspheres/POST-buyerspheres-template
   #'campaigns/POST-campaigns
+  #'campaigns/GET-campaign
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item

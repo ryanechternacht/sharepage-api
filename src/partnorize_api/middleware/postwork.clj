@@ -1,8 +1,7 @@
 (ns partnorize-api.middleware.postwork
   (:require [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as bs]
-            [partnorize-api.db :as db]
-            [honey.sql :as sql]))
+            [partnorize-api.db :as db]))
 
 (defmulti handle-postwork (fn [req [[item action id] value]]
                              [item action]))

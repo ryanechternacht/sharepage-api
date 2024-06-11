@@ -30,10 +30,13 @@
 
 (defn- create-campaign-result [organization uuid template sample-data body]
   (merge (select-keys body [:title])
-         {:uuid uuid
-          :sample-data sample-data
-          :template template
-          :organization-id (:id organization)}))
+         {:uuid (u/uuid->friendly-id uuid)
+          :organization-id (:id organization)
+          :columns_approved false
+          :ai_prompts_approved false
+          :is_published false
+          :sample-rows sample-data 
+          :template template}))
 
 (comment
   (build-csv-postwork {:id 1}
@@ -47,7 +50,7 @@
 
   (build-campaign-postwork {:id 1} (u/uuid-v7) (u/uuid-v7) {:title "hello world"
                                                             :template-id 3})
-  
+
   (create-campaign-result {:id 1}
                           (u/uuid-v7)
                           {:id 1 :title "i'm a template"}
@@ -78,8 +81,8 @@
               sample-data (->> csv-data (drop 1) (take 4))]
           (-> (create-campaign-result organization
                                       campaign-uuid
-                                      sample-data
                                       template
+                                      sample-data
                                       params)
               response/ok
               (update :postwork merge (build-csv-postwork organization
@@ -89,3 +92,13 @@
                                                                campaign-uuid
                                                                csv-uuid
                                                                params))))))))
+
+(def GET-campaign
+  (cpj/GET "/v0.1/campaign/:uuid" [uuid :<< u/friendly-id->uuid :as original-req]
+    (let [{:keys [prework-errors campaign]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-campaign uuid))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (response/ok campaign)))))

@@ -3,6 +3,7 @@
             [clojure.java.io :as io]
             [partnorize-api.data.permission :as permission]
             [partnorize-api.data.buyerspheres :as d-buyerspheres]
+            [partnorize-api.data.campaigns :as d-campaigns]
             [partnorize-api.db :as db]
             [ring.util.http-response :as response]))
 
@@ -212,7 +213,7 @@
     (try
       (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
         (if (= (:room_type swaypage) "template")
-          (assoc req :swaypage swaypage)
+          (assoc req :template swaypage)
           (update req :prework-errors conj {:code 400 :message "This Swaypage is not a template"}))
         (update req :prework-errors conj {:code 404 :message "Template doesn't exist"}))
       ;; currently we throw exceptions on bad ids
@@ -289,5 +290,37 @@
 
   ((read-csv-file)
    {:file {:tempfile "resources/test-csv2.csv"}})
+  ;
+  )
+
+(defn ensure-and-get-campaign [uuid]
+  (fn [{:keys [db organization] :as req}]
+    (try
+      (if-let [campaign (d-campaigns/get-by-uuid db (:id organization) uuid)]
+        (assoc req :campaign campaign)
+        (update req :prework-errors conj {:code 404 :message "Campaign doesn't exist"}))
+      ;; currently we throw exceptions on bad ids
+      (catch Exception _
+        (update req :prework-errors conj {:code 404 :message "Campaign doesn't exist"})))))
+
+(comment
+  ;; success
+  ((ensure-and-get-campaign (java.util.UUID/fromString "019008cf-92af-7456-af60-89c493f259b0"))
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;; no campaign
+  ((ensure-and-get-campaign (java.util.UUID/fromString "019008cf-92af-7456-af60-89c493f259b1"))
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
   ;
   )

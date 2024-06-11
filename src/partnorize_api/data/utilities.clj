@@ -7,7 +7,8 @@
             [java-time.api :as jt]
             [lambdaisland.uri :as uri]
             [partnorize-api.db :as db])
-    (:import com.fasterxml.uuid.Generators))
+  (:import com.fasterxml.uuid.Generators)
+  (:import com.devskiller.friendly_id.FriendlyId))
 
 (defn get-next-ordering-query
   "generates a query designed to be used as a subquery in an `insert into`
@@ -291,3 +292,7 @@
   (uuid-v7 (java.sql.Timestamp/valueOf "2015-07-24 09:45:44.000"))
   ;
   )
+
+(def uuid->friendly-id #(FriendlyId/toFriendlyId %))
+
+(def friendly-id->uuid #(FriendlyId/toUuid %))
