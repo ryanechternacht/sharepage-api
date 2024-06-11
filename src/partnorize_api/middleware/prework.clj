@@ -19,18 +19,23 @@
           preworks))
 
 (defn generate-error-response [prework-errors]
-  (cond
-    (some #(= (:code %) 401) prework-errors)
-    (response/unauthorized)
+  (let [issues (->> prework-errors
+                    (map :message)
+                    (remove nil?))
+        issue-response (cond-> {}
+                         (seq issues) (assoc :issues issues))]
+    (cond
+      (some #(= (:code %) 401) prework-errors)
+      (response/unauthorized issue-response)
 
-    (some #(= (:code %) 404) prework-errors)
-    (response/not-found)
+      (some #(= (:code %) 404) prework-errors)
+      (response/not-found issue-response)
 
-    (some #(= (:code %) 400) prework-errors)
-    (response/bad-request)
+      (some #(= (:code %) 400) prework-errors)
+      (response/bad-request issue-response)
 
-    :else
-    (response/bad-request)))
+      :else
+      (response/bad-request issue-response))))
 
 (comment
   (do-prework {} #(assoc % :a 1) #(assoc % :b 2))
@@ -107,26 +112,26 @@
   ((ensure-can-see-swaypage-by-shortcode "b2ifI2") {:db partnorize-api.db/local-db
                                                     :organization nil
                                                     :user nil})
-  
+
   ;; swaypage doesn't exist
-    ((ensure-can-see-swaypage-by-shortcode "abc124")
-     {:db partnorize-api.db/local-db
-      :organization  {:id 1,
-                      :name "Stark",
-                      :logo "/house_stark.png",
-                      :subdomain "stark",
-                      :domain "https://www.house-stark.com",
-                      :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}
-      :user {:email "ryan@echternacht.org",
-             :first_name "ryan",
-             :organization_id 1,
-             :is_admin true,
-             :team "seller",
-             :id 1,
-             :last_name "echternacht",
-             :display_role "Narrator3",
-             :image "https://lh3.googleusercontent.com/a/ACg8ocLb7wmHRVHusvY_yEvlkfatANDCukY8EzHewNKiFbyzgt4=s96-c",
-             :buyersphere_role "admin"}})
+  ((ensure-can-see-swaypage-by-shortcode "abc124")
+   {:db partnorize-api.db/local-db
+    :organization  {:id 1,
+                    :name "Stark",
+                    :logo "/house_stark.png",
+                    :subdomain "stark",
+                    :domain "https://www.house-stark.com",
+                    :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}
+    :user {:email "ryan@echternacht.org",
+           :first_name "ryan",
+           :organization_id 1,
+           :is_admin true,
+           :team "seller",
+           :id 1,
+           :last_name "echternacht",
+           :display_role "Narrator3",
+           :image "https://lh3.googleusercontent.com/a/ACg8ocLb7wmHRVHusvY_yEvlkfatANDCukY8EzHewNKiFbyzgt4=s96-c",
+           :buyersphere_role "admin"}})
   ;
   )
 
@@ -161,8 +166,8 @@
 
   ;; failure (no user and swaypage doesn't exist)
   ((ensure-is-org-member) {:db partnorize-api.db/local-db
-                                :organization nil
-                                :user nil})
+                           :organization nil
+                           :user nil})
   ;
   )
 
@@ -171,10 +176,10 @@
     (try
       (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
         (assoc req :swaypage swaypage)
-        (update req :prework-errors conj {:code 404}))
+        (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))
       ;; currently we throw exceptions on bad ids
       (catch Exception _
-        (update req :prework-errors conj {:code 404})))))
+        (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"})))))
 
 (comment
   ;; success
@@ -198,11 +203,50 @@
   ;
   )
 
+(defn ensure-and-get-swaypage-template
+  "similar to `ensure-and-get-swaypage` but also ensures that the swaypage
+   is a template"
+  [swaypage-id]
+  (fn [{:keys [db organization] :as req}]
+    (println "template-id" swaypage-id organization)
+    (try
+      (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
+        (if (= (:room_type swaypage) "template")
+          (assoc req :swaypage swaypage)
+          (update req :prework-errors conj {:code 400 :message "This Swaypage is not a template"}))
+        (update req :prework-errors conj {:code 404 :message "Template doesn't exist"}))
+      ;; currently we throw exceptions on bad ids
+      (catch Exception _
+        (println "exception!" _)
+        (update req :prework-errors conj {:code 404 :message "Template doesn't exist"})))))
+
+(comment
+  ;; success
+  ((ensure-and-get-swaypage-template 3)
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;; failure (swaypage is just a dealroom)
+  ((ensure-and-get-swaypage-template 1)
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+ ;
+  )
+
 (defn ensure-and-get-swaypage-by-shortcode [shortcode]
   (fn [{:keys [db organization] :as req}]
     (if-let [swaypage (d-buyerspheres/get-by-shortcode db (:id organization) shortcode)]
       (assoc req :swaypage swaypage)
-      (update req :prework-errors conj {:code 404}))))
+      (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))))
 
 (comment
   ;; success
@@ -237,7 +281,7 @@
                                 io/reader)]
         (assoc req :csv-data (mapv identity (csv/read-csv file-data))))
       (catch Exception _
-        (update req :prework-errors conj {:code 400})))))
+        (update req :prework-errors conj {:code 400 :message "Uploaded file was not readable"})))))
 
 (comment
   ((read-csv-file)

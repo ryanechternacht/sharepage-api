@@ -106,6 +106,7 @@
           (map format-buyersphere-owner)))))
 
 ;; TODO is this how I want this to work?
+;; TODO do i still need this route?
 (defn get-full-buyersphere [db organization-id id]
   (let [buyersphere (get-by-id db organization-id id)
         resources (d-buyer-res/get-buyersphere-resources-by-buyersphere-id db organization-id id)

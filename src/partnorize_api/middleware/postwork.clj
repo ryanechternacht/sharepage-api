@@ -25,7 +25,7 @@
   )
 
 (defmethod handle-postwork [:csv-upload :create]
-  [{:keys [db]} [[_ _ _] row]]
+  [{:keys [db]} [_ row]]
   (let [formatted-row (-> row
                           (update :header-row db/lift)
                           (update :data-rows db/lift)
@@ -34,7 +34,8 @@
                   (h/values [formatted-row]))]
     (db/execute db query)))
 
-(comment
-  ;; (handle-postwork {:db 123} [[:swaypage :update 1] {:id 1 :c :d}])
-  ;
-  )
+(defmethod handle-postwork [:campaign :create]
+  [{:keys [db]} [_ row]]
+  (let [query (-> (h/insert-into :campaign)
+                  (h/values [row]))]
+    (db/execute db query)))
