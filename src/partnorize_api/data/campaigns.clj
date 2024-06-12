@@ -44,7 +44,28 @@
 
 (comment
   (get-by-uuid db/local-db
-                1
-                (java.util.UUID/fromString "01900dc9-6f85-7964-8468-1892ae49833b"))
+               1
+               (java.util.UUID/fromString "01900e0f-9f5e-7b9c-bcc5-98fe4a32a090"))
   ;
   )
+
+(defn reformat-csv-row-for-template
+  [[account-name first-name last-name email & fields]]
+  (reduce-kv (fn [acc i f]
+               (assoc acc (keyword (str "field-" (inc i))) f))
+             {:account-name account-name
+              :first-name first-name
+              :last-name last-name
+              :email email}
+             (vec fields)))
+
+(defn get-publish-data [db organization-id uuid]
+  (let [query (-> (h/select :campaign.swaypage_template_id
+                            :csv_upload.data_rows)
+                  (h/from :campaign)
+                  (h/join :csv_upload [:= :campaign.csv_upload_uuid :csv_upload.uuid])
+                  (h/where [:= :campaign.organization-id organization-id]
+                           [:= :campaign.uuid uuid]))]
+    (->> query
+         (db/execute db)
+         first)))

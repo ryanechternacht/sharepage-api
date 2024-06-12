@@ -1,6 +1,8 @@
 (ns partnorize-api.middleware.postwork
   (:require [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as bs]
+            [partnorize-api.data.buyersphere-templates :as templates]
+            [partnorize-api.data.campaigns :as campaigns]
             [partnorize-api.db :as db]))
 
 (defmulti handle-postwork (fn [req [[item action id] value]]
@@ -55,3 +57,24 @@
                   (h/where [:= :organization_id (:id organization)]
                            [:= :uuid uuid]))]
     (db/execute db query)))
+
+;; TODO this currently loops through them one by one, but should
+;; be able to batch create them
+;; TODO This _could_ just be normal swaypage creates too, we'd just
+;; need to refactor them for this to work
+(defmethod handle-postwork [:campaign :publish]
+  [{:keys [config db organization user]} [[_ _ uuid] _]]
+  (let [{:keys [swaypage_template_id data_rows]}
+        (campaigns/get-publish-data db (:id organization) uuid)]
+    (doseq [row data_rows]
+    ;; TODO add logo here
+      (let [body {:buyer (nth row 0)
+                  :template-data (campaigns/reformat-csv-row-for-template row)
+                  :campaign-uuid uuid}]
+        (templates/create-swaypage-from-template-coordinator
+         config
+         db
+         (:id organization)
+         swaypage_template_id
+         (:id user)
+         body)))))

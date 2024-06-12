@@ -27,7 +27,7 @@
         (assoc :text (open-ai/generate-message (:open-ai config) prompt)))))
 
 (defn- create-buyersphere-record [db organization-id user-id
-                                  {:keys [buyer subname buyer-logo]}]
+                                  {:keys [buyer subname buyer-logo campaign-uuid]}]
   (let [shortcode (buyerspheres/find-valid-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -36,14 +36,16 @@
                              :buyer_logo
                              :shortcode
                              :room_type
-                             :owner_id)
+                             :owner_id
+                             :campaign_uuid)
                   (h/values [[organization-id
                               buyer
                               subname
                               buyer-logo
                               shortcode
                               "deal-room"
-                              user-id]])
+                              user-id
+                              campaign-uuid]])
                   (merge (apply h/returning buyerspheres/only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
@@ -78,10 +80,11 @@
 (comment
   (let [data {:first-name "ryan 2"
               :last-name "echternacht"
-              :company "nike"
-              :data-1 "some data"
-              :data-2 "other data"
-              :data-3 "more data"}]
+              :account-name "nike"
+              :email "ryan@echternacht.org"
+              :field-1 "some data"
+              :field-2 "other data"
+              :field-3 "more data"}]
     (create-swaypage-from-template-coordinator config/config
                                                db/local-db
                                                1

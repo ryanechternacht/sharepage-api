@@ -10,7 +10,7 @@
 ;; This is partly defensive, and partly because i'm just sticking
 ;; csv data into jsonb columns. We should eventually store the files in
 ;; s3 and process from their (and then we can up our limits)
-(def csv-row-limit 1000)
+(def csv-row-limit 25)
 
 (defn- build-csv-postwork [organization uuid {:keys [data file-name]}]
   {[:csv-upload :create uuid]
@@ -98,15 +98,18 @@
 
 (def POST-campaign-publish
   (cpj/POST "/v0.1/campaign/:uuid/publish" [uuid :<< u/friendly-id->uuid :as original-req]
-    (let [{:keys [prework-errors]}
+    (let [{:keys [prework-errors campaign]}
           (prework/do-prework original-req
                               (prework/ensure-is-org-member)
                               (prework/ensure-and-get-campaign uuid)
                               (prework/ensure-campaign-unpublished))]
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
-        (update (response/ok 
-                 (build-campaign-updates {:is-published true})) 
-                :postwork 
-                conj 
-                [[:campaign :update uuid] {:is-published true}])))))
+        (-> (build-campaign-updates {:is-published true})
+            response/ok
+            (update :postwork
+                    conj
+                    [[:campaign :update uuid] {:is-published true}])
+            (update :postwork
+                    conj
+                    [[:campaign :publish uuid] campaign]))))))
