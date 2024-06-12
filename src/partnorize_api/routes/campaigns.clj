@@ -12,13 +12,16 @@
 ;; s3 and process from their (and then we can up our limits)
 (def csv-row-limit 1000)
 
-(defn- build-csv-postwork [organization uuid csv-data]
+(defn- build-csv-postwork [organization uuid {:keys [data file-name]}]
   {[:csv-upload :create uuid]
-   {:organization-id (:id organization)
-    :uuid uuid
-    :header-row (first csv-data)
-    :data-rows (->> csv-data (drop 1) (take csv-row-limit) vec)
-    :sample-rows (->> csv-data (drop 1) (take 4) vec)}})
+   (let [data-rows (->> data (drop 1) (take csv-row-limit) vec)]
+     {:organization-id (:id organization)
+      :uuid uuid
+      :file_name file-name
+      :header-row (first data)
+      :data-rows data-rows
+      :data-rows-count (count data-rows)
+      :sample-rows (->> data (drop 1) (take 4) vec)})})
 
 (defn- build-campaign-postwork [organization uuid csv-uuid body]
   {[:campaign :create uuid]
@@ -55,7 +58,7 @@
 ;; of the normal get for the same resource
 (def POST-campaigns
   (cpj/POST "/v0.1/campaigns" [template-id :<< coerce/as-int :as original-req]
-    (let [{:keys [prework-errors csv-data organization params]}
+    (let [{:keys [prework-errors csv organization params]}
           (prework/do-prework original-req
                               (prework/ensure-is-org-member)
                               (prework/read-csv-file)
@@ -67,7 +70,7 @@
           (-> (response/ok {:uuid (u/uuid->friendly-id campaign-uuid)})
               (update :postwork merge (build-csv-postwork organization
                                                           csv-uuid
-                                                          csv-data))
+                                                          csv))
               (update :postwork merge (build-campaign-postwork organization
                                                                campaign-uuid
                                                                csv-uuid
@@ -92,3 +95,18 @@
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
         (update (response/ok (build-campaign-updates body)) :postwork conj [[:campaign :update uuid] body])))))
+
+(def POST-campaign-publish
+  (cpj/POST "/v0.1/campaign/:uuid/publish" [uuid :<< u/friendly-id->uuid :as original-req]
+    (let [{:keys [prework-errors]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-campaign uuid)
+                              (prework/ensure-campaign-unpublished))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (update (response/ok 
+                 (build-campaign-updates {:is-published true})) 
+                :postwork 
+                conj 
+                [[:campaign :update uuid] {:is-published true}])))))

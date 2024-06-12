@@ -278,7 +278,10 @@
                                 :file
                                 :tempfile
                                 io/reader)]
-        (assoc req :csv-data (mapv identity (csv/read-csv file-data))))
+        (let [csv-data (mapv identity (csv/read-csv file-data))
+              csv-name (-> req :params :file :filename)]
+          (assoc req :csv {:file-name csv-name
+                           :data csv-data})))
       (catch Exception _
         (update req :prework-errors conj {:code 400 :message "Uploaded file was not readable"})))))
 
@@ -313,6 +316,34 @@
                    :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
   ;; no campaign
   ((ensure-and-get-campaign (java.util.UUID/fromString "019008cf-92af-7456-af60-89c493f259b1"))
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;
+  )
+
+;; add an overload to handle checking a non-attached campaign?
+(defn ensure-campaign-unpublished 
+  "Pulls the campaign from the request. So `ensure-and-get-campaign`
+   or something similar should already be called"
+  []
+  (fn [{:keys [campaign] :as req}]
+      (if (and campaign (not (:is_published campaign)))
+        req
+        (update req :prework-errors conj {:code 400 :message "Campaign already published"}))))
+
+(comment
+  ;; success
+  ((ensure-campaign-unpublished)
+   {:db partnorize-api.db/local-db
+    :campaign {:is_published false}})
+  
+  ;; no campaign
+  ((ensure-campaign-unpublished)
    {:db partnorize-api.db/local-db
     :organization {:id 1,
                    :name "Stark",

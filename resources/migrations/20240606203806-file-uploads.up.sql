@@ -1,9 +1,11 @@
 create table csv_upload (
   uuid uuid primary key,
   organization_id int not null references organization(id),
-  header_row  jsonb,
+  file_name text not null,
+  header_row jsonb not null,
   data_rows jsonb not null,
-  sample_rows jsonb,
+  data_rows_count int not null,
+  sample_rows jsonb not null,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null
 );
