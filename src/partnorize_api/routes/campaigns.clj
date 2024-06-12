@@ -28,15 +28,11 @@
                :organization-id (:id organization)
                :csv-upload-uuid csv-uuid}))})
 
-(defn- create-campaign-result [organization uuid template sample-data body]
-  (merge (select-keys body [:title])
-         {:uuid (u/uuid->friendly-id uuid)
-          :organization-id (:id organization)
-          :columns_approved false
-          :ai_prompts_approved false
-          :is_published false
-          :sample-rows sample-data 
-          :template template}))
+(defn- build-campaign-updates [body]
+  (select-keys body [:title
+                     :columns-approved
+                     :ai-prompts-approved
+                     :is-published]))
 
 (comment
   (build-csv-postwork {:id 1}
@@ -50,16 +46,6 @@
 
   (build-campaign-postwork {:id 1} (u/uuid-v7) (u/uuid-v7) {:title "hello world"
                                                             :template-id 3})
-
-  (create-campaign-result {:id 1}
-                          (u/uuid-v7)
-                          {:id 1 :title "i'm a template"}
-                          [["a" "b" "c"]
-                           ["d" "e" "f"]
-                           ["g" "h" "i"]
-                           ["j" "k" "l"]]
-                          {:title "hello world"
-                           :template-id 3})
   ;
   )
 
@@ -69,7 +55,7 @@
 ;; of the normal get for the same resource
 (def POST-campaigns
   (cpj/POST "/v0.1/campaigns" [template-id :<< coerce/as-int :as original-req]
-    (let [{:keys [prework-errors csv-data organization template params]}
+    (let [{:keys [prework-errors csv-data organization params]}
           (prework/do-prework original-req
                               (prework/ensure-is-org-member)
                               (prework/read-csv-file)
@@ -77,14 +63,8 @@
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
         (let [campaign-uuid (u/uuid-v7)
-              csv-uuid (u/uuid-v7)
-              sample-data (->> csv-data (drop 1) (take 4))]
-          (-> (create-campaign-result organization
-                                      campaign-uuid
-                                      template
-                                      sample-data
-                                      params)
-              response/ok
+              csv-uuid (u/uuid-v7)]
+          (-> (response/ok {:uuid (u/uuid->friendly-id campaign-uuid)})
               (update :postwork merge (build-csv-postwork organization
                                                           csv-uuid
                                                           csv-data))
@@ -102,3 +82,13 @@
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
         (response/ok campaign)))))
+
+(def PATCH-campaign
+  (cpj/PATCH "/v0.1/campaign/:uuid" [uuid :<< u/friendly-id->uuid :as original-req]
+    (let [{:keys [prework-errors body]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-campaign uuid))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (update (response/ok (build-campaign-updates body)) :postwork conj [[:campaign :update uuid] body])))))

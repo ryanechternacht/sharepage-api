@@ -12,7 +12,8 @@
                             :campaign.ai_prompts_approved
                             :campaign.is_published
                             :campaign.swaypage_template_id
-                            :csv_upload.sample_rows)
+                            :csv_upload.sample_rows
+                            :csv_upload.header_row)
                   (h/from :campaign)
                   (h/join :csv_upload [:= :campaign.csv_upload_uuid :csv_upload.uuid])
                   (h/where [:= :campaign.organization-id organization-id]
@@ -29,6 +30,6 @@
 (comment
   (get-by-uuid db/local-db
                 1
-                (java.util.UUID/fromString "019008cf-92af-7456-af60-89c493f259b0"))
+                (java.util.UUID/fromString "01900a3d-80c9-78c9-9a2c-37ceec4e1c93"))
   ;
   )

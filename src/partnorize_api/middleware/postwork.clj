@@ -23,6 +23,11 @@
   ;
   )
 
+;; TODO instead of create/update would I rather just do upsert/put
+;; and have the client update the data as desired, then just
+;; have the route do an insert on duplicate update?
+;; has the advantage of it's eaiser to return the data?
+
 (defmethod handle-postwork [:csv-upload :create]
   [{:keys [db]} [_ row]]
   (let [formatted-row (-> row
@@ -37,4 +42,16 @@
   [{:keys [db]} [_ row]]
   (let [query (-> (h/insert-into :campaign)
                   (h/values [row]))]
+    (db/execute db query)))
+
+(defmethod handle-postwork [:campaign :update]
+  [{:keys [db organization]} [[_ _ uuid] updates]]
+  (let [fields (select-keys updates [:title
+                                     :columns-approved
+                                     :ai-prompts-approved
+                                     :is-published])
+        query (-> (h/update :campaign)
+                  (h/set fields)
+                  (h/where [:= :organization_id (:id organization)]
+                           [:= :uuid uuid]))]
     (db/execute db query)))

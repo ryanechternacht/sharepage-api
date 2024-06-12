@@ -209,7 +209,6 @@
    is a template"
   [swaypage-id]
   (fn [{:keys [db organization] :as req}]
-    (println "template-id" swaypage-id organization)
     (try
       (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
         (if (= (:room_type swaypage) "template")
@@ -218,7 +217,6 @@
         (update req :prework-errors conj {:code 404 :message "Template doesn't exist"}))
       ;; currently we throw exceptions on bad ids
       (catch Exception _
-        (println "exception!" _)
         (update req :prework-errors conj {:code 404 :message "Template doesn't exist"})))))
 
 (comment
