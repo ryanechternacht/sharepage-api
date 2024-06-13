@@ -14,16 +14,19 @@
             [partnorize-api.data.permission :as d-permission]
             [partnorize-api.data.users :as d-users]
             [partnorize-api.data.teams :as d-teams]
-            [ring.util.http-response :as response]))
+            [ring.util.http-response :as response]
+            [partnorize-api.data.utilities :as u]))
 
 (def GET-buyerspheres
-  (cpj/GET "/v0.1/buyerspheres" [user-id stage status :as {:keys [db user organization]}]
+  (cpj/GET "/v0.1/buyerspheres" [user-id stage status campaign-uuid :<< u/coerce-friendly-id->uuid 
+                                 :as {:keys [db user organization]}]
     (if (d-permission/does-user-have-org-permissions? db organization user)
       (response/ok (d-buyerspheres/get-by-organization db
                                                        (:id organization)
                                                        {:user-id (coerce/as-int user-id)
                                                         :stage stage
-                                                        :status status}))
+                                                        :status status
+                                                        :campaign-uuid campaign-uuid}))
       (response/unauthorized))))
 
 (def GET-buyersphere

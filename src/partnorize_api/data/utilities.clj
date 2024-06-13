@@ -296,3 +296,11 @@
 (def uuid->friendly-id #(FriendlyId/toFriendlyId %))
 
 (def friendly-id->uuid #(FriendlyId/toUuid %))
+
+(defn coerce-friendly-id->uuid
+  "A function to convert friendly-id format to uuids. Designed for
+   compojure so when no value is supplied, returns an empty string."
+  [friendly-id]
+  (if (is-provided? friendly-id)
+    (friendly-id->uuid friendly-id)
+    ""))

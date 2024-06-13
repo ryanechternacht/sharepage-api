@@ -1,10 +1,9 @@
 (ns partnorize-api.routes.campaigns
-  (:require [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
-            [compojure.coercions :as coerce]
+  (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
             [ring.util.http-response :as response]
             [partnorize-api.middleware.prework :as prework]
+            [partnorize-api.data.campaigns :as d-campaigns]
             [partnorize-api.data.utilities :as u]))
 
 ;; This is partly defensive, and partly because i'm just sticking
@@ -113,3 +112,12 @@
             (update :postwork
                     conj
                     [[:campaign :publish uuid] campaign]))))))
+
+(def GET-campaigns
+  (cpj/GET "/v0.1/campaigns" original-req
+    (let [{:keys [prework-errors db organization]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (response/ok (d-campaigns/get-all db (:id organization)))))))

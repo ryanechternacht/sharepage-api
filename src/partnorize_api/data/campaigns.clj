@@ -69,3 +69,23 @@
     (->> query
          (db/execute db)
          first)))
+
+(defn get-all [db organization-id]
+  (let [query (-> (h/select :campaign.uuid
+                            :campaign.organization_id
+                            :campaign.title
+                            :campaign.columns_approved
+                            :campaign.ai_prompts_approved
+                            :campaign.is_published
+                            :csv_upload.data_rows_count)
+                  (h/from :campaign)
+                  (h/join :csv_upload [:= :campaign.csv_upload_uuid :csv_upload.uuid])
+                  (h/where [:= :campaign.organization-id organization-id]))]
+        (->> query
+             (db/execute db)
+             (map #(update %  :uuid u/uuid->friendly-id)))))
+
+(comment
+  (get-all db/local-db 1)
+  ;
+  )
