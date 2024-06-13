@@ -74,7 +74,7 @@
 (defn get-by-id [db organization-id id]
   (first (get-by-ids db organization-id [id])))
 
-;; TODO add status to buyersphers
+;; TODO add status to buyerspheres
 (defn get-by-organization
   ([db organization-id]
    (get-by-organization db organization-id {}))
@@ -89,17 +89,9 @@
                                           (= status "not-active") (h/where [:<> :buyersphere.status "active"])
                                           (not= status "not-active") (h/where [:= :buyersphere.status status]))
                  (u/is-provided? campaign-uuid) (h/where [:= :buyersphere.campaign_uuid campaign-uuid])
+                 ;; NOTE we're preventing campaign linked buyerspheres to show up in normal lists
+                 (not (u/is-provided? campaign-uuid)) (h/where [:= :buyersphere.campaign_uuid nil])
 
-                ;;  is-overdue (h/where [:or
-                ;;                       [:and
-                ;;                        [:= :current_stage "qualification"]
-                ;;                        [:< :qualification_date [[:now]]]]
-                ;;                       [:and
-                ;;                        [:= :current_stage "evaluation"]
-                ;;                        [:< :evaluation_date [[:now]]]]
-                ;;                       [:and
-                ;;                        [:= :current_stage "decision"]
-                ;;                        [:< :decision_date [[:now]]]]])
                  true (h/order-by :buyersphere.buyer))]
       ;; TODO what to order on?
      (->> query 
