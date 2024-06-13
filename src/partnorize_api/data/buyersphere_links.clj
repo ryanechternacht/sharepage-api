@@ -19,25 +19,26 @@
         (db/->>execute db))))
 
 (defn create-buyersphere-links [db organization-id buyersphere-id links]
-  (let [next-ordering (u/get-next-ordering-value
-                       db
-                       :buyersphere_link
-                       organization-id
-                       [:= :buyersphere_id buyersphere-id])
-        insert-links (vec (map-indexed (fn [i {:keys [title link-url]}]
-                                         [organization-id
-                                          buyersphere-id
-                                          title
-                                          link-url
-                                          (+ next-ordering i)])
-                                       links))
-        query (-> (h/insert-into :buyersphere_link)
-                  (h/columns :organization_id :buyersphere_id :title :link_url :ordering)
-                  (h/values insert-links)
-                  (merge (apply h/returning base-buyersphere-link-cols)))]
-    (->> query
-         (db/->>execute db)
-         first)))
+  (when (seq links)
+    (let [next-ordering (u/get-next-ordering-value
+                         db
+                         :buyersphere_link
+                         organization-id
+                         [:= :buyersphere_id buyersphere-id])
+          insert-links (vec (map-indexed (fn [i {:keys [title link-url]}]
+                                           [organization-id
+                                            buyersphere-id
+                                            title
+                                            link-url
+                                            (+ next-ordering i)])
+                                         links))
+          query (-> (h/insert-into :buyersphere_link)
+                    (h/columns :organization_id :buyersphere_id :title :link_url :ordering)
+                    (h/values insert-links)
+                    (merge (apply h/returning base-buyersphere-link-cols)))]
+      (->> query
+           (db/->>execute db)
+           first))))
 
 (defn create-buyersphere-link [db organization-id buyersphere-id {:keys [title link-url]}]
   (let [query (-> (h/insert-into :buyersphere_link)
