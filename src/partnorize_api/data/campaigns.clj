@@ -50,13 +50,14 @@
   )
 
 (defn reformat-csv-row-for-template
-  [[account-name first-name last-name email & fields]]
+  [[account-name first-name last-name email domain & fields]]
   (reduce-kv (fn [acc i f]
                (assoc acc (keyword (str "field-" (inc i))) f))
              {:account-name account-name
               :first-name first-name
               :last-name last-name
-              :email email}
+              :email email
+              :domain domain}
              (vec fields)))
 
 (defn get-publish-data [db organization-id uuid]

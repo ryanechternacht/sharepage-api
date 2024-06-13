@@ -304,3 +304,10 @@
   (if (is-provided? friendly-id)
     (friendly-id->uuid friendly-id)
     ""))
+
+(comment
+  (-> "019012df-88df-74cf-b543-4eb44243937c"
+      java.util.UUID/fromString
+      uuid->friendly-id)
+  ;
+  )

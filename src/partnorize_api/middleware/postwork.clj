@@ -58,6 +58,12 @@
                            [:= :uuid uuid]))]
     (db/execute db query)))
 
+(defn- build-logo-url 
+  "uses the domain provided by the csv row to build a clearbit
+   logo api"
+  [[_ _ _ _ domain]]
+  (str "https://logo.clearbit.com/" domain))
+
 ;; TODO this currently loops through them one by one, but should
 ;; be able to batch create them
 ;; TODO This _could_ just be normal swaypage creates too, we'd just
@@ -69,6 +75,7 @@
     (doseq [row data_rows]
     ;; TODO add logo here
       (let [body {:buyer (nth row 0)
+                  :buyer-logo (build-logo-url row)
                   :template-data (campaigns/reformat-csv-row-for-template row)
                   :campaign-uuid uuid}]
         (templates/create-swaypage-from-template-coordinator
