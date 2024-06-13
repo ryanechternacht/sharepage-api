@@ -70,11 +70,13 @@
         pages (map u/kebab-case (pages/get-buyersphere-active-pages db organization-id template-id))
         links (map u/kebab-case (links/get-buyersphere-links db organization-id template-id))]
     (doseq [page pages]
-      (let [rendered-page (update-in page
-                                     [:body :sections]
-                                     (fn [x] (map #(render-section config template-data %) x)))]
+      (let [rendered-page (-> page
+                              (update-in
+                               [:body :sections]
+                               (fn [x] (map #(render-section config template-data %) x)))
+                              (update :title stache/render template-data))]
         (create-buyersphere-page db organization-id (:id swaypage) rendered-page)))
-    (links/create-buyersphere-links db organization-id (:id swaypage) links)
+    (links/create-buyersphere-links db organization-id (:id swaypage) (map #(update % :title stache/render template-data) links))
     swaypage))
 
 (comment
