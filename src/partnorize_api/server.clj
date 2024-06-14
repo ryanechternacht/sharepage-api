@@ -23,6 +23,7 @@
 
 (def handler
   (-> r/routes
+      ;; m-debug/wrap-debug
       m-postwork/wrap-postwork
       m-kebabify-params/wrap-kebabify-params
       (m-json/wrap-json-body {:key-fn csk/->kebab-case-keyword})
@@ -41,7 +42,6 @@
       (m-cors/wrap-cors :access-control-allow-origin #".*"
                         :access-control-allow-methods [:get :patch :put :post :delete]
                         :access-control-allow-credentials "true")
-      ;; m-debug/wrap-debug
       ;
       ))
 
