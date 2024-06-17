@@ -5,9 +5,9 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
-            [partnorize-api.data.resources :as d-res]
+            ;; [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
-            [partnorize-api.data.buyersphere-activity-templates :as d-act-temp]
+            ;; [partnorize-api.data.buyersphere-activity-templates :as d-act-temp]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
@@ -222,13 +222,13 @@
   ;
   )
 
-(defn- add-default-resources [db organization-id buyersphere-id]
-  (when-let [resources (d-res/get-resources-by-organization-id db organization-id)]
-    (let [build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
-      (-> (h/insert-into :buyersphere_resource)
-          (h/columns :organization_id :buyersphere_id :title :link)
-          (h/values (map build-values resources))
-          (db/->execute db)))))
+;; (defn- add-default-resources [db organization-id buyersphere-id]
+;;   (when-let [resources (d-res/get-resources-by-organization-id db organization-id)]
+;;     (let [build-values (juxt :organization_id (constantly buyersphere-id) :title :link)]
+;;       (-> (h/insert-into :buyersphere_resource)
+;;           (h/columns :organization_id :buyersphere_id :title :link)
+;;           (h/values (map build-values resources))
+;;           (db/->execute db)))))
 
 ;; 0-9 a-z A-Z
 (def ^:private nano-alphabet "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -285,52 +285,53 @@
          (db/->>execute db)
          first)))
 
-(defn- add-default-milestones-coordinator
-  "returns a map of the milestone template ids mapped to the newly created
-   milestone ids so that the newly created activities can be properly
-   mapped upon creation"
-  [db organization-id buyersphere-id]
-  (let [milestone-templates (d-act-temp/get-milestone-templates db organization-id)]
-    (when (seq milestone-templates)
-      (let [to-insert (map (fn [mt]
-                             (-> mt
-                                 (select-keys [:organization_id :title :ordering])
-                                 (assoc :buyersphere_id buyersphere-id)))
-                           milestone-templates)
-            insert-query (-> (h/insert-into :buyersphere_milestone)
-                             (h/values to-insert)
-                             (h/returning :id))
-            new-ids (->> insert-query
-                         (db/->>execute db)
-                         (map :id))
-            old-ids (map :id milestone-templates)]
-        (zipmap old-ids new-ids)))))
+;; (defn- add-default-milestones-coordinator
+;;   "returns a map of the milestone template ids mapped to the newly created
+;;    milestone ids so that the newly created activities can be properly
+;;    mapped upon creation"
+;;   [db organization-id buyersphere-id]
+;;   (let [milestone-templates (d-act-temp/get-milestone-templates db organization-id)]
+;;     (when (seq milestone-templates)
+;;       (let [to-insert (map (fn [mt]
+;;                              (-> mt
+;;                                  (select-keys [:organization_id :title :ordering])
+;;                                  (assoc :buyersphere_id buyersphere-id)))
+;;                            milestone-templates)
+;;             insert-query (-> (h/insert-into :buyersphere_milestone)
+;;                              (h/values to-insert)
+;;                              (h/returning :id))
+;;             new-ids (->> insert-query
+;;                          (db/->>execute db)
+;;                          (map :id))
+;;             old-ids (map :id milestone-templates)]
+;;         (zipmap old-ids new-ids)))))
 
-(defn- add-default-activities-coordinator
-  [db organization-id buyersphere-id user-id mt-id->m-id]
-  (let [activity-templates (d-act-temp/get-activity-templates db organization-id)]
-    (when (seq activity-templates)
-      (let [to-insert (map (fn [{:keys [milestone_template_id] :as at}]
-                             (-> at 
-                                 (select-keys [:organization_id :title
-                                               :activity_type :assigned_team])
-                                 (assoc :buyersphere_id buyersphere-id)
-                                 (assoc :creator_id user-id)
-                                 (assoc :milestone_id (mt-id->m-id milestone_template_id))))
-                           activity-templates)
-            insert-query (-> (h/insert-into :buyersphere_activity)
-                             (h/values to-insert)
-                             (h/returning :id))]
-        (db/execute db insert-query)))))
+;; (defn- add-default-activities-coordinator
+;;   [db organization-id buyersphere-id user-id mt-id->m-id]
+;;   (let [activity-templates (d-act-temp/get-activity-templates db organization-id)]
+;;     (when (seq activity-templates)
+;;       (let [to-insert (map (fn [{:keys [milestone_template_id] :as at}]
+;;                              (-> at 
+;;                                  (select-keys [:organization_id :title
+;;                                                :activity_type :assigned_team])
+;;                                  (assoc :buyersphere_id buyersphere-id)
+;;                                  (assoc :creator_id user-id)
+;;                                  (assoc :milestone_id (mt-id->m-id milestone_template_id))))
+;;                            activity-templates)
+;;             insert-query (-> (h/insert-into :buyersphere_activity)
+;;                              (h/values to-insert)
+;;                              (h/returning :id))]
+;;         (db/execute db insert-query)))))
 
 (defn create-buyersphere-coordinator [db organization-id user-id
                                       {:keys [page-template-id page-title] :as buyersphere-params}]
   (let [{new-id :id} (create-buyersphere-record db organization-id user-id buyersphere-params)
-        mt-id->m-id (add-default-milestones-coordinator db organization-id new-id)]
-    (when (seq mt-id->m-id)
-      (add-default-activities-coordinator
-       db organization-id new-id user-id mt-id->m-id))
-    (add-default-resources db organization-id new-id)
+        ;; mt-id->m-id (add-default-milestones-coordinator db organization-id new-id)
+        ]
+    ;; (when (seq mt-id->m-id)
+    ;;   (add-default-activities-coordinator
+    ;;    db organization-id new-id user-id mt-id->m-id))
+    ;; (add-default-resources db organization-id new-id)
     (d-teams/add-user-to-buyersphere db organization-id new-id "seller" user-id)
     (d-buyer-pages/create-buyersphere-page-coordinator db
                                                        organization-id
