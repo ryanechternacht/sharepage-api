@@ -6,8 +6,8 @@
 (defn generate-message [{:keys [api-key]} prompt]
   (let [body {:model "gpt-3.5-turbo"
               :messages [;;  Maybe we will restore this later
-                         ;;  {:role "system"
-                         ;; :content "You are a helpful assistant. We are writing business introductions. Do not add a placeholder for my name. Ignore any html markup"}
+                        ;;   {:role "system"
+                        ;;  :content "You are a helpful assistant. Please ignore html in the prompts. Please generate your response in html"}
                          {:role "user"
                           :content prompt}]}
         response (http/post "https://api.openai.com/v1/chat/completions"

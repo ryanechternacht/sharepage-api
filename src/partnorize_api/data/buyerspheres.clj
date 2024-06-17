@@ -38,7 +38,6 @@
   (-> (apply h/select base-buyersphere-cols)
       (h/from :buyersphere)
       (h/left-join :user_account [:and
-                                  [:= :buyersphere.organization_id :user_account.organization_id]
                                   [:= :buyersphere.owner_id :user_account.id]])
       (h/left-join [(-> (h/select :organization_id :buyersphere_id [:%max.created_at :created_at] )
                         (h/from :buyer_session)

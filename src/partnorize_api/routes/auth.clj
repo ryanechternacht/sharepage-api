@@ -47,8 +47,8 @@
       (response/found (make-url front-end-base-url slug "/login")))))
 
 (def GET-login
-  (cpj/GET "/v0.1/login" [slug stytch_token_type token :as {:keys [db config]}]
-    (condp = stytch_token_type
+  (cpj/GET "/v0.1/login" [slug stytch-token-type token :as {:keys [db config]}]
+    (condp = stytch-token-type
       "multi_tenant_magic_links" (magic-link-login
                                   db
                                   (:stytch config)
