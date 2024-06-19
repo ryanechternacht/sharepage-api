@@ -8,4 +8,4 @@ COPY ./deployment/dev/config.edn /usr/src/app/resources/config.edn
 
 RUN clj -P
 
-CMD ["sh", "-c", "sleep 1 && exec clj -m partnorize-api.server"]
+CMD ["sh", "-c", "sleep 1 && exec clj -X:webserver"]

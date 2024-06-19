@@ -28,9 +28,13 @@
         org.slf4j/slf4j-simple {:mvn/version "2.0.13"}}
  :aliases
  {:run-m {:main-opts ["-m" "partnorize-api.server"]}
-  :run-x {:ns-default partnorize-api.server
-          :exec-fn greet
-          :exec-args {:name "Clojure"}}
+  :webserver {:ns-default partnorize-api.server
+              :exec-fn webserver
+              :exec-args {:port 3001
+                          :join? false}}
+  :job {:ns-default partnorize-api.server
+        :exec-fn job
+        :exec-args {:name ""}}
   :build {:deps {io.github.seancorfield/build-clj
                  {:git/tag "v0.8.2" :git/sha "0ffdb4c"
                   ;; since we're building an app uberjar, we do not
