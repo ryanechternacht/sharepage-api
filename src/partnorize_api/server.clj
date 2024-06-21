@@ -45,14 +45,15 @@
       ;
       ))
 
-(defn webserver [params]
-  (jetty/run-jetty #'handler params))
-
 ;; TODO this is how we'll run background jobs
 (defn job [params]
   0)
 
-#_(webserver)
+(defn webserver [params]
+  (jetty/run-jetty #'handler params))
+
+#_(webserver {:port 3001
+              :join? false})
 
 ;; TRY THIS: https://clojurians.slack.com/archives/C03S1KBA2/p1706551970190269?thread_ts=1706543519.076899&cid=C03S1KBA2
 ;; (defonce web-server (atom nil))
