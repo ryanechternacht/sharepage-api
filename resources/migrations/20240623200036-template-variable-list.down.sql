@@ -1,0 +1,1 @@
+alter table buyersphere drop column template_custom_variables;

@@ -26,7 +26,8 @@
    :buyersphere.objectives_answer :buyersphere.constraints_answer
    :buyersphere.subname :buyersphere.is_public
    :buyersphere.shortcode :buyersphere.room_type
-   :buyersphere.priority :buyersphere.updated_at])
+   :buyersphere.priority :buyersphere.template-custom-variables
+   :buyersphere.updated_at])
 
 (def base-buyersphere-cols
   (vec (concat only-buyersphere-cols
@@ -145,7 +146,7 @@
          first)))
 
 (comment
-  (get-by-id db/local-db 1 1)
+  (get-by-id db/local-db 1 3)
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
@@ -177,7 +178,8 @@
                           {:keys [features-answer qualified-on evaluated-on
                                   decided-on adopted-on qualification-date
                                   evaluation-date decision-date success-criteria-answer
-                                  objectives-answer constraints-answer priority] :as body}]
+                                  objectives-answer constraints-answer priority
+                                  template-custom-variables] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -202,11 +204,12 @@
                  qualification-date (assoc :qualification-date (u/read-date-string qualification-date))
                  evaluation-date (assoc :evaluation-date (u/read-date-string evaluation-date))
                  decision-date (assoc :decision-date (u/read-date-string decision-date))
-                 priority (assoc :priority (parse-long priority)))]
+                 priority (assoc :priority (parse-long priority))
+                 template-custom-variables (assoc :template-custom-variables [:lift template-custom-variables]))]
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
-  (update-buyersphere db/local-db 1 1 {:features-answer {:interests {1 "yes"}}})
+  (update-buyersphere db/local-db 1 3 {:features-answer {:interests {1 "yes"}}})
   (update-buyersphere db/local-db 1 1 {:status "on-hold"})
   (update-buyersphere db/local-db 1 1 {:pricing-can-pay "yes" :pricing-tier-id 3 :a :b})
   (update-buyersphere db/local-db 1 1 {:current-stage "evaluation"})
@@ -219,6 +222,7 @@
   (update-buyersphere db/local-db 1 38 {:success-criteria-answer {:text "hello"}
                                         :objectives-answer {:text "goodnight"}
                                         :constraints-answer {:text "goodbye"}})
+  (update-buyersphere db/local-db 1 3 {:template-custom-variables ["hello" "world" "goodbye"]})
   ;
   )
 
