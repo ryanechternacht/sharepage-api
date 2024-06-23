@@ -177,7 +177,7 @@
                           {:keys [features-answer qualified-on evaluated-on
                                   decided-on adopted-on qualification-date
                                   evaluation-date decision-date success-criteria-answer
-                                  objectives-answer constraints-answer] :as body}]
+                                  objectives-answer constraints-answer priority] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
                                           :current-stage
@@ -201,7 +201,8 @@
                  adopted-on (assoc :adopted-on (inst/read-instant-date adopted-on))
                  qualification-date (assoc :qualification-date (u/read-date-string qualification-date))
                  evaluation-date (assoc :evaluation-date (u/read-date-string evaluation-date))
-                 decision-date (assoc :decision-date (u/read-date-string decision-date)))]
+                 decision-date (assoc :decision-date (u/read-date-string decision-date))
+                 priority (assoc :priority (parse-long priority)))]
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
 (comment
