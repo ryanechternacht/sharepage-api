@@ -91,7 +91,6 @@
                  (u/is-provided? campaign-uuid) (h/where [:= :buyersphere.campaign_uuid campaign-uuid])
                  ;; NOTE we're preventing campaign linked buyerspheres to show up in normal lists
                  (not (u/is-provided? campaign-uuid)) (h/where [:= :buyersphere.campaign_uuid nil])
-
                  true (h/order-by :buyersphere.buyer))]
       ;; TODO what to order on?
      (->> query 
