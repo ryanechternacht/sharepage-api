@@ -2,7 +2,7 @@
   (:require [camel-snake-kebab.core :as csk]
             [partnorize-api.middleware.config :as m-config]
             [partnorize-api.middleware.db :as m-db]
-            ;; [partnorize-api.middleware.debug :as m-debug]
+            [partnorize-api.middleware.debug :as m-debug]
             [partnorize-api.middleware.anonymous-users :as m-anon-users]
             [partnorize-api.middleware.organization :as m-org]
             [partnorize-api.middleware.kebabify-params :as m-kebabify-params]
@@ -23,7 +23,7 @@
 
 (def handler
   (-> r/routes
-      ;; m-debug/wrap-debug
+      m-debug/wrap-debug
       m-postwork/wrap-postwork
       m-kebabify-params/wrap-kebabify-params
       (m-json/wrap-json-body {:key-fn csk/->kebab-case-keyword})

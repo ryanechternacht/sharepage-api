@@ -192,7 +192,8 @@
                                           :crm-opportunity-id
                                           :subname
                                           :is-public
-                                          :room-type])
+                                          :room-type
+                                          :priority])
                  features-answer (assoc :features-answer [:lift features-answer])
                  success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
                  objectives-answer (assoc :objectives-answer [:lift objectives-answer])
@@ -204,7 +205,6 @@
                  qualification-date (assoc :qualification-date (u/read-date-string qualification-date))
                  evaluation-date (assoc :evaluation-date (u/read-date-string evaluation-date))
                  decision-date (assoc :decision-date (u/read-date-string decision-date))
-                 priority (assoc :priority (parse-long priority))
                  template-custom-variables (assoc :template-custom-variables [:lift template-custom-variables]))]
     (update-buyersphere-field db organization-id buyersphere-id fields)))
 
