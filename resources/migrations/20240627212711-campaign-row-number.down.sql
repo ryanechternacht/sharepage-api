@@ -1,0 +1,1 @@
+alter table buyersphere drop column campaign_row_number;

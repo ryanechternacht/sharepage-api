@@ -5,8 +5,10 @@
             [partnorize-api.data.campaigns :as campaigns]
             [partnorize-api.db :as db]))
 
-(defmulti handle-postwork (fn [req [[item action id] value]]
-                             [item action]))
+#_{:clj-kondo/ignore [:unused-binding]}
+(defmulti handle-postwork
+  (fn [req [[item action id] value]]
+    [item action]))
 
 (defn- wrap-postwork-impl [handler req]
   (let [{:keys [postwork] :as res} (handler req)]
@@ -72,12 +74,13 @@
   [{:keys [config db organization user]} [[_ _ uuid] _]]
   (let [{:keys [swaypage_template_id data_rows]}
         (campaigns/get-publish-data db (:id organization) uuid)]
-    (doseq [row data_rows]
+    (doseq [[i row] (map-indexed vector data_rows)]
     ;; TODO add logo here
       (let [body {:buyer (nth row 0)
                   :buyer-logo (build-logo-url row)
                   :template-data (campaigns/reformat-csv-row-for-template row)
-                  :campaign-uuid uuid}]
+                  :campaign-uuid uuid
+                  :campaign-row-number i}]
         (templates/create-swaypage-from-template-coordinator
          config
          db

@@ -27,7 +27,8 @@
         (assoc :text (open-ai/generate-message (:open-ai config) prompt)))))
 
 (defn- create-buyersphere-record [db organization-id user-id
-                                  {:keys [buyer subname buyer-logo campaign-uuid]}]
+                                  {:keys [buyer subname buyer-logo 
+                                          campaign-uuid campaign-row-number]}]
   (let [shortcode (buyerspheres/find-valid-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -37,7 +38,8 @@
                              :shortcode
                              :room_type
                              :owner_id
-                             :campaign_uuid)
+                             :campaign_uuid
+                             :campaign_row_number)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -45,7 +47,8 @@
                               shortcode
                               "deal-room"
                               user-id
-                              campaign-uuid]])
+                              campaign-uuid
+                              campaign-row-number]])
                   (merge (apply h/returning buyerspheres/only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
