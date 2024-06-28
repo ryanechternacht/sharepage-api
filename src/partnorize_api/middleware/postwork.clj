@@ -74,17 +74,20 @@
   [{:keys [config db organization user]} [[_ _ uuid] _]]
   (let [{:keys [swaypage_template_id data_rows]}
         (campaigns/get-publish-data db (:id organization) uuid)]
-    (doseq [[i row] (map-indexed vector data_rows)]
-    ;; TODO add logo here
-      (let [body {:buyer (nth row 0)
-                  :buyer-logo (build-logo-url row)
-                  :template-data (campaigns/reformat-csv-row-for-template row)
-                  :campaign-uuid uuid
-                  :campaign-row-number i}]
-        (templates/create-swaypage-from-template-coordinator
-         config
-         db
-         (:id organization)
-         swaypage_template_id
-         (:id user)
-         body)))))
+    (doall
+     (map-indexed
+      (fn [i row]
+        (let [body {:buyer (nth row 0)
+                    :buyer-logo (build-logo-url row)
+                    :template-data (campaigns/reformat-csv-row-for-template row)
+                    :campaign-uuid uuid
+                    :campaign-row-number i
+                    :is-public true}]
+          (templates/create-swaypage-from-template-coordinator
+           config
+           db
+           (:id organization)
+           swaypage_template_id
+           (:id user)
+           body)))
+      data_rows))))

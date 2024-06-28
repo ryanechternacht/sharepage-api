@@ -28,7 +28,8 @@
 
 (defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo 
-                                          campaign-uuid campaign-row-number]}]
+                                          campaign-uuid campaign-row-number
+                                          is-public]}]
   (let [shortcode (buyerspheres/find-valid-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -39,7 +40,8 @@
                              :room_type
                              :owner_id
                              :campaign_uuid
-                             :campaign_row_number)
+                             :campaign_row_number
+                             :is-public)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -48,7 +50,8 @@
                               "deal-room"
                               user-id
                               campaign-uuid
-                              campaign-row-number]])
+                              campaign-row-number
+                              is-public]])
                   (merge (apply h/returning buyerspheres/only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)

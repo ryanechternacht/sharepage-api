@@ -100,6 +100,7 @@
   #'campaigns/GET-campaign
   #'campaigns/PATCH-campaign
   #'campaigns/POST-campaign-publish
+  #'campaigns/GET-campaign-published-csv
   #'campaigns/GET-campaigns
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item

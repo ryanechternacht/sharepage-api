@@ -1,7 +1,10 @@
 (ns partnorize-api.routes.campaigns
   (:require [compojure.coercions :as coerce]
             [compojure.core :as cpj]
+            [clojure.data.csv :as csv]
+            [clojure.java.io :as io]
             [ring.util.http-response :as response]
+            [ring.util.io :as ring-io]
             [partnorize-api.middleware.prework :as prework]
             [partnorize-api.data.campaigns :as d-campaigns]
             [partnorize-api.data.utilities :as u]))
@@ -112,6 +115,25 @@
             (update :postwork
                     conj
                     [[:campaign :publish uuid] campaign]))))))
+
+(def GET-campaign-published-csv
+  (cpj/GET "/v0.1/campaign/:uuid/published-csv" [uuid :<< u/friendly-id->uuid :as original-req]
+    (let [{:keys [prework-errors campaign db config organization]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-campaign uuid)
+                              (prework/ensure-campaign-published))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (let [csv-data (d-campaigns/get-published-csv
+                        config db organization uuid)]
+          (-> (ring-io/piped-input-stream (fn [out]
+                                            (with-open [writer (io/writer out)]
+                                              (csv/write-csv writer csv-data))))
+              response/ok
+              (assoc-in [:headers "Content-Type"] "text/csv")
+              (assoc-in [:headers "Content-Disposition"] 
+                        (str "attachment; filename=" (:title campaign) ".csv"))))))))
 
 (def GET-campaigns
   (cpj/GET "/v0.1/campaigns" original-req
