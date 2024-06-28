@@ -112,7 +112,7 @@
                                     swaypages)]
     (println "header-row" header_row)
     (apply conj
-           [(conj (vec header_row) "swaypage_link")]
+           [(conj (vec header_row) "Swaypage Link")]
            (map-indexed (fn [i row]
                           (conj row (make-swaypage-link subdomain domain (shortcode-by-rownum i) row)))
                         data_rows))))
