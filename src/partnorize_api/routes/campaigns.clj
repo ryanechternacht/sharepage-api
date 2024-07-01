@@ -133,7 +133,7 @@
               response/ok
               (assoc-in [:headers "Content-Type"] "text/csv")
               (assoc-in [:headers "Content-Disposition"] 
-                        (str "attachment; filename=" (:title campaign) ".csv"))))))))
+                        (str "attachment; filename=\"" (:title campaign) ".csv\""))))))))
 
 (def GET-campaigns
   (cpj/GET "/v0.1/campaigns" original-req

@@ -110,7 +110,6 @@
                                       (assoc acc campaign_row_number shortcode))
                                     {}
                                     swaypages)]
-    (println "header-row" header_row)
     (apply conj
            [(conj (vec header_row) "Swaypage Link")]
            (map-indexed (fn [i row]
