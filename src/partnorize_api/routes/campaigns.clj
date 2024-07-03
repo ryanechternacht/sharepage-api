@@ -12,7 +12,7 @@
 ;; This is partly defensive, and partly because i'm just sticking
 ;; csv data into jsonb columns. We should eventually store the files in
 ;; s3 and process from their (and then we can up our limits)
-(def csv-row-limit 25)
+(def csv-row-limit 100)
 
 (defn- build-csv-postwork [organization uuid {:keys [data file-name]}]
   {[:csv-upload :create uuid]
