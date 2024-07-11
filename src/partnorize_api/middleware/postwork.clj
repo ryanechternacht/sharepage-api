@@ -1,9 +1,14 @@
 (ns partnorize-api.middleware.postwork
-  (:require [honey.sql.helpers :as h]
+  (:require [cljstache.core :as stache]
+            [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as bs]
+            [partnorize-api.data.buyersphere-pages :as pages]
             [partnorize-api.data.buyersphere-templates :as templates]
             [partnorize-api.data.campaigns :as campaigns]
-            [partnorize-api.db :as db]))
+            [partnorize-api.db :as db]
+            [partnorize-api.middleware.config :as config]
+            [partnorize-api.external-api.open-ai :as open-ai]
+            [partnorize-api.data.utilities :as u]))
 
 #_{:clj-kondo/ignore [:unused-binding]}
 (defmulti handle-postwork
@@ -18,7 +23,7 @@
 
 (defn wrap-postwork [h] (partial #'wrap-postwork-impl h))
 
-(defmethod handle-postwork [:swaypage :update] 
+(defmethod handle-postwork [:swaypage :update]
   [{:keys [db organization]} [[_ _ id] changes]]
   (bs/update-buyersphere db (:id organization) id changes))
 
@@ -60,7 +65,7 @@
                            [:= :uuid uuid]))]
     (db/execute db query)))
 
-(defn- build-logo-url 
+(defn- build-logo-url
   "uses the domain provided by the csv row to build a clearbit
    logo api"
   [[_ _ _ _ domain]]
@@ -70,24 +75,87 @@
 ;; be able to batch create them
 ;; TODO This _could_ just be normal swaypage creates too, we'd just
 ;; need to refactor them for this to work
+;; (defmethod handle-postwork [:campaign :publish]
+;;   [{:keys [config db organization user]} [[_ _ uuid] _]]
+;;   (let [{:keys [swaypage_template_id data_rows]}
+;;         (campaigns/get-publish-data db (:id organization) uuid)]
+;;     (doall
+;;      (map-indexed
+;;       (fn [i row]
+;;         (let [body {:buyer (nth row 0)
+;;                     :buyer-logo (build-logo-url row)
+;;                     :template-data (campaigns/reformat-csv-row-for-template row)
+;;                     :campaign-uuid uuid
+;;                     :campaign-row-number i
+;;                     :is-public true}]
+;;           (templates/create-swaypage-from-template-coordinator
+;;            config
+;;            db
+;;            (:id organization)
+;;            swaypage_template_id
+;;            (:id user)
+;;            body)))
+;;       data_rows))))
+
 (defmethod handle-postwork [:campaign :publish]
   [{:keys [config db organization user]} [[_ _ uuid] _]]
+  (println "uuid" uuid)
   (let [{:keys [swaypage_template_id data_rows]}
-        (campaigns/get-publish-data db (:id organization) uuid)]
+        (campaigns/get-publish-data db (:id organization) uuid)
+        _ (println "campaign" swaypage_template_id)
+        pages (pages/get-buyersphere-pages db (:id organization) swaypage_template_id)
+        ai-blocks (reduce
+                   (fn [acc {:keys [id body]}]
+                     (reduce
+                      (fn [acc2 {:keys [type key prompt]}]
+                        (if (= type "ai-prompt-template")
+                          (assoc acc2 [id key] prompt)
+                          acc2))
+                      acc
+                      (:sections body)))
+                   {}
+                   pages)]
+    (println "ai-blocks" ai-blocks)
+    (println "pages" pages)
     (doall
      (map-indexed
+      ;; (fn [i row]
+      ;;   (let [body {:buyer (nth row 0)
+      ;;               :buyer-logo (build-logo-url row)
+      ;;               :template-data (campaigns/reformat-csv-row-for-template row)
+      ;;               :campaign-uuid uuid
+      ;;               :campaign-row-number i
+      ;;               :is-public true}]
+      ;;     (templates/create-swaypage-from-template-coordinator
+      ;;      config
+      ;;      db
+      ;;      (:id organization)
+      ;;      swaypage_template_id
+      ;;      (:id user)
+      ;;      body)))
       (fn [i row]
-        (let [body {:buyer (nth row 0)
-                    :buyer-logo (build-logo-url row)
-                    :template-data (campaigns/reformat-csv-row-for-template row)
-                    :campaign-uuid uuid
-                    :campaign-row-number i
-                    :is-public true}]
-          (templates/create-swaypage-from-template-coordinator
-           config
-           db
-           (:id organization)
-           swaypage_template_id
-           (:id user)
-           body)))
+        (let [page-data (-> (campaigns/reformat-csv-row-for-template row)
+                            (assoc :buyer-logo (build-logo-url row)))
+              page-data-with-ai
+              (reduce (fn [acc [[page-id key] prompt]]
+                        (assoc-in acc
+                                  [:ai page-id key]
+                                  (open-ai/generate-message (:open-ai config) 
+                                                            (stache/render prompt page-data))))
+                      page-data
+                      ai-blocks)]
+          (campaigns/create-virtual-swaypage db 
+                                             (:id organization) 
+                                             uuid 
+                                             (u/get-nano-id 7) 
+                                             page-data-with-ai)))
       data_rows))))
+
+
+(comment
+  (handle-postwork {:db db/local-db
+                    :config config/config
+                    :organization {:id 1}}
+                   [[:campaign :publish (java.util.UUID/fromString "0190a024-f0f6-7aca-8eae-a86446d108d5")]])
+  ;
+  )

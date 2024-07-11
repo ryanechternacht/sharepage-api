@@ -50,6 +50,7 @@
   ;
   )
 
+;; TODO rename?
 (defn reformat-csv-row-for-template
   [[account-name first-name last-name email domain & fields]]
   (reduce-kv (fn [acc i f]
@@ -86,7 +87,7 @@
                   (h/where [:= :campaign.organization-id organization-id]))]
         (->> query
              (db/execute db)
-             (map #(update %  :uuid u/uuid->friendly-id)))))
+             (map #(update % :uuid u/uuid->friendly-id)))))
 
 (comment
   (get-all db/local-db 1)
@@ -121,5 +122,31 @@
                      db/local-db
                      {:id 1 :subdomain "stark"}
                      (java.util.UUID/fromString "01900e0f-9f5e-7b9c-bcc5-98fe4a32a090"))
+  ;
+  )
+
+(defn create-virtual-swaypage [db organization-id campaign-uuid shortcode page-data]
+  (let [query (-> (h/insert-into :virtual_swaypage)
+                  (h/values [{:organization_id organization-id
+                              :campaign_uuid campaign-uuid
+                              :shortcode shortcode
+                              :page_data [:lift page-data]}]))]
+    (->> query
+         (db/execute db)
+         first)))
+
+(comment
+  (create-virtual-swaypage db/local-db
+                           1
+                           (java.util.UUID/fromString "01909abe-006e-7e48-b260-85bf31ae08ac")
+                           "abc1235"
+                           {:first-name "ryan 2"
+                            :last-name "echternacht"
+                            :account-name "nike"
+                            :email "ryan@echternacht.org"
+                            :field-1 "some data"
+                            :field-2 "other data"
+                            :field-3 "more data"
+                            :ai {3 "hello"}})
   ;
   )

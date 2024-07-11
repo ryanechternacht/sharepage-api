@@ -6,6 +6,7 @@
             [honey.sql.helpers :as h]
             [java-time.api :as jt]
             [lambdaisland.uri :as uri]
+            [nano-id.core :as nano]
             [partnorize-api.db :as db])
   (:import com.fasterxml.uuid.Generators)
   (:import com.devskiller.friendly_id.FriendlyId))
@@ -309,5 +310,41 @@
   (-> "019012df-88df-74cf-b543-4eb44243937c"
       java.util.UUID/fromString
       uuid->friendly-id)
+  ;
+  )
+
+(def ^:private nano-alphabet "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+(def ^:private nano-id-gens (atom {}))
+
+(defn get-nano-id [len]
+  (when (not (contains? @nano-id-gens len))
+    (swap! nano-id-gens assoc len (nano/custom nano-alphabet len)))
+  ((@nano-id-gens len)))
+
+(comment 
+  (get-nano-id 8)
+  @nano-id-gens
+  ;
+  )
+
+(defn- is-valid-buyersphere-shortcode? [db shortcode]
+  (let [query (-> (h/select :id)
+                  (h/from :buyersphere)
+                  (h/where [:= :shortcode shortcode]))]
+    (->> query
+         (db/->>execute db)
+         seq
+         not)))
+
+(defn find-valid-buyersphere-shortcode [db]
+  (loop [shortcode (get-nano-id 6)]
+    (if (is-valid-buyersphere-shortcode? db shortcode)
+      shortcode
+      (recur (get-nano-id 6)))))
+
+(comment
+  (is-valid-buyersphere-shortcode? db/local-db "ohSsLD")
+
+  (find-valid-buyersphere-shortcode db/local-db)
   ;
   )
