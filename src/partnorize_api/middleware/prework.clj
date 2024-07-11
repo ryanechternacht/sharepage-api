@@ -2,8 +2,9 @@
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [partnorize-api.data.permission :as permission]
-            [partnorize-api.data.buyerspheres :as d-buyerspheres]
-            [partnorize-api.data.campaigns :as d-campaigns]
+            [partnorize-api.data.buyerspheres :as buyerspheres]
+            [partnorize-api.data.campaigns :as campaigns]
+            [partnorize-api.data.virtual-swaypages :as v-sps]
             [partnorize-api.db :as db]
             [ring.util.http-response :as response]))
 
@@ -83,7 +84,7 @@
 
 (defn ensure-can-see-swaypage-by-shortcode [shortcode]
   (fn [{:keys [db organization user] :as req}]
-    (let [{:keys [id]} (d-buyerspheres/get-by-shortcode db (:id organization) shortcode)]
+    (let [{:keys [id]} (buyerspheres/get-by-shortcode db (:id organization) shortcode)]
       (if (permission/is-buyersphere-visible? db organization id user)
         req
         (update req :prework-errors conj {:code 401})))))
@@ -175,7 +176,7 @@
 (defn ensure-and-get-swaypage [swaypage-id]
   (fn [{:keys [db organization] :as req}]
     (try
-      (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
+      (if-let [swaypage (buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
         (assoc req :swaypage swaypage)
         (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))
       ;; currently we throw exceptions on bad ids
@@ -204,13 +205,48 @@
   ;
   )
 
+(defn ensure-and-get-virtual-swaypage [shortcode]
+  (fn [{:keys [db organization] :as req}]
+    (try
+      (if-let [v-sp (v-sps/get-virtual-swaypage-by-shortcode db (:id organization) shortcode)]
+        (let [template (buyerspheres/get-full-buyersphere db (:id organization) (:swaypage_template_id v-sp))]
+          (-> req
+              (assoc :virtual-swaypage v-sp)
+              (assoc :template template)))
+        (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))
+      ;; currently we throw exceptions on bad ids
+      (catch Exception _
+        (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"})))))
+
+(comment
+  ;; success
+  ((ensure-and-get-virtual-swaypage "abc1235")
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;; no swaypage
+  ((ensure-and-get-virtual-swaypage "abc")
+   {:db partnorize-api.db/local-db
+    :organization {:id 1,
+                   :name "Stark",
+                   :logo "/house_stark.png",
+                   :subdomain "stark",
+                   :domain "https://www.house-stark.com",
+                   :stytch_organization_id "organization-test-4f1a88d6-b33c-4a12-8d8d-466bdb89c781"}})
+  ;
+  )
+
 (defn ensure-and-get-swaypage-template
   "similar to `ensure-and-get-swaypage` but also ensures that the swaypage
    is a template"
   [swaypage-id]
   (fn [{:keys [db organization] :as req}]
     (try
-      (if-let [swaypage (d-buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
+      (if-let [swaypage (buyerspheres/get-full-buyersphere db (:id organization) swaypage-id)]
         (if (= (:room_type swaypage) "template")
           (assoc req :template swaypage)
           (update req :prework-errors conj {:code 400 :message "This Swaypage is not a template"}))
@@ -243,7 +279,7 @@
 
 (defn ensure-and-get-swaypage-by-shortcode [shortcode]
   (fn [{:keys [db organization] :as req}]
-    (if-let [swaypage (d-buyerspheres/get-by-shortcode db (:id organization) shortcode)]
+    (if-let [swaypage (buyerspheres/get-by-shortcode db (:id organization) shortcode)]
       (assoc req :swaypage swaypage)
       (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))))
 
@@ -297,7 +333,7 @@
 (defn ensure-and-get-campaign [uuid]
   (fn [{:keys [db organization] :as req}]
     (try
-      (if-let [campaign (d-campaigns/get-by-uuid db (:id organization) uuid)]
+      (if-let [campaign (campaigns/get-by-uuid db (:id organization) uuid)]
         (assoc req :campaign campaign)
         (update req :prework-errors conj {:code 404 :message "Campaign doesn't exist"}))
       ;; currently we throw exceptions on bad ids

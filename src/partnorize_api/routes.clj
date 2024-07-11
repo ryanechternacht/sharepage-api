@@ -16,6 +16,7 @@
             [partnorize-api.routes.swaypages :as swaypages]
             [partnorize-api.routes.templates :as templates]
             [partnorize-api.routes.users :as users]
+            [partnorize-api.routes.virtual-swaypages :as virtual-swaypages]
             [ring.util.http-response :as response]))
 
 (def GET-root-healthz
@@ -157,6 +158,7 @@
   #'users/GET-users-me-buyerspheres
   #'users/POST-users
   #'users/PATCH-users
+  #'virtual-swaypages/GET-virtual-swaypage
   get-404
   post-404
   patch-404
