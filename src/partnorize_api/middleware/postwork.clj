@@ -99,10 +99,8 @@
 
 (defmethod handle-postwork [:campaign :publish]
   [{:keys [config db organization user]} [[_ _ uuid] _]]
-  (println "uuid" uuid)
   (let [{:keys [swaypage_template_id data_rows]}
         (campaigns/get-publish-data db (:id organization) uuid)
-        _ (println "campaign" swaypage_template_id)
         pages (pages/get-buyersphere-pages db (:id organization) swaypage_template_id)
         ai-blocks (reduce
                    (fn [acc {:keys [id body]}]
@@ -115,41 +113,24 @@
                       (:sections body)))
                    {}
                    pages)]
-    (println "ai-blocks" ai-blocks)
-    (println "pages" pages)
-    (doall
-     (map-indexed
-      ;; (fn [i row]
-      ;;   (let [body {:buyer (nth row 0)
-      ;;               :buyer-logo (build-logo-url row)
-      ;;               :template-data (campaigns/reformat-csv-row-for-template row)
-      ;;               :campaign-uuid uuid
-      ;;               :campaign-row-number i
-      ;;               :is-public true}]
-      ;;     (templates/create-swaypage-from-template-coordinator
-      ;;      config
-      ;;      db
-      ;;      (:id organization)
-      ;;      swaypage_template_id
-      ;;      (:id user)
-      ;;      body)))
-      (fn [i row]
-        (let [page-data (-> (campaigns/reformat-csv-row-for-template row)
-                            (assoc :buyer-logo (build-logo-url row)))
-              page-data-with-ai
-              (reduce (fn [acc [[page-id key] prompt]]
-                        (assoc-in acc
-                                  [:ai page-id key]
-                                  (open-ai/generate-message (:open-ai config) 
-                                                            (stache/render prompt page-data))))
-                      page-data
-                      ai-blocks)]
-          (campaigns/create-virtual-swaypage db 
-                                             (:id organization) 
-                                             uuid 
-                                             (u/get-nano-id 7) 
-                                             page-data-with-ai)))
-      data_rows))))
+    ;; TODO we need to create the nano-id in the route, not here
+    (doseq [row data_rows]
+      (let [page-data (-> (campaigns/reformat-csv-row-for-template row)
+                          (assoc :buyer-logo (build-logo-url row)))
+            page-data-with-ai
+            (reduce (fn [acc [[page-id key] prompt]]
+                      (assoc-in acc
+                                [:ai page-id key]
+                                (open-ai/generate-message (:open-ai config)
+                                                          (stache/render prompt page-data))))
+                    page-data
+                    ai-blocks)]
+        (campaigns/create-virtual-swaypage db
+                                           (:id organization)
+                                           (:id user)
+                                           uuid
+                                           (u/get-nano-id 7)
+                                           page-data-with-ai)))))
 
 
 (comment

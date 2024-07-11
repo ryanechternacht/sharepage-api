@@ -30,7 +30,7 @@
                                   {:keys [buyer subname buyer-logo 
                                           campaign-uuid campaign-row-number
                                           is-public]}]
-  (let [shortcode (buyerspheres/find-valid-shortcode db)
+  (let [shortcode (u/find-valid-buyersphere-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
                              :buyer

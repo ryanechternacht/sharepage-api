@@ -125,9 +125,10 @@
   ;
   )
 
-(defn create-virtual-swaypage [db organization-id campaign-uuid shortcode page-data]
+(defn create-virtual-swaypage [db organization-id owner-id campaign-uuid shortcode page-data]
   (let [query (-> (h/insert-into :virtual_swaypage)
                   (h/values [{:organization_id organization-id
+                              :owner_id owner-id
                               :campaign_uuid campaign-uuid
                               :shortcode shortcode
                               :page_data [:lift page-data]}]))]
@@ -137,6 +138,7 @@
 
 (comment
   (create-virtual-swaypage db/local-db
+                           1
                            1
                            (java.util.UUID/fromString "01909abe-006e-7e48-b260-85bf31ae08ac")
                            "abc1235"

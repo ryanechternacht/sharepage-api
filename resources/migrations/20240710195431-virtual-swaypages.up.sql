@@ -1,8 +1,9 @@
 create table virtual_swaypage (
   id integer primary key generated always as identity,
   organization_id int not null references organization(id),
-  shortcode text not null,
+  owner_id int references user_account(id),
   campaign_uuid uuid not null references campaign(uuid),
+  shortcode text not null,
   page_data jsonb not null,
   created_at timestamp with time zone not null,
   updated_at timestamp with time zone not null,
