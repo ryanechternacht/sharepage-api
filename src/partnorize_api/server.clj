@@ -46,9 +46,11 @@
       ))
 
 ;; TODO this is how we'll run background jobs
-(defn job [params]
-  0)
+;; (defn job [params]
+;;   0)
 
+
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn webserver [params]
   (jetty/run-jetty #'handler params))
 

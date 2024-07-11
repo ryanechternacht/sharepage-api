@@ -9,14 +9,18 @@
             [partnorize-api.external-api.open-ai :as open-ai]
             [partnorize-api.middleware.config :as config]))
 
+#_{:clj-kondo/ignore [:unused-binding]}
 (defmulti render-section (fn [config data section] (:type section)))
 
+#_{:clj-kondo/ignore [:unused-binding]}
 (defmethod render-section "text" [config data section]
   (update section :text stache/render data))
 
+#_{:clj-kondo/ignore [:unused-binding]}
 (defmethod render-section "header" [config data section]
   (update section :text stache/render data))
 
+#_{:clj-kondo/ignore [:unused-binding]}
 (defmethod render-section "asset" [config data section]
   (update section :link stache/render data))
 
@@ -27,7 +31,7 @@
         (assoc :text (open-ai/generate-message (:open-ai config) prompt)))))
 
 (defn- create-buyersphere-record [db organization-id user-id
-                                  {:keys [buyer subname buyer-logo 
+                                  {:keys [buyer subname buyer-logo
                                           campaign-uuid campaign-row-number
                                           is-public]}]
   (let [shortcode (u/find-valid-buyersphere-shortcode db)

@@ -3,7 +3,6 @@
             [honey.sql.helpers :as h]
             [partnorize-api.data.buyerspheres :as bs]
             [partnorize-api.data.buyersphere-pages :as pages]
-            [partnorize-api.data.buyersphere-templates :as templates]
             [partnorize-api.data.campaigns :as campaigns]
             [partnorize-api.db :as db]
             [partnorize-api.middleware.config :as config]

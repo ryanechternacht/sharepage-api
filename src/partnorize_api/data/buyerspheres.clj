@@ -1,7 +1,6 @@
 (ns partnorize-api.data.buyerspheres
   (:require [clojure.instant :as inst]
             [honey.sql.helpers :as h]
-            [nano-id.core :as nano]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
@@ -175,7 +174,7 @@
                           {:keys [features-answer qualified-on evaluated-on
                                   decided-on adopted-on qualification-date
                                   evaluation-date decision-date success-criteria-answer
-                                  objectives-answer constraints-answer priority
+                                  objectives-answer constraints-answer
                                   template-custom-variables] :as body}]
   (let [fields (cond-> (select-keys body [:pricing-can-pay
                                           :pricing-tier-id
