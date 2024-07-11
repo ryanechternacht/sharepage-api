@@ -71,32 +71,6 @@
   [[_ _ _ _ domain]]
   (str "https://logo.clearbit.com/" domain))
 
-;; TODO this currently loops through them one by one, but should
-;; be able to batch create them
-;; TODO This _could_ just be normal swaypage creates too, we'd just
-;; need to refactor them for this to work
-;; (defmethod handle-postwork [:campaign :publish]
-;;   [{:keys [config db organization user]} [[_ _ uuid] _]]
-;;   (let [{:keys [swaypage_template_id data_rows]}
-;;         (campaigns/get-publish-data db (:id organization) uuid)]
-;;     (doall
-;;      (map-indexed
-;;       (fn [i row]
-;;         (let [body {:buyer (nth row 0)
-;;                     :buyer-logo (build-logo-url row)
-;;                     :template-data (campaigns/reformat-csv-row-for-template row)
-;;                     :campaign-uuid uuid
-;;                     :campaign-row-number i
-;;                     :is-public true}]
-;;           (templates/create-swaypage-from-template-coordinator
-;;            config
-;;            db
-;;            (:id organization)
-;;            swaypage_template_id
-;;            (:id user)
-;;            body)))
-;;       data_rows))))
-
 (defmethod handle-postwork [:campaign :publish]
   [{:keys [config db organization user]} [[_ _ uuid] _]]
   (let [{:keys [swaypage_template_id data_rows]}
@@ -131,7 +105,6 @@
                                            uuid
                                            (u/get-nano-id 7)
                                            page-data-with-ai)))))
-
 
 (comment
   (handle-postwork {:db db/local-db

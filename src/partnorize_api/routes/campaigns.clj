@@ -98,6 +98,13 @@
         (prework/generate-error-response prework-errors)
         (update (response/ok (build-campaign-updates body)) :postwork conj [[:campaign :update uuid] body])))))
 
+;; TODO I'd like to rework this to create virtual swaypages
+;; instead of just the "publish" postwork. but it will take some
+;; refactoring to get this done. see below for one
+;; TODO we need a way for preworks to depend on other preworks
+;; e.g. if i want to pull the template and pages related to campaign
+;; i need to have pulled the campaign first, so i can get those ids
+
 (def POST-campaign-publish
   (cpj/POST "/v0.1/campaign/:uuid/publish" [uuid :<< u/friendly-id->uuid :as original-req]
     (let [{:keys [prework-errors campaign]}
