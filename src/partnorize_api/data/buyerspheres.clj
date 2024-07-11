@@ -5,9 +5,7 @@
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
-            ;; [partnorize-api.data.resources :as d-res]
             [partnorize-api.data.teams :as d-teams]
-            ;; [partnorize-api.data.buyersphere-activity-templates :as d-act-temp]
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]))
 
@@ -225,35 +223,9 @@
   ;
   )
 
-;; 0-9 a-z A-Z
-(def ^:private nano-alphabet "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-(def ^:private nano-id-gen (nano/custom nano-alphabet 6))
-
-(defn- is-valid-shortcode? [db shortcode]
-  (let [query (-> (h/select :id)
-                  (h/from :buyersphere)
-                  (h/where [:= :shortcode shortcode]))]
-    (->> query
-         (db/->>execute db)
-         seq
-         not)))
-
-(defn find-valid-shortcode [db]
-  (loop [shortcode (nano-id-gen)]
-    (if (is-valid-shortcode? db shortcode)
-      shortcode
-      (recur (nano-id-gen)))))
-
-(comment
-  (is-valid-shortcode? db/local-db "abc123")
-  (is-valid-shortcode? db/local-db "abc124")
-  (find-valid-shortcode db/local-db)
-  ;
-  )
-
 (defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo deal-amount crm-opportunity-id room-type]}]
-  (let [shortcode (find-valid-shortcode db)
+  (let [shortcode (u/find-valid-buyersphere-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
                              :buyer
