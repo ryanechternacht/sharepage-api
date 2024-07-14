@@ -141,11 +141,12 @@
                            1
                            1
                            (java.util.UUID/fromString "01909abe-006e-7e48-b260-85bf31ae08ac")
-                           "abc1235"
+                           "abc1236"
                            {:first-name "ryan 2"
                             :last-name "echternacht"
                             :account-name "nike"
                             :email "ryan@echternacht.org"
+                            :domain "nike.com"
                             :field-1 "some data"
                             :field-2 "other data"
                             :field-3 "more data"

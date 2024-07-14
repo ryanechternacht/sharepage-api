@@ -6,7 +6,8 @@
             [ring.util.http-response :as response]
             [ring.util.io :as ring-io]
             [partnorize-api.middleware.prework :as prework]
-            [partnorize-api.data.campaigns :as d-campaigns]
+            [partnorize-api.data.campaigns :as campaigns]
+            [partnorize-api.data.virtual-swaypages :as v-sp]
             [partnorize-api.data.utilities :as u]))
 
 ;; This is partly defensive, and partly because i'm just sticking
@@ -132,7 +133,7 @@
                               (prework/ensure-campaign-published))]
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
-        (let [csv-data (d-campaigns/get-published-csv
+        (let [csv-data (campaigns/get-published-csv
                         config db organization uuid)]
           (-> (ring-io/piped-input-stream (fn [out]
                                             (with-open [writer (io/writer out)]
@@ -149,4 +150,17 @@
                               (prework/ensure-is-org-member))]
       (if (seq prework-errors)
         (prework/generate-error-response prework-errors)
-        (response/ok (d-campaigns/get-all db (:id organization)))))))
+        (response/ok (campaigns/get-all db (:id organization)))))))
+
+(def GET-campaign-swaypages
+  (cpj/GET "/v0.1/campaign/:uuid/swaypages" [uuid :<< u/friendly-id->uuid :as original-req]
+    (println "swaypges")
+    (let [{:keys [prework-errors db organization]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-campaign uuid))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (response/ok (v-sp/get-virtual-swaypages-by-campaign db
+                                                             (:id organization)
+                                                             uuid))))))

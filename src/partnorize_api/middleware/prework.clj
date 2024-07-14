@@ -6,7 +6,8 @@
             [partnorize-api.data.campaigns :as campaigns]
             [partnorize-api.data.virtual-swaypages :as v-sps]
             [partnorize-api.db :as db]
-            [ring.util.http-response :as response]))
+            [ring.util.http-response :as response]
+            [partnorize-api.data.users :as users]))
 
 ;; TODO find a way to create a new version of compojure macros that
 ;; will automatically call this stuff when passed in (vs. manual invocations)
@@ -209,10 +210,12 @@
   (fn [{:keys [db organization] :as req}]
     (try
       (if-let [v-sp (v-sps/get-virtual-swaypage-by-shortcode db (:id organization) shortcode)]
-        (let [template (buyerspheres/get-full-buyersphere db (:id organization) (:swaypage_template_id v-sp))]
+        (let [template (buyerspheres/get-full-buyersphere db (:id organization) (:swaypage_template_id v-sp))
+              owner (users/get-by-id db (:id organization) (:owner_id v-sp))]
           (-> req
               (assoc :virtual-swaypage v-sp)
-              (assoc :template template)))
+              (assoc :template template)
+              (assoc :owner owner)))
         (update req :prework-errors conj {:code 404 :message "Swaypage doesn't exist"}))
       ;; currently we throw exceptions on bad ids
       (catch Exception _

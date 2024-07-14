@@ -103,6 +103,7 @@
   #'campaigns/POST-campaign-publish
   #'campaigns/GET-campaign-published-csv
   #'campaigns/GET-campaigns
+  #'campaigns/GET-campaign-swaypages
   #'conversation-templates/GET-conversation-template
   #'conversation-templates/POST-conversation-template-item
   #'conversation-templates/PATCH-conversation-template-item
