@@ -31,6 +31,10 @@
   ;
   )
 
+(defmethod handle-postwork [:swaypage :clone]
+  [{:keys [db organization user]} [[_ _ id] {:keys [room-type]}]]
+  (bs/clone-swaypage db (:id organization) (:id user) id  room-type))
+
 ;; TODO instead of create/update would I rather just do upsert/put
 ;; and have the client update the data as desired, then just
 ;; have the route do an insert on duplicate update?
@@ -103,7 +107,8 @@
                                            (:id user)
                                            uuid
                                            (u/get-nano-id 7)
-                                           page-data-with-ai)))))
+                                           page-data-with-ai)))
+    (bs/update-buyersphere db (:id organization) swaypage_template_id {:is-locked true})))
 
 (comment
   (handle-postwork {:db db/local-db

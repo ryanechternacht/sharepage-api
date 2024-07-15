@@ -141,6 +141,7 @@
   #'swaypages/GET-swaypage
   #'swaypages/GET-swaypage-by-shortcode
   #'swaypages/PATCH-swaypage
+  #'swaypages/POST-swaypage-clone
   #'templates/GET-template-milestones
   #'templates/POST-template-milestones
   #'templates/PATCH-template-milestone

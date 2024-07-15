@@ -44,6 +44,22 @@
         (prework/generate-error-response prework-errors)
         (update (response/ok) :postwork conj [[:swaypage :update id] body])))))
 
+(def POST-swaypage-clone
+  (cpj/POST "/v0.1/swaypage/:id/clone" [id :<< coerce/as-int :as original-req]
+    (let [{:keys [prework-errors db organization user body]}
+          (prework/do-prework original-req
+                              (prework/ensure-is-org-member)
+                              (prework/ensure-and-get-swaypage id))]
+      (if (seq prework-errors)
+        (prework/generate-error-response prework-errors)
+        (let [new-swaypage
+              (d-buyerspheres/clone-swaypage db
+                                             (:id organization)
+                                             (:id user)
+                                             id
+                                             (:room-type body))]
+          (response/ok new-swaypage))))))
+
 ;; users
 ;; chapters (pages)
 ;; links

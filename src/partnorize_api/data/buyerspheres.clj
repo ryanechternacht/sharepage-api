@@ -3,6 +3,7 @@
             [honey.sql.helpers :as h]
             [partnorize-api.data.buyersphere-notes :as d-buyer-notes]
             [partnorize-api.data.buyersphere-pages :as d-buyer-pages]
+            [partnorize-api.data.buyersphere-links :as d-buyer-links]
             [partnorize-api.data.buyersphere-resources :as d-buyer-res]
             [partnorize-api.data.teams :as d-teams]
             [partnorize-api.data.utilities :as u]
@@ -23,8 +24,9 @@
    :buyersphere.objectives_answer :buyersphere.constraints_answer
    :buyersphere.subname :buyersphere.is_public
    :buyersphere.shortcode :buyersphere.room_type
-   :buyersphere.priority :buyersphere.template-custom-variables
-   :buyersphere.campaign_row_number :buyersphere.updated_at])
+   :buyersphere.priority :buyersphere.template_custom_variables
+   :buyersphere.campaign_row_number :buyersphere.is_locked
+   :buyersphere.updated_at])
 
 (def base-buyersphere-cols
   (vec (concat only-buyersphere-cols
@@ -189,7 +191,8 @@
                                           :subname
                                           :is-public
                                           :room-type
-                                          :priority])
+                                          :priority
+                                          :is-locked])
                  features-answer (assoc :features-answer [:lift features-answer])
                  success-criteria-answer (assoc :success-criteria-answer [:lift success-criteria-answer])
                  objectives-answer (assoc :objectives-answer [:lift objectives-answer])
@@ -268,5 +271,21 @@
                                                    :deal-amount 1234 :crm-opportunity-id "abc123"
                                                    :page-template-id 2 :page-title "asdf"
                                                    :room-type "deal-room"})
+  ;
+  )
+
+(defn clone-swaypage [db organization-id user-id swaypage-id room-type]
+  (let [original-swaypage (u/kebab-case (get-by-id db organization-id swaypage-id))
+        original-pages (map u/kebab-case (d-buyer-pages/get-buyersphere-active-pages db organization-id swaypage-id))
+        original-links (map u/kebab-case (d-buyer-links/get-buyersphere-links db organization-id swaypage-id))
+        updated-room-type(assoc original-swaypage :room-type room-type)
+        new-sp (create-buyersphere-record db organization-id user-id updated-room-type)]
+    (doseq [page original-pages]
+      (d-buyer-pages/create-buyersphere-page-coordinator db organization-id (:id new-sp) page))
+    (d-buyer-links/create-buyersphere-links db organization-id (:id new-sp) original-links)
+    new-sp))
+
+(comment
+  (clone-swaypage db/local-db 1 1 107 "deal-room")
   ;
   )
