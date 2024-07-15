@@ -91,23 +91,27 @@
                    {}
                    pages)]
     ;; TODO we need to create the nano-id in the route, not here
-    (doseq [row data_rows]
-      (let [page-data (-> (campaigns/reformat-csv-row-for-template row)
-                          (assoc :buyer-logo (build-logo-url row)))
-            page-data-with-ai
-            (reduce (fn [acc [[page-id key] prompt]]
-                      (assoc-in acc
-                                [:ai page-id key]
-                                (open-ai/generate-message (:open-ai config)
-                                                          (stache/render prompt page-data))))
-                    page-data
-                    ai-blocks)]
-        (campaigns/create-virtual-swaypage db
-                                           (:id organization)
-                                           (:id user)
-                                           uuid
-                                           (u/get-nano-id 7)
-                                           page-data-with-ai)))
+    (doall
+     (map-indexed
+      (fn [i row]
+        (let [page-data (-> (campaigns/reformat-csv-row-for-template row)
+                            (assoc :buyer-logo (build-logo-url row)))
+              page-data-with-ai
+              (reduce (fn [acc [[page-id key] prompt]]
+                        (assoc-in acc
+                                  [:ai page-id key]
+                                  (open-ai/generate-message (:open-ai config)
+                                                            (stache/render prompt page-data))))
+                      page-data
+                      ai-blocks)]
+          (campaigns/create-virtual-swaypage db
+                                             (:id organization)
+                                             (:id user)
+                                             uuid
+                                             i
+                                             (u/get-nano-id 7)
+                                             page-data-with-ai)))
+      data_rows))
     (bs/update-buyersphere db (:id organization) swaypage_template_id {:is-locked true})))
 
 (comment

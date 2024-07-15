@@ -25,15 +25,16 @@
 (defn get-virtual-swaypages-by-campaign [db organization-id campaign-uuid]
   (let [query (-> (h/select :virtual_swaypage.page_data
                             :virtual_swaypage.owner_id
-                            :virtual_swaypage.shortcode)
-                   (h/from :virtual_swaypage)
-                   (h/where [:and
-                             [:= :virtual_swaypage.organization_id organization-id]
-                             [:= :virtual_swaypage.campaign_uuid campaign-uuid]]))]
+                            :virtual_swaypage.shortcode
+                            :virtual_swaypage.campaign_row_number)
+                  (h/from :virtual_swaypage)
+                  (h/where [:and
+                            [:= :virtual_swaypage.organization_id organization-id]
+                            [:= :virtual_swaypage.campaign_uuid campaign-uuid]]))]
      (->> query
           (db/execute db))))
 
 (comment
-  (get-virtual-swaypages-by-campaign db/local-db 1 (java.util.UUID/fromString "0190b271-66bd-7aeb-9427-b4ef20b24000"))
+  (get-virtual-swaypages-by-campaign db/local-db 1 (java.util.UUID/fromString "0190b834-3461-75cf-bef5-bb3b5b3d963d"))
   ;
   )

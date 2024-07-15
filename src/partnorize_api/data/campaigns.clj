@@ -2,6 +2,7 @@
   (:require  [honey.sql.helpers :as h]
              [partnorize-api.db :as db]
              [partnorize-api.data.buyerspheres :as bs]
+             [partnorize-api.data.virtual-swaypages :as v-sp]
              [partnorize-api.data.utilities :as u]
              [partnorize-api.middleware.config :as config]))
 
@@ -95,18 +96,34 @@
   )
 
 (defn make-swaypage-link [subdomain domain swaypage-shortcode [_ first-name last-name]]
-  (str "https://" subdomain "." domain "/u/" swaypage-shortcode "/" first-name "%20" last-name))
+  (str "https://" subdomain "." domain "/v/" swaypage-shortcode "/" first-name "-" last-name))
 
 (comment
   (make-swaypage-link "stark" "swaypage.io" "abc123" ["" "ryan" "echternacht"])
   )
+
+;; (defn get-published-csv [{{domain :domain} :cookie-attrs}
+;;                          db
+;;                          {:keys [id subdomain]}
+;;                          uuid]
+;;   (let [{:keys [data_rows header_row]} (get-publish-data db id uuid)
+;;         swaypages (bs/get-by-organization db id {:campaign-uuid uuid})
+;;         shortcode-by-rownum (reduce (fn [acc {:keys [shortcode campaign_row_number]}]
+;;                                       (assoc acc campaign_row_number shortcode))
+;;                                     {}
+;;                                     swaypages)]
+;;     (apply conj
+;;            [(conj (vec header_row) "Swaypage Link")]
+;;            (map-indexed (fn [i row]
+;;                           (conj row (make-swaypage-link subdomain domain (shortcode-by-rownum i) row)))
+;;                         data_rows))))
 
 (defn get-published-csv [{{domain :domain} :cookie-attrs}
                          db
                          {:keys [id subdomain]}
                          uuid]
   (let [{:keys [data_rows header_row]} (get-publish-data db id uuid)
-        swaypages (bs/get-by-organization db id {:campaign-uuid uuid})
+        swaypages (v-sp/get-virtual-swaypages-by-campaign db id uuid)
         shortcode-by-rownum (reduce (fn [acc {:keys [shortcode campaign_row_number]}]
                                       (assoc acc campaign_row_number shortcode))
                                     {}
@@ -125,10 +142,11 @@
   ;
   )
 
-(defn create-virtual-swaypage [db organization-id owner-id campaign-uuid shortcode page-data]
+(defn create-virtual-swaypage [db organization-id owner-id campaign-uuid row-number shortcode page-data]
   (let [query (-> (h/insert-into :virtual_swaypage)
                   (h/values [{:organization_id organization-id
                               :owner_id owner-id
+                              :campaign_row_number row-number
                               :campaign_uuid campaign-uuid
                               :shortcode shortcode
                               :page_data [:lift page-data]}]))]
@@ -141,6 +159,7 @@
                            1
                            1
                            (java.util.UUID/fromString "01909abe-006e-7e48-b260-85bf31ae08ac")
+                           1
                            "abc1236"
                            {:first-name "ryan 2"
                             :last-name "echternacht"
