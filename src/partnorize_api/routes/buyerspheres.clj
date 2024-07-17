@@ -577,36 +577,36 @@
 (def POST-buyersphere-session
   (cpj/POST "/v0.1/buyersphere/:id/session"
     [id :<< coerce/as-int :as {:keys [db user organization anonymous-user]}]
-    (response/ok (d-buyer-session/start-session db
-                                                (:id organization)
-                                                id
-                                                (:id user)
-                                                anonymous-user))))
+    (response/ok (d-buyer-session/start-swaypage-session db
+                                                         (:id organization)
+                                                         (:id user)
+                                                         id
+                                                         anonymous-user))))
 
 (def POST-buyersphere-session-timing
   (cpj/POST "/v0.1/buyersphere/:b-id/session/:s-id/timing"
     [b-id :<< coerce/as-int s-id :<< coerce/as-int :as {:keys [db organization body]}]
-    (response/ok (d-buyer-session/track-time db
-                                             (:id organization)
-                                             b-id
-                                             s-id
-                                             body))))
+    (response/ok (d-buyer-session/track-swaypage-time db
+                                                      (:id organization)
+                                                      s-id
+                                                      b-id
+                                                      body))))
 
 (def POST-buyersphere-session-event
   (cpj/POST "/v0.1/buyersphere/:b-id/session/:s-id/:page/event"
     [b-id :<< coerce/as-int s-id :<< coerce/as-int page :as {:keys [db organization body]}]
-    (response/ok (d-buyer-session/track-event db
-                                              (:id organization)
-                                              b-id
-                                              s-id
-                                              page
-                                              body))))
+    (response/ok (d-buyer-session/track-swaypage-event db
+                                                       (:id organization)
+                                                       s-id
+                                                       b-id
+                                                       page
+                                                       body))))
 
 (def GET-buyersphere-sessions
   (cpj/GET "/v0.1/buyersphere/:id/sessions"
     [id :<< coerce/as-int :as {:keys [db user organization]}]
     (if (d-permission/can-user-edit-buyersphere? db organization id user)
-      (response/ok (d-buyer-session/get-swaypage-sessions-for-swaypage db (:id organization) id))
+      (response/ok (d-buyer-session/get-buyer-sessions-for-swaypage db (:id organization) id))
       (response/unauthorized))))
 
 (def POST-buyerspheres-template

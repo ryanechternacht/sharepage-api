@@ -7,5 +7,5 @@
 (def GET-buyer-sessions
   (cpj/GET "/v0.1/buyer-sessions" {:keys [db user organization]}
     (if (d-permission/does-user-have-org-permissions? db organization user)
-      (response/ok (d-buyer-session/get-swaypage-sessions db (:id organization)))
+      (response/ok (d-buyer-session/get-buyer-sessions db (:id organization)))
       (response/unauthorized))))
