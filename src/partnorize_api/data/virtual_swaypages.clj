@@ -5,7 +5,8 @@
 (defn get-virtual-swaypage-by-shortcode [db organization-id shortcode]
   (let [query (-> (h/select :campaign.swaypage_template_id
                             :virtual_swaypage.page_data
-                            :virtual_swaypage.owner_id)
+                            :virtual_swaypage.owner_id
+                            :virtual_swaypage.id)
                   (h/from :virtual_swaypage)
                   (h/join :campaign [:and
                                      [:= :virtual_swaypage.organization_id :campaign.organization_id]

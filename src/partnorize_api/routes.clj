@@ -161,6 +161,9 @@
   #'users/POST-users
   #'users/PATCH-users
   #'virtual-swaypages/GET-virtual-swaypage
+  #'virtual-swaypages/POST-virtual-swaypage-session
+  #'virtual-swaypages/POST-virtual-swaypage-session-timing
+  #'virtual-swaypages/POST-virtual-swaypage-session-event
   get-404
   post-404
   patch-404

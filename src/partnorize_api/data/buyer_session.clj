@@ -271,3 +271,23 @@
   (get-buyer-sessions-for-virtual-swaypage db/local-db 1 3)
   ;
   )
+
+(defn get-virtual-swaypage-session [db organization-id shortcode session-id]
+  (let [query (-> (h/select :buyer_session.id)
+                  (h/from :buyer_session)
+                  (h/join :virtual_swaypage
+                          [:and
+                           [:= :buyer_session.organization_id :virtual_swaypage.organization_id]
+                           [:= :buyer_session.virtual_swaypage_id :virtual_swaypage.id]])
+                  (h/where [:and
+                            [:= :buyer_session.organization_id organization-id]
+                            [:= :virtual_swaypage.shortcode shortcode]
+                            [:= :buyer_session.id session-id]]))]
+    (->> query
+         (db/->>execute db)
+         first)))
+
+(comment
+  (get-virtual-swaypage-session db/local-db 1 "4hkVMno" 290)
+  ;
+  )

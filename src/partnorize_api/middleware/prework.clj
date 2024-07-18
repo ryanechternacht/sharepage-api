@@ -7,7 +7,8 @@
             [partnorize-api.data.virtual-swaypages :as v-sps]
             [partnorize-api.db :as db]
             [ring.util.http-response :as response]
-            [partnorize-api.data.users :as users]))
+            [partnorize-api.data.users :as users]
+            [partnorize-api.data.buyer-session :as buyer-session]))
 
 ;; TODO find a way to create a new version of compojure macros that
 ;; will automatically call this stuff when passed in (vs. manual invocations)
@@ -406,5 +407,27 @@
 
   ;; no campaign
   ((ensure-campaign-published) {})
+  ;
+  )
+
+(defn ensure-virutal-swaypage-session [shortcode session-id]
+  (fn [{:keys [db organization] :as req}]
+    (if (seq (buyer-session/get-virtual-swaypage-session db
+                                                         (:id organization)
+                                                         shortcode
+                                                         session-id))
+      req
+      (update req :prework-errors conj {:code 404 :message "Session doesn't exist"}))))
+
+(comment
+  ;; success
+  ((ensure-virutal-swaypage-session "4hkVMno" 290)
+   {:db partnorize-api.db/local-db
+    :organization {:id 1}})
+
+  ;; failure (no session) 
+  ((ensure-virutal-swaypage-session "4hkVMno" 123)
+   {:db partnorize-api.db/local-db
+    :organization {:id 1}})
   ;
   )
