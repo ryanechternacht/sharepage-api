@@ -154,7 +154,6 @@
 
 (def GET-campaign-swaypages
   (cpj/GET "/v0.1/campaign/:uuid/swaypages" [uuid :<< u/friendly-id->uuid :as original-req]
-    (println "swaypges")
     (let [{:keys [prework-errors db organization]}
           (prework/do-prework original-req
                               (prework/ensure-is-org-member)

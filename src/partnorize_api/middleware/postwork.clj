@@ -114,7 +114,7 @@
       data_rows))
     (bs/update-buyersphere db (:id organization) swaypage_template_id {:is-locked true :is-public true})
     (doseq [page pages]
-      (pages/update-buyersphere-page db (:id organization) swaypage_template_id (:id page) {:is_public true}))))
+      (pages/update-buyersphere-page db (:id organization) swaypage_template_id (:id page) {:is-public true}))))
 
 (comment
   (handle-postwork {:db db/local-db
