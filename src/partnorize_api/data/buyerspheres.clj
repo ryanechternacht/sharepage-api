@@ -144,7 +144,7 @@
          first)))
 
 (comment
-  (get-by-id db/local-db 1 3)
+  (get-by-id db/local-db 1 237)
   (get-by-organization db/local-db 1)
   (get-by-organization db/local-db 1 {:user-id 1})
   (get-by-organization db/local-db 1 {:stage "evaluation"})
@@ -275,7 +275,9 @@
   )
 
 (defn clone-swaypage [db organization-id user-id swaypage-id room-type]
-  (let [original-swaypage (u/kebab-case (get-by-id db organization-id swaypage-id))
+  (let [original-swaypage (-> (get-by-id db organization-id swaypage-id) 
+                              (update :buyer #(str "Copy of " %))
+                              (u/kebab-case ))
         original-pages (map u/kebab-case (d-buyer-pages/get-buyersphere-active-pages db organization-id swaypage-id))
         original-links (map u/kebab-case (d-buyer-links/get-buyersphere-links db organization-id swaypage-id))
         updated-room-type(assoc original-swaypage :room-type room-type)
