@@ -16,7 +16,7 @@
 ;; TODO I need a better way to run migrations
 ;; ;; dev
 ;; (def db {:dbtype "postgresql"
-;;           :dbname "buyersphere"
+;;           :dbname "swaypage"
 ;;           :host "swaypage-dev.c7o2qu0iacgk.us-east-2.rds.amazonaws.com"
 ;;           :user "postgres"
 ;;           :password "Z4L25#FDM#pe"
