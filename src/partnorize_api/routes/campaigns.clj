@@ -23,7 +23,7 @@
       :file_name file-name
       :header-row (first data)
       :data-rows data-rows
-      :data-rows-count (count data-rows)
+      :data-rows-count (count (drop 1 data))
       :sample-rows (->> data (drop 1) (take 4) vec)})})
 
 (defn- build-campaign-postwork [organization uuid csv-uuid body]
