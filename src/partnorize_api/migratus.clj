@@ -24,8 +24,8 @@
 
 ;; prod
 ;; (def db {:dbtype "postgresql"
-;;          :dbname "buyersphere"
-;;          :host "buyersphere-prod.cc2idiull87l.us-east-2.rds.amazonaws.com"
+;;          :dbname "sharepage"
+;;          :host "sharepage.c7o2qu0iacgk.us-east-2.rds.amazonaws.com"
 ;;          :user "postgres"
 ;;          :password "MUMlmURVCC9Wed9Lv79Pqi5a"
 ;;          :ssl false})
