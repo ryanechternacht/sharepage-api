@@ -4,8 +4,6 @@
             [partnorize-api.db :as db]
             [partnorize-api.external-api.stytch :as stytch]))
 
-;; TODO can we store this in our db to avoid having to hit stytch every call?
-
 (defn- check-db-for-cached-session [db session-token]
   (-> (h/select :stytch_member_json)
       (h/from :session_cache)
