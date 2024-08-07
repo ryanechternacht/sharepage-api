@@ -85,7 +85,8 @@
                             [:csv_upload.data_rows_count :lead_count])
                   (h/from :campaign)
                   (h/join :csv_upload [:= :campaign.csv_upload_uuid :csv_upload.uuid])
-                  (h/where [:= :campaign.organization-id organization-id]))]
+                  (h/where [:= :campaign.organization-id organization-id])
+                  (h/order-by [:campaign.uuid :desc]))]
         (->> query
              (db/execute db)
              (map #(update % :uuid u/uuid->friendly-id)))))
