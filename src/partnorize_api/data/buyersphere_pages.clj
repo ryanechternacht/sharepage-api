@@ -57,7 +57,13 @@
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
                                {:keys [body] :as page}]
-  (let [fields (cond-> (select-keys page [:is-public :title :can-buyer-edit :page-type :status])
+  (let [fields (cond-> (select-keys page [:is-public 
+                                          :title 
+                                          :can-buyer-edit 
+                                          :page-type 
+                                          :status
+                                          :header-image-url
+                                          :header-image-blurhash])
                  body (assoc :body [:lift body]))
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
@@ -91,7 +97,8 @@
                                                 :title "asdf"
                                                 :can-buyer-edit true
                                                 :page-type "notes"
-                                                :status "deleted"})
+                                                :status "deleted"
+                                                :header-image-url "hello_world.png"})
 
   (delete-buyersphere-page db/local-db 1 1 156)
   ;
