@@ -6,7 +6,7 @@
 
 (def base-buyersphere-page-cols
   [:id :organization_id :buyersphere_id :title :body :is_public :ordering
-   :can_buyer_edit :page_type :status])
+   :can_buyer_edit :page_type :status :header_image])
 
 (defn- base-buyersphere-page-query [organization-id buyersphere-id]
   (-> (apply h/select base-buyersphere-page-cols)
@@ -56,15 +56,14 @@
          first)))
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
-                               {:keys [body] :as page}]
-  (let [fields (cond-> (select-keys page [:is-public 
-                                          :title 
-                                          :can-buyer-edit 
-                                          :page-type 
-                                          :status
-                                          :header-image-url
-                                          :header-image-blurhash])
-                 body (assoc :body [:lift body]))
+                               {:keys [body header-image] :as page}]
+  (let [fields (cond-> (select-keys page [:is-public
+                                          :title
+                                          :can-buyer-edit
+                                          :page-type
+                                          :status])
+                 body (assoc :body [:lift body])
+                 header-image (assoc :header-image [:lift header-image]))
         update-query (-> (h/update :buyersphere_page)
                          (h/set fields)
                          (h/where [:= :organization_id organization-id]
@@ -86,7 +85,7 @@
 
 (comment
   (get-buyersphere-pages db/local-db 1 1)
-  (get-buyersphere-page db/local-db 1 3 79)
+  (get-buyersphere-page db/local-db 1 1 156)
 
   (create-buyersphere-page-coordinator db/local-db 1 1 {:title "hello, world 4" :page-type "discussion"})
   (create-buyersphere-page-coordinator db/local-db 1 1
@@ -97,8 +96,9 @@
                                                 :title "asdf"
                                                 :can-buyer-edit true
                                                 :page-type "notes"
-                                                :status "deleted"
-                                                :header-image-url "hello_world.png"})
+                                                :status "active"
+                                                :header-image {:url "hello_world.png"
+                                                               :blurhash "abc123"}})
 
   (delete-buyersphere-page db/local-db 1 1 156)
   ;
