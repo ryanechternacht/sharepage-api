@@ -13,6 +13,7 @@
             [partnorize-api.routes.pricing :as pricing]
             [partnorize-api.routes.resources :as resources]
             [partnorize-api.routes.salesforce :as salesforce]
+            [partnorize-api.routes.sharepages :as sharepages]
             [partnorize-api.routes.swaypages :as swaypages]
             [partnorize-api.routes.templates :as templates]
             [partnorize-api.routes.users :as users]
@@ -137,6 +138,7 @@
   #'resources/PUT-resources
   #'resources/DELETE-resources
   #'salesforce/GET-opportunities
+  #'sharepages/POST-sharepages-global-template
   #'swaypages/GET-swaypages
   #'swaypages/GET-swaypage
   #'swaypages/GET-swaypage-by-shortcode

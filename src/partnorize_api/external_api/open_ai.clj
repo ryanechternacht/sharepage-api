@@ -1,5 +1,6 @@
 (ns partnorize-api.external-api.open-ai
   (:require [cheshire.core :as json]
+            [cljstache.core :as stache]
             [clj-http.client :as http]
             [partnorize-api.middleware.config :as config]))
 
@@ -21,3 +22,16 @@
   (generate-message (:open-ai config/config) "Write 2-3 sentences introducing myself in a friendly tone to someone named Tom Singell. We are connected because we both love Pickleball")
   ;
   )
+
+(let [context {:buyer-name "Matt Nicosia"
+               :buyer-job-title "Director of Growth"
+               :buyer-account "Crossbeam"
+               :buyer-location "Pittsburgh"
+               :buyer-website "crossbeam.com"
+               :seller-name "Ryan Echternacht"
+               :seller-job-title "CTO"
+               :seller-company "Sharepage"}
+      context-prompt (slurp "resources/ai/context-prompt.mustache")
+      rendered-context (stache/render context-prompt context)]
+  (generate-message (:open-ai config/config) rendered-context))
+

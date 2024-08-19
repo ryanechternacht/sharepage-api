@@ -9,6 +9,10 @@
             [partnorize-api.external-api.open-ai :as open-ai]
             [partnorize-api.middleware.config :as config]))
 
+;; TODO pull from config?
+(def global-template-id 242)
+(def global-template-organization-id 40)
+
 #_{:clj-kondo/ignore [:unused-binding]}
 (defmulti render-section (fn [config data section] (:type section)))
 
@@ -105,5 +109,34 @@
                                                {:template-data data
                                                 :buyer "adidas"
                                                 :buyer-logo "https://nike.com"}))
+  ;
+  )
+
+(defn create-sharepage-from-global-template-coordinator [config db organization-id user-id {:keys [template-data] :as body}]
+  (println "body" body)
+  (let [sharepage (create-buyersphere-record db organization-id user-id body)
+        template-pages (map u/kebab-case (pages/get-buyersphere-active-pages db global-template-organization-id global-template-id))
+        template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))]
+    (doseq [page template-pages]
+      (let [rendered-page (-> page
+                              (update-in
+                               [:body :sections]
+                               (fn [x] (map #(render-section config template-data %) x)))
+                              (update :title stache/render template-data))]
+        (create-buyersphere-page db organization-id (:id sharepage) rendered-page)))
+    (links/create-buyersphere-links db organization-id (:id sharepage) (map #(update % :title stache/render template-data) template-links))
+    sharepage))
+
+(comment
+  (create-sharepage-from-global-template-coordinator 
+   config/config 
+   db/local-db 
+   1 
+   1
+   {:buyer "nike"
+    :buyer-logo "https://nike.com"
+    :template-data {:buyer-first-name "Tom"
+                    :seller-first-name "Ryan"
+                    :seller-organization "Nike"}})
   ;
   )
