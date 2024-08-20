@@ -1,94 +1,29 @@
-Put answer into json format: For: {{buyer-name}}, who is a {{buyer-job-title}} for {{buyer-account}} and lives in {{buyer-location}}, fill out the below answers - give each field answer in a bullet point. I am a {{seller-job-title}} from {{seller-company}} called {{seller-name}}. This is context: 
+For: {{ buyer-name }}, who is an enterprise account executive for {{ buyer-account }} and lives in {{ buyer-location }}, fill out the below answers - give each field answer in a bullet point. I am a an {{ seller-job-title }} from {{ seller-website }} called {{ seller-name }}. This is context: 
 
-Their product
+**Their product**
 
-- in the voice of jeremy lemkin, based on the website {{buyer-website}}, determine:
+- in the voice of jeremy lemkin, based on the website {{ seller-website }} , determine:
 What is a description of their Product.
 - Who is their target audience
 - What do their target audience try to achieve
 - What is their target audiences biggest blocker or pain
 
-PERSONA
+**PERSONA**
 
 - CONTEXT:
-  - You are a world-class expert in conducting holistic target audience research. Based on your research you create actionable personas which are used for marketing strategies, website and ads copy, or product strategy.
+    - You are a world-class expert in conducting holistic target audience research. Based on your research you create actionable personas which are used for marketing strategies, website and ads copy, or product strategy.
 - GOAL:
-  - Create a Persona based on my target audience and my business described above.
+    - Create a Persona based on my target audience and my business described above.
 - RESPONSE STRUCTURE:
-  - Name
-  - Bio
-  Goal: Write a few words describing their role, their professional and personal background, how do they spend their free time on a daily basis and who do they look up to)
-  - Job To Be Done
-  Explanation: Explain the definition of job to be done in 2 sentences.
-  Goal: Define my persona's job to be done by explaining what my persona wants to ultimately achieve and what are the conditions under which they want to achieve that: {Verb} (e.g. listen) + {object} (e.g. to music) + {contextual clarifier} (e.g. while on the go}.
-  - Desired outcomes
-  Knowledge: Desired outcomes are the metrics my persona uses to measure success when getting their job done. They describe the perfect execution of the job. They typically follow this format:
-  {DIRECTION} (maximize, increase, raise, minimize, decrease, lower) + {UNIT} (time, access, ability, quality, level etc.) + {QUALIFIER} (the action to be performed)
-  There are 2 types of desired outcomes: functional and emotional:
-  Emotional desired outcomes refer to the feelings, experiences, or psychological benefits that customers seek when trying to accomplish a particular job. These outcomes are often intangible and relate to the emotional satisfaction or well-being that the customer expects from using a product or service. Examples: feeling secure, accomplished, delighted, confident.
-  Functional desired outcomes pertain to the tangible or practical results that customers seek when using a product or service to perform a specific job. These outcomes are related to the job's core function and its effectiveness in meeting the customer's needs. Examples: save time, reduce effort, cost effectiveness, improved performance.
-
-**field1: Page Header Image**
-
-Find a beautiful and attention grabbing image on [unsplash.com](http://unsplash.com) of their location
-
-**field2: Page Name**
-
-Write top 10 quotes starting with "I wish there was..." reflecting what my persona is most likely to wish for when they experience pains and frustrations when trying to get their job done. Rank out of 10 and pick the one that they are most likely to think about when trying to go to sleep. 
-
-Then use that to fill out the blank in 3 to 5 words. Do you ever wish that blank:
-
-**field3: Page Subtext**
-
-Pick out the frustration used in this example sentence (prior prompt)
-
-Then fill in the blanks for this sentence. Hey blank1, I’m blank2 and I help people like you across blank3 to blank4.
-
-Blank1 is their name which is [blank]. Blank2 is my name which is [name]. Blank3 is the industry persona or job type that the person does. Blank 4 is the most frustrating situation. blank3 should be no more than 10 words.
-
-**field4: Header #1**
-
-Solutions: Explain what are the top 5 purchased solutions my target audience is using to accomplish their job to be done.
-Dreams: Explain top 5 dreams my persona is hoping to solve with while using the above solutions.
-
-Solutions: Elaborate on the top 5 self-made solutions my target audience is using to accomplish their job to be done.
-Frustrations: Elaborate on top 5 frustrations my persona is struggling with while using the above solutions.
-
-Now fill in the blanks: It starts with blank1. It ends with blank2.
-
-Blank1 should be 1 word that summarize the dreams of the purchased solutions. Blank2 should be 1 to 3 words that captures the frustrations or activities of the self-made solutions.
-
-**field5: Text #1**
-
-Write top 10 quotes reflecting what my persona is most likely to think when they experience pains and frustrations when trying to get their job done.
-
-Now pick out the top 3 most likely given their persona. Write each with a 3 to 7 word header followed by one or two sentences that summarize. 
-
-**field6: Header #2**
-
-Explain what are the top objections my persona might have that will make them doubt that my product is the best solution. Provide 5 quotes. Don't repeat any points that you already mentioned above.
-
-Pull out the best quote and summarize it in 5 to 7 words - should be posed as a question. 
-
-**field7: Giphy**
-
-Search [giphy.com](http://giphy.com) for a widescreen image that encapsulates field6. Must be professionally appropriate. 
-
-**field8: Header #3**
-
-- Deal breakers
-Explain the top 5 deal breakers that will make my persona change their mind and not buy my product when they were almost convinced to buy.
-- Then fill out the blanks in 5 to 7 words: We know - nobody wants blank.
-
-**field9: Text #3**
-
-- Top features
-Elaborate on top 5 features my persona would value the most in a product or service that will help them get the job done perfectly.
-- Write them down in 5 bullet points.
-
-**field10: Header #4**
-
-- Deal breakers
-Explain the top 5 deal breakers that will make my persona change their mind and not buy my product when they were almost convinced to buy.
-- Then fill out the blanks in 5 to 7 words: We know - nobody wants blank.
-
+    - Name
+    - Bio
+    Goal: Write a few words describing their role, their professional and personal background, how do they spend their free time on a daily basis and who do they look up to)
+    - Job To Be Done
+    Explanation: Explain the definition of job to be done in 2 sentences.
+    Goal: Define my persona's job to be done by explaining what my persona wants to ultimately achieve and what are the conditions under which they want to achieve that: {Verb} (e.g. listen) + {object} (e.g. to music) + {contextual clarifier} (e.g. while on the go}.
+    - Desired outcomes
+    Knowledge: Desired outcomes are the metrics my persona uses to measure success when getting their job done. They describe the perfect execution of the job. They typically follow this format:
+    {DIRECTION} (maximize, increase, raise, minimize, decrease, lower) + {UNIT} (time, access, ability, quality, level etc.) + {QUALIFIER} (the action to be performed)
+    There are 2 types of desired outcomes: functional and emotional:
+    Emotional desired outcomes refer to the feelings, experiences, or psychological benefits that customers seek when trying to accomplish a particular job. These outcomes are often intangible and relate to the emotional satisfaction or well-being that the customer expects from using a product or service. Examples: feeling secure, accomplished, delighted, confident.
+    Functional desired outcomes pertain to the tangible or practical results that customers seek when using a product or service to perform a specific job. These outcomes are related to the job's core function and its effectiveness in meeting the customer's needs. Examples: save time, reduce effort, cost effectiveness, improved performance.
