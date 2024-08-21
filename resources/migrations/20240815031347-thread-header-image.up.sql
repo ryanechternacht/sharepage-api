@@ -1,0 +1,1 @@
+alter table buyersphere_page add column header_image jsonb;

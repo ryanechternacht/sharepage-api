@@ -16,6 +16,7 @@
             [partnorize-api.routes.sharepages :as sharepages]
             [partnorize-api.routes.swaypages :as swaypages]
             [partnorize-api.routes.templates :as templates]
+            [partnorize-api.routes.unsplash :as unsplash]
             [partnorize-api.routes.users :as users]
             [partnorize-api.routes.virtual-swaypages :as virtual-swaypages]
             [ring.util.http-response :as response]))
@@ -157,6 +158,7 @@
   #'templates/PATCH-template-page
   #'templates/DELETE-template-page
   #'templates/POST-templates-generate-text
+  #'unsplash/GET-search-unpslash
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
