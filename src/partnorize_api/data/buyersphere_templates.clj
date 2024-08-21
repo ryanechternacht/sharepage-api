@@ -11,8 +11,8 @@
             [clojure.string :as str]))
 
 ;; TODO pull from config?
-(def global-template-id 242)
-(def global-template-organization-id 40)
+;; (def global-template-id 242)
+;; (def global-template-organization-id 40)
 
 #_{:clj-kondo/ignore [:unused-binding]}
 (defmulti render-section (fn [config data section] (:type section)))
@@ -217,7 +217,8 @@
 ;;                         :seller-website "https://www.scratchpad.com"})
 
 (defn create-sharepage-from-global-template-coordinator [config db organization user {:keys [template-data] :as body}]
-  (let [page-data (generate-ai-responses (:open-ai config) organization user template-data)
+  (let [{global-template-id :template-id global-template-organization-id :organization-id} (:global-template config)
+        page-data (generate-ai-responses (:open-ai config) organization user template-data)
         sharepage (create-buyersphere-record db (:id organization) (:id user) body)
         template-pages (map u/kebab-case (pages/get-buyersphere-active-pages db global-template-organization-id global-template-id))
         template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))]
