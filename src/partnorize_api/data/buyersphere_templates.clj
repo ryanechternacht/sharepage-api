@@ -10,10 +10,6 @@
             [partnorize-api.middleware.config :as config]
             [clojure.string :as str]))
 
-;; TODO pull from config?
-;; (def global-template-id 242)
-;; (def global-template-organization-id 40)
-
 #_{:clj-kondo/ignore [:unused-binding]}
 (defmulti render-section (fn [config data section] (:type section)))
 
