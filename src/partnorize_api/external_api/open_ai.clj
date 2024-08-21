@@ -29,11 +29,7 @@
 
 (comment
 
-  (let [prompt "Write top 10 quotes reflecting what my persona is most likely to think when they experience pains and frustrations when trying to get their job done.
-             
-             Now pick out the top 3 most likely given their persona. Write each with a 3 to 7 word header followed by one or two sentences that summarize. 
-                    
-                    Only provide the answer, no other context. Use html formatting, but only <ul>, <li>, <b>, and <i> tags"
+  (let [prompt (slurp "resources/ai/page-header.mustache")
         context {:buyer-name "Chad Spain"
                  :buyer-job-title "Director of Growth"
                  :buyer-account "Zello"
@@ -43,8 +39,9 @@
                  :seller-job-title "Account Executive"
                  :seller-company "Sharepage"
                  :seller-website "https://www.scratchpad.com"}
+        rendered-prompt (stache/render prompt context)
         context-prompt (slurp "resources/ai/context-prompt.mustache")
         rendered-context (stache/render context-prompt context)]
-    (generate-message (:open-ai config/config) prompt rendered-context))
+    (generate-message (:open-ai config/config) rendered-prompt rendered-context))
   ;
   )

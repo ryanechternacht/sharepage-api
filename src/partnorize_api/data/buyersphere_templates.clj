@@ -7,7 +7,8 @@
             [partnorize-api.data.utilities :as u]
             [partnorize-api.db :as db]
             [partnorize-api.external-api.open-ai :as open-ai]
-            [partnorize-api.middleware.config :as config]))
+            [partnorize-api.middleware.config :as config]
+            [clojure.string :as str]))
 
 ;; TODO pull from config?
 (def global-template-id 242)
@@ -66,10 +67,10 @@
          first)))
 
 (defn create-buyersphere-page
-  [db organization-id buyersphere-id {:keys [title page-type is-public can-buyer-edit body status]}]
+  [db organization-id buyersphere-id {:keys [title page-type is-public can-buyer-edit body status header-image]}]
   (let [query (-> (h/insert-into :buyersphere_page)
-                  (h/columns :organization_id :buyersphere_id :title :page_type :is_public :can_buyer_edit :status :body :ordering)
-                  (h/values [[organization-id buyersphere-id title page-type is-public can-buyer-edit status [:lift body]
+                  (h/columns :organization_id :buyersphere_id :title :page_type :is_public :can_buyer_edit :status :body :header_image :ordering)
+                  (h/values [[organization-id buyersphere-id title page-type is-public can-buyer-edit status [:lift body] [:lift header-image]
                               (u/get-next-ordering-query
                                :buyersphere_page
                                organization-id
@@ -112,26 +113,129 @@
   ;
   )
 
-(defn create-sharepage-from-global-template-coordinator [config db organization-id user-id {:keys [template-data] :as body}]
-  (println "body" body)
-  (let [sharepage (create-buyersphere-record db organization-id user-id body)
+;; (def context)
+;; (def thread-header)
+;; (def thread-subtext)
+;; (def thread-header-1)
+;; (def thread-text-1)
+;; (def thread-header-2)
+;; (def thread-header-3)
+;; (def thread-text-3)
+;; (def thread-header-4)
+;; (def thread-image-search-term)
+
+(defn- strip-html-response [s]
+  (str/replace s #"(```html)|(```)|\n" ""))
+
+(defn- generate-ai-responses [openai-config organization user template-data]
+  (let [context-data (-> template-data
+                         (select-keys [:buyer-name :buyer-job-title :buyer-account :buyer-website
+                                       :seller-name :seller-job-title :seller-company :seller-website]))
+                    ;; (assoc :seller-name (str (:first-name user) " " (:last-name user)))
+                    ;; (assoc :seller-job-title (:display-role user))
+                    ;; (assoc :seller-company (:name organization))
+                    ;; (assoc :seller-website (:domain organization))
+        context-prompt (slurp "resources/ai/context-prompt.mustache")
+        rendered-context (stache/render context-prompt context-data)
+        context (open-ai/generate-message openai-config rendered-context "Generate this response in plain text")
+
+        thread-header (-> "resources/ai/thread-header-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
+
+        thread-subtext (-> "resources/ai/thread-subtext-prompt.mustache"
+                           slurp
+                           (stache/render (assoc context-data :thread-header thread-header))
+                           (#(open-ai/generate-message openai-config % context))
+                           strip-html-response)
+
+        thread-header-1 (-> "resources/ai/thread-header-1-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
+
+        thread-text-1 (-> "resources/ai/thread-text-1-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
+
+        thread-header-2 (-> "resources/ai/thread-header-2-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
+
+        thread-header-3 (-> "resources/ai/thread-header-3-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
+
+        thread-text-3 (-> "resources/ai/thread-text-3-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
+
+        thread-header-4 (-> "resources/ai/thread-header-4-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
+
+        thread-image-search-term (-> "resources/ai/thread-image-search-term-prompt.mustache"
+                                     slurp
+                                     (stache/render context-data)
+                                     (#(open-ai/generate-message openai-config % context))
+                                     strip-html-response)
+        ]
+    {:thread-header thread-header
+     :thread-subtext thread-subtext
+     :thread-header-1 thread-header-1
+     :thread-text-1 thread-text-1
+     :thread-header-2 thread-header-2
+     :thread-header-3 thread-header-3
+     :thread-text-3 thread-text-3
+     :thread-header-4 thread-header-4
+     :thread-image-search-term thread-image-search-term}))
+
+;; (generate-ai-responses (:open-ai config/config)
+;;                        nil
+;;                        nil
+;;                        {:buyer-name "Chad Spain"
+;;                         :buyer-job-title "Director of Growth"
+;;                         :buyer-account "Zello"
+;;                         :buyer-location "Austin, Texas"
+;;                         :buyer-website "crossbeam.com"
+;;                         :seller-name "Archer"
+;;                         :seller-job-title "Account Executive"
+;;                         :seller-company "Sharepage"
+;;                         :seller-website "https://www.scratchpad.com"})
+
+(defn create-sharepage-from-global-template-coordinator [config db organization user {:keys [template-data] :as body}]
+  (let [page-data (generate-ai-responses (:open-ai config) organization user template-data)
+        sharepage (create-buyersphere-record db (:id organization) (:id user) body)
         template-pages (map u/kebab-case (pages/get-buyersphere-active-pages db global-template-organization-id global-template-id))
         template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))]
     (doseq [page template-pages]
       (let [rendered-page (-> page
                               (update-in
                                [:body :sections]
-                               (fn [x] (map #(render-section config template-data %) x)))
-                              (update :title stache/render template-data))]
-        (create-buyersphere-page db organization-id (:id sharepage) rendered-page)))
-    (links/create-buyersphere-links db organization-id (:id sharepage) (map #(update % :title stache/render template-data) template-links))
+                               (fn [x] (map #(render-section config page-data %) x)))
+                              (update :title stache/render page-data))]
+        (create-buyersphere-page db (:id organization) (:id sharepage) rendered-page)))
+    (links/create-buyersphere-links db (:id organization) (:id sharepage) (map #(update % :title stache/render template-data) template-links))
     sharepage))
 
 (comment
-  (create-sharepage-from-global-template-coordinator 
-   config/config 
-   db/local-db 
-   1 
+  (create-sharepage-from-global-template-coordinator
+   config/config
+   db/local-db
+   1
    1
    {:buyer "nike"
     :buyer-logo "https://nike.com"

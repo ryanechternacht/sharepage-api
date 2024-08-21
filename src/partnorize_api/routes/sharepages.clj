@@ -18,7 +18,7 @@
               (d-templates/create-sharepage-from-global-template-coordinator
                config
                db
-               (:id organization)
-               (:id user)
+               organization
+               user
                new-body)]
           (response/ok new-swaypage))))))
