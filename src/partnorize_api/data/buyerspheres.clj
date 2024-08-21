@@ -189,7 +189,6 @@
                                           :deal-amount
                                           :crm-opportunity-id
                                           :subname
-                                          :is-public
                                           :room-type
                                           :priority
                                           :is-locked])

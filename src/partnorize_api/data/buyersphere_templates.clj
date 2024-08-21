@@ -33,8 +33,7 @@
 
 (defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo
-                                          campaign-uuid campaign-row-number
-                                          is-public]}]
+                                          campaign-uuid campaign-row-number]}]
   (let [shortcode (u/find-valid-buyersphere-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -45,8 +44,7 @@
                              :room_type
                              :owner_id
                              :campaign_uuid
-                             :campaign_row_number
-                             :is-public)
+                             :campaign_row_number)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -55,18 +53,17 @@
                               "deal-room"
                               user-id
                               campaign-uuid
-                              campaign-row-number
-                              is-public]])
+                              campaign-row-number]])
                   (merge (apply h/returning buyerspheres/only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
          first)))
 
 (defn create-buyersphere-page
-  [db organization-id buyersphere-id {:keys [title page-type is-public can-buyer-edit body status header-image]}]
+  [db organization-id buyersphere-id {:keys [title :page-type can-buyer-edit body status header-image]}]
   (let [query (-> (h/insert-into :buyersphere_page)
-                  (h/columns :organization_id :buyersphere_id :title :page_type :is_public :can_buyer_edit :status :body :header_image :ordering)
-                  (h/values [[organization-id buyersphere-id title page-type is-public can-buyer-edit status [:lift body] [:lift header-image]
+                  (h/columns :organization_id :buyersphere_id :title :page_type :can_buyer_edit :status :body :header_image :ordering)
+                  (h/values [[organization-id buyersphere-id title page-type can-buyer-edit status [:lift body] [:lift header-image]
                               (u/get-next-ordering-query
                                :buyersphere_page
                                organization-id
@@ -198,19 +195,6 @@
      :thread-text-3 thread-text-3
      :thread-header-4 thread-header-4
      :thread-image-search-term thread-image-search-term}))
-
-;; (generate-ai-responses (:open-ai config/config)
-;;                        nil
-;;                        nil
-;;                        {:buyer-name "Chad Spain"
-;;                         :buyer-job-title "Director of Growth"
-;;                         :buyer-account "Zello"
-;;                         :buyer-location "Austin, Texas"
-;;                         :buyer-website "crossbeam.com"
-;;                         :seller-name "Archer"
-;;                         :seller-job-title "Account Executive"
-;;                         :seller-company "Sharepage"
-;;                         :seller-website "https://www.scratchpad.com"})
 
 (defn create-sharepage-from-global-template-coordinator [config db organization user {:keys [template-data] :as body}]
   (let [{global-template-id :template-id global-template-organization-id :organization-id} (:global-template config)

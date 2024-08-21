@@ -57,8 +57,7 @@
 
 (defn update-buyersphere-page [db organization-id buyersphere-id id
                                {:keys [body header-image] :as page}]
-  (let [fields (cond-> (select-keys page [:is-public
-                                          :title
+  (let [fields (cond-> (select-keys page [:title
                                           :can-buyer-edit
                                           :page-type
                                           :status])

@@ -38,7 +38,7 @@
 
 (defn update-buyersphere-page-template [db organization-id id
                                         {:keys [body] :as page-template}]
-  (let [fields (cond-> (select-keys page-template [:is_public :title])
+  (let [fields (cond-> (select-keys page-template [:title])
                  body (assoc :body [:lift body]))
         update-query (-> (h/update :buyersphere_page_template)
                          (h/set fields)
