@@ -33,7 +33,8 @@
 
 (defn- create-buyersphere-record [db organization-id user-id
                                   {:keys [buyer subname buyer-logo
-                                          campaign-uuid campaign-row-number]}]
+                                          campaign-uuid campaign-row-number
+                                          quick-create-made-by]}]
   (let [shortcode (u/find-valid-buyersphere-shortcode db)
         query (-> (h/insert-into :buyersphere)
                   (h/columns :organization_id
@@ -44,7 +45,8 @@
                              :room_type
                              :owner_id
                              :campaign_uuid
-                             :campaign_row_number)
+                             :campaign_row_number
+                             :quick_create_made_by)
                   (h/values [[organization-id
                               buyer
                               subname
@@ -53,7 +55,8 @@
                               "deal-room"
                               user-id
                               campaign-uuid
-                              campaign-row-number]])
+                              campaign-row-number
+                              quick-create-made-by]])
                   (merge (apply h/returning buyerspheres/only-buyersphere-cols)))]
     (->> query
          (db/->>execute db)
@@ -199,7 +202,7 @@
 (defn create-sharepage-from-global-template-coordinator [config db organization user {:keys [template-data] :as body}]
   (let [{global-template-id :template-id global-template-organization-id :organization-id} (:global-template config)
         page-data (generate-ai-responses (:open-ai config) organization user template-data)
-        sharepage (create-buyersphere-record db (:id organization) (:id user) body)
+        sharepage (create-buyersphere-record db (:id organization) (:id user) (assoc body :quick-create-made-by (:seller-name template-data)))
         template-pages (map u/kebab-case (pages/get-buyersphere-active-pages db global-template-organization-id global-template-id))
         template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))]
     (doseq [page template-pages]
