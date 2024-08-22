@@ -109,7 +109,7 @@
   ;
   )
 
-(def context)
+;; (def context)
 ;; (def thread-1-header)
 ;; (def thread-1-subtext)
 ;; (def thread-1-header-1)
@@ -127,57 +127,57 @@
   (let [context-data (-> template-data
                          (select-keys [:lead-name :lead-job-title :account-name :account-website
                                        :seller-name :seller-job-title :seller-company :seller-website]))
-        ;; context-prompt (slurp "resources/ai/context-prompt.mustache")
-        ;; rendered-context (stache/render context-prompt context-data)
-        ;; context (open-ai/generate-message openai-config rendered-context "Generate this response in plain text")
+        context-prompt (slurp "resources/ai/context-prompt.mustache")
+        rendered-context (stache/render context-prompt context-data)
+        context (open-ai/generate-message openai-config rendered-context "Generate this response in plain text")
 
-        ;; thread-1-header (-> "resources/ai/thread-1-header-prompt.mustache"
-        ;;                   slurp
-        ;;                   (stache/render context-data)
-        ;;                   (#(open-ai/generate-message openai-config % context))
-        ;;                   strip-html-response)
+        thread-1-header (-> "resources/ai/thread-1-header-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
 
-        ;; thread-1-subtext (-> "resources/ai/thread-1-subtext-prompt.mustache"
-        ;;                    slurp
-        ;;                    (stache/render (assoc context-data :thread-header thread-header))
-        ;;                    (#(open-ai/generate-message openai-config % context))
-        ;;                    strip-html-response)
+        thread-1-subtext (-> "resources/ai/thread-1-subtext-prompt.mustache"
+                           slurp
+                           (stache/render (assoc context-data :thread-header thread-1-header))
+                           (#(open-ai/generate-message openai-config % context))
+                           strip-html-response)
 
-        ;; thread-1-header-1 (-> "resources/ai/thread-1-header-1-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-1-header-1 (-> "resources/ai/thread-1-header-1-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-1-text-1 (-> "resources/ai/thread-1-text-1-prompt.mustache"
-        ;;                   slurp
-        ;;                   (stache/render context-data)
-        ;;                   (#(open-ai/generate-message openai-config % context))
-        ;;                   strip-html-response)
+        thread-1-text-1 (-> "resources/ai/thread-1-text-1-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
 
-        ;; thread-1-header-2 (-> "resources/ai/thread-1-header-2-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-1-header-2 (-> "resources/ai/thread-1-header-2-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-1-header-3 (-> "resources/ai/thread-1-header-3-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-1-header-3 (-> "resources/ai/thread-1-header-3-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-1-text-3 (-> "resources/ai/thread-1-text-3-prompt.mustache"
-        ;;                   slurp
-        ;;                   (stache/render context-data)
-        ;;                   (#(open-ai/generate-message openai-config % context))
-        ;;                   strip-html-response)
+        thread-1-text-3 (-> "resources/ai/thread-1-text-3-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)
 
-        ;; thread-1-header-4 (-> "resources/ai/thread-1-header-4-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-1-header-4 (-> "resources/ai/thread-1-header-4-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
         ;; thread-1-image-search-term (-> "resources/ai/thread-1-image-search-term-prompt.mustache"
         ;;                              slurp
@@ -185,65 +185,72 @@
         ;;                              (#(open-ai/generate-message openai-config % context))
         ;;                              strip-html-response)
 
-        ;; thread-2-header (-> "resources/ai/thread-2-header-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-2-header (-> "resources/ai/thread-2-header-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-2-subtext (-> "resources/ai/thread-2-header-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render (assoc context-data :thread-2-header thread-2-header))
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-2-subtext (-> "resources/ai/thread-2-header-prompt.mustache"
+                            slurp
+                            (stache/render (assoc context-data :thread-2-header thread-2-header))
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-2-header-1 (-> "resources/ai/thread-2-header-1-prompt.mustache"
-        ;;                     slurp
-        ;;                     (stache/render context-data)
-        ;;                     (#(open-ai/generate-message openai-config % context))
-        ;;                     strip-html-response)
+        thread-2-header-1 (-> "resources/ai/thread-2-header-1-prompt.mustache"
+                            slurp
+                            (stache/render context-data)
+                            (#(open-ai/generate-message openai-config % context))
+                            strip-html-response)
 
-        ;; thread-2-text-1 (-> "resources/ai/thread-2-text-1-prompt.mustache"
-        ;;                       slurp
-        ;;                       (stache/render context-data)
-        ;;                       (#(open-ai/generate-message openai-config % context))
-        ;;                       strip-html-response)
+        thread-2-text-1 (-> "resources/ai/thread-2-text-1-prompt.mustache"
+                              slurp
+                              (stache/render context-data)
+                              (#(open-ai/generate-message openai-config % context))
+                              strip-html-response)
 
         thread-2-header-2 (-> "resources/ai/thread-2-header-2-prompt.mustache"
                               slurp
                               (stache/render context-data)
                               (#(open-ai/generate-message openai-config % context))
-                              strip-html-response)]
+                              strip-html-response)
+
+        thread-3-body (-> "resources/ai/thread-3-body-prompt.mustache"
+                          slurp
+                          (stache/render context-data)
+                          (#(open-ai/generate-message openai-config % context))
+                          strip-html-response)]
     {
-    ;;  :thread-1-header thread-1-header
-    ;;  :thread-1-subtext thread--1subtext
-    ;;  :thread-1-header-1 thread-1-header-1
-    ;;  :thread-1-text-1 thread-1-text-1
-    ;;  :thread-1-header-2 thread-1-header-2
-    ;;  :thread-1-header-3 thread-1-header-3
-    ;;  :thread-1-text-3 thread-1-text-3
-    ;;  :thread-1-header-4 thread-1-header-4
+     :thread-1-header thread-1-header
+     :thread-1-subtext thread-1-subtext
+     :thread-1-header-1 thread-1-header-1
+     :thread-1-text-1 thread-1-text-1
+     :thread-1-header-2 thread-1-header-2
+     :thread-1-header-3 thread-1-header-3
+     :thread-1-text-3 thread-1-text-3
+     :thread-1-header-4 thread-1-header-4
 
     ;; TODO
     ;;  :thread-1-image-search-term thread-1-image-search-term
      
-    ;;  :thread-2-header thread-2-header 
-    ;;  :thread-2-subtext thread-2-subtext
-    ;;  :thread-2-header-1 thread-2-header-1
-    ;;  :thread-2-text-1 thread-2-text-1
+     :thread-2-header thread-2-header 
+     :thread-2-subtext thread-2-subtext
+     :thread-2-header-1 thread-2-header-1
+     :thread-2-text-1 thread-2-text-1
      :thread-2-header-2 thread-2-header-2
+     :thread-3-body thread-3-body
      }))
 
-(generate-ai-responses (:open-ai config/config)
-                       {:account-name "Zello"
-                        :account-website "https://www.zello.com"
-                        :lead-name "Chad Spain"
-                        :lead-location "Austin, Texas"
-                        :lead-job-title "Account Executive"
-                        :seller-name "Archer"
-                        :seller-job-title "Account Executive"
-                        :seller-company-name "Smartcat"
-                        :seller-website "https://smartcat.ai"})
+;; (generate-ai-responses (:open-ai config/config)
+;;                        {:account-name "Zello"
+;;                         :account-website "https://www.zello.com"
+;;                         :lead-name "Chad Spain"
+;;                         :lead-location "Austin, Texas"
+;;                         :lead-job-title "Account Executive"
+;;                         :seller-name "Archer"
+;;                         :seller-job-title "Account Executive"
+;;                         :seller-company-name "Smartcat"
+;;                         :seller-website "https://smartcat.ai"})
 
 (defn create-sharepage-from-global-template-coordinator [config db organization user {:keys [template-data] :as body}]
   (let [{global-template-id :template-id global-template-organization-id :organization-id} (:global-template config)
