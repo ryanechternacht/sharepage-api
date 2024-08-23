@@ -126,11 +126,17 @@
 
 (defn- generate-ai-responses [openai-config template-data]
   (let [context-data (-> template-data
-                         (select-keys [:lead-name :lead-job-title :account-name :account-website
+                         (select-keys [:lead-name :lead-job-title :lead-location :account-name :account-website
                                        :seller-name :seller-job-title :seller-company :seller-website]))
         context-prompt (slurp "resources/ai/context-prompt.mustache")
         rendered-context (stache/render context-prompt context-data)
         context (open-ai/generate-message openai-config rendered-context "Generate this response in plain text")
+
+        city-check-fn (fn [] (-> "resources/ai/city-check-prompt.mustache"
+                                 slurp
+                                 (stache/render context-data)
+                                 (#(open-ai/generate-message openai-config % context))
+                                 strip-html-response))
 
         thread-1-header-fn (fn [] (-> "resources/ai/thread-1-header-prompt.mustache"
                                       slurp
@@ -216,7 +222,8 @@
                         ;; (map
                                  (fn [[kw f]]
                                    {kw (f)})
-                                 {:thread-1-header thread-1-header-fn
+                                 {:city-check city-check-fn
+                                  :thread-1-header thread-1-header-fn
                                   :thread-1-header-1 thread-1-header-1-fn
                                   :thread-1-text-1 thread-1-text-1-fn
                                   :thread-1-header-2 thread-1-header-2-fn
@@ -228,7 +235,7 @@
                                   :thread-2-text-1 thread-2-text-1-fn
                                   :thread-2-header-2 thread-2-header-2-fn
                                   :thread-3-body thread-3-body-fn}))
-        
+
         context-data+round-1 (conj context-data round-1)
 
         thread-1-subtext-fn (fn [] (-> "resources/ai/thread-1-subtext-prompt.mustache"
@@ -236,7 +243,7 @@
                                        (stache/render context-data+round-1)
                                        (#(open-ai/generate-message openai-config % context))
                                        strip-html-response))
-        
+
         thread-2-subtext-fn (fn [] (-> "resources/ai/thread-2-header-prompt.mustache"
                                        slurp
                                        (stache/render context-data+round-1)
@@ -276,6 +283,20 @@
 
 ;; (reduce into {} (pmap (fn [x] {(keyword (str x)) x}) (range 5)))
 
+(def ^:private location-to-image-map 
+  {"Atlanta" {:url "https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODc1MDh8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/brxdlxy" :name "Brad Huchteman"} :blurhash "LkK9=k-ms.t6^-xZayj[0*RlWBWV"}
+   "Austin" {:url "https://images.unsplash.com/photo-1588993608283-7f0eda4438be?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfHNlYXJjaHw2fHxhdXN0aW58ZW58MHwwfHx8MTcyNDM4Mjg4NHww&ixlib=rb-4.0.3&q=85&w=2400", :author {"link" "https://api.unsplash.com/users/mitchkmetz", "name" "Mitchell Kmetz"}, "blurhash" "LsG[_~WCbakD?woJoLs:p0t6WXj?"}
+   "Boston" {:url "https://plus.unsplash.com/premium_photo-1694475434235-12413ec38b3e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODMyMzV8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/gettyimages" :name "Getty Images"} :blurhash "LVI#iT-pIoNe~qxbWBR+lUkDRPae"}
+   "Chicago" {:url "https://images.unsplash.com/photo-1547838555-1a3b10c67181?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODM0MjJ8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/gautamkrishnan" :name "Gautam Krishnan"} :blurhash "LdJa4dR+NGWC~VoKaej[Xo$%WVoL"}
+   "Dallas" {:url "https://images.unsplash.com/photo-1631660975301-b2b65e80c98a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODcyNzB8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/thmxfy" :name "Max Fray"} :blurhash "LN9%Sss;W=Wq-soMj]ju-@j[j[fl"}
+   "Denver" {:url "https:https://images.unsplash.com/photo-1648441095877-90406e6ba04d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODM1NTV8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/billgrip" :name "Bill Griepenstroh"} :blurhash "LaB4zWV@RjofT}aeoJayELofoeWC"}
+   "Houston" {:url "https://images.unsplash.com/photo-1692154600992-463fa9b27abd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODc0MjB8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/jeswinthomas" :name "Jeswin Thomas"} :blurhash "LD5YTtZ#fhs:YRivs,bHO [aJjYR+"}
+   "Los Angeles" {:url "https://images.unsplash.com/photo-1590397883410-ddccd55ef3d2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODM2NzZ8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/alessguarino" :name "Alessandro Guarino"} :blurhash "LqHeRWxaj[oe~qs:oLj[S$a}WVay"}
+   "Miami" {:url "https://images.unsplash.com/photo-1605723517503-3cadb5818a0c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODczNTR8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/dennycshots" :name "Denys Kostyuchenko"} :blurhash "LUGI.dD%ofozOujZWBkC0fjYjsj@"}
+   "New York" {:url "https://images.unsplash.com/photo-1500228630616-d6905f33ad1a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODY4MTJ8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/mohitsingh1691" :name "Mohit Singh"} :blurhash "LnK^$}sR%2t6~Wslt6oJ4:ofofof"}
+   "San Francisco" {:url "https://images.unsplash.com/photo-1573878539923-7fc5642ebee3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODcxNDh8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/nietramos_d" :name "DAVID NIETO"} :blurhash "LfHVPEofR*e.?wayj[kCR+WBj[a#"}
+   "Seattle" {:url "https://images.unsplash.com/photo-1543364074-4055b532c5d8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODY5ODZ8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/mbicca" :name "Marco Bicca"} :blurhash "LLBDypW?MwRj.Aj@RiRkRin#ayay"}
+   "none" {:url "https://images.unsplash.com/photo-1498429089284-41f8cf3ffd39?crop=entropy&cs=srgb&fm=jpg&ixid=M3w2NDMzMDZ8MHwxfGFsbHx8fHx8fHx8fDE3MjQzODc3MDh8&ixlib=rb-4.0.3&q=85&w=2400" :author {:link "https://api.unsplash.com/users/anik3t" :name "Aniket Deole"} :blurhash "LHA13ExZDhIp?wWCZ~WC9bNH%M%1"}})
 
 ;; (time
 ;;  (generate-ai-responses (:open-ai config/config)
@@ -294,13 +315,17 @@
         page-data (generate-ai-responses (:open-ai config) template-data)
         sharepage (create-buyersphere-record db (:id organization) (:id user) (assoc body :quick-create-made-by (:seller-name template-data)))
         template-pages (map u/kebab-case (pages/get-buyersphere-active-pages db global-template-organization-id global-template-id))
-        template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))]
+        template-links (map u/kebab-case (links/get-buyersphere-links db global-template-organization-id global-template-id))
+        _ (println "page-data" page-data)
+        header-image (location-to-image-map (:city-check page-data))
+        _ (println "header-image" header-image)]
     (doseq [page template-pages]
       (let [rendered-page (-> page
                               (update-in
                                [:body :sections]
                                (fn [x] (map #(render-section config page-data %) x)))
-                              (update :title stache/render page-data))]
+                              (update :title stache/render page-data)
+                              (assoc :header-image header-image))]
         (create-buyersphere-page db (:id organization) (:id sharepage) rendered-page)))
     (links/create-buyersphere-links db (:id organization) (:id sharepage) (map #(update % :title stache/render template-data) template-links))
     sharepage))
