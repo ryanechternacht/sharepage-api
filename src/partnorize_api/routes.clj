@@ -158,7 +158,8 @@
   #'templates/PATCH-template-page
   #'templates/DELETE-template-page
   #'templates/POST-templates-generate-text
-  #'unsplash/GET-search-unpslash
+  #'unsplash/POST-download-unsplash
+  #'unsplash/GET-search-unsplash
   #'users/GET-users
   #'users/GET-users-me
   #'users/GET-users-me-buyerspheres
