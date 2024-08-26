@@ -26,7 +26,7 @@
    :buyersphere.shortcode :buyersphere.room_type
    :buyersphere.priority :buyersphere.template_custom_variables
    :buyersphere.campaign_row_number :buyersphere.is_locked
-   :buyersphere.updated_at])
+   :buyersphere.quick_create_made_by :buyersphere.updated_at])
 
 (def base-buyersphere-cols
   (vec (concat only-buyersphere-cols
