@@ -112,7 +112,7 @@
                                              (u/get-nano-id 7)
                                              page-data-with-ai)))
       data_rows))
-    ;; (bs/update-buyersphere db (:id organization) swaypage_template_id {:is-locked true :is-public true})
+    (bs/update-buyersphere db (:id organization) swaypage_template_id {:is-locked true :is-public true})
     ;; (doseq [page pages]
     ;;   (pages/update-buyersphere-page db (:id organization) swaypage_template_id (:id page) {:is-public true}))
     ))
