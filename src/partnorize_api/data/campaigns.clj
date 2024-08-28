@@ -130,7 +130,7 @@
                                     {}
                                     swaypages)]
     (apply conj
-           [(conj (vec header_row) "Swaypage Link")]
+           [(conj (vec header_row) "Sharepage Link")]
            (map-indexed (fn [i row]
                           (conj row (make-swaypage-link subdomain domain (shortcode-by-rownum i) row)))
                         data_rows))))
