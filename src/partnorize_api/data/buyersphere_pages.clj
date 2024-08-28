@@ -39,13 +39,13 @@
 (def ^:private default-body {:sections []})
 
 (defn create-buyersphere-page-coordinator
-  [db organization-id buyersphere-id {:keys [title page-type page-template-id can-buyer-edit body]}]
+  [db organization-id buyersphere-id {:keys [title page-type page-template-id can-buyer-edit body header-image]}]
   (let [new-body (if (and page-template-id (> page-template-id 0))
                (:body (bpt/get-buyersphere-page-template db organization-id page-template-id))
                (or body default-body))
         query (-> (h/insert-into :buyersphere_page)
-                  (h/columns :organization_id :buyersphere_id :title :page_type :can_buyer_edit :body :ordering)
-                  (h/values [[organization-id buyersphere-id title page-type can-buyer-edit [:lift new-body]
+                  (h/columns :organization_id :buyersphere_id :title :page_type :can_buyer_edit :body :header_image :ordering)
+                  (h/values [[organization-id buyersphere-id title page-type can-buyer-edit [:lift new-body] header-image
                               (u/get-next-ordering-query
                                :buyersphere_page
                                organization-id
