@@ -45,7 +45,7 @@
                (or body default-body))
         query (-> (h/insert-into :buyersphere_page)
                   (h/columns :organization_id :buyersphere_id :title :page_type :can_buyer_edit :body :header_image :ordering)
-                  (h/values [[organization-id buyersphere-id title page-type can-buyer-edit [:lift new-body] header-image
+                  (h/values [[organization-id buyersphere-id title page-type can-buyer-edit [:lift new-body] [:lift header-image]
                               (u/get-next-ordering-query
                                :buyersphere_page
                                organization-id
