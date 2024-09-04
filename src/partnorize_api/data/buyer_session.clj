@@ -138,7 +138,7 @@
                     [:= :buyer_session.virtual_swaypage_id :virtual_swaypage.id]])
       (h/where [:= :buyer_session.organization_id organization-id]
               ;;  remove really short sessions
-               [:>= :buyer_session_timing.time_on_page 2])
+               [:>= :buyer_session_timing.time_on_page 5])
       (h/order-by [:buyer_session.created_at :desc])))
 
 (defn- get-event-tracking-base-query [organization-id]
