@@ -1,0 +1,22 @@
+{:back-end {:base-url "http://api.buyersphere-local.com"}
+ :cookie-attrs {:domain "buyersphere-local.com"}
+ :debug {:print? false}
+ :front-end {:base-url "http://buyersphere-local.com"}
+ :global-template {:organization-id 40
+                   :template-id 242}
+ :open-ai {:api-key ""}
+ :pg-db {:dbtype "postgresql"
+         :dbname "buyersphere"
+         :host "127.0.0.1"
+         :user "ryanechternacht"
+         :password nil
+         :ssl false}
+ :salesforce {:client-id ""
+              :client-secret ""
+              :redirect-uri "https:"}
+ :stytch {:project ""
+          :secret ""
+          :base-url "https://test.stytch.com/v1/b2b/"
+          :redirect-url "http://localhost:3001/v0.1/login"}
+ :unsplash {:api-key ""
+            :app-name "sharepage-dev"}}
