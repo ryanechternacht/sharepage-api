@@ -13,3 +13,7 @@ The most interesting technical details were
 ## Buyersphere
 
 This repo started as a different product (Buyersphere) that was a collaboration platform aimed at partner professionals. I think the web repo fully removed references to buyersphere (but they can be found throughout the api repo). 
+
+## Sanitization
+
+Before sharing this repo, I used https://rtyley.github.io/bfg-repo-cleaner/ to fully remove the config.edn files (found in `/resources` and `/deployment`), and then I added one back in without secret values included. 
